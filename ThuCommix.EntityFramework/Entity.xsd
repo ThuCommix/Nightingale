@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="Entity" type="Entity" />
+
+    <xs:complexType name="Entity">
+        <xs:sequence>
+            <xs:element name="Fields" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Field" type="Field" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ListFields" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ListField" type="ListField" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="VirtualFields" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="VirtualField" type="VirtualField" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="VirtualListFields" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="VirtualListField" type="VirtualListField" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="Interfaces" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Interface" type="Interface" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="Description" type="xs:string" use="optional" />
+        <xs:attribute name="Table" type="xs:string" use="optional" />
+        <xs:attribute name="Namespace" type="xs:string" use="required" />
+    </xs:complexType>
+
+	<xs:simpleType name="Cascade">
+	  <xs:restriction base="xs:string">
+	    <xs:enumeration value="None" />
+	    <xs:enumeration value="Save" />
+	    <xs:enumeration value="SaveDelete" />
+	  </xs:restriction>
+	</xs:simpleType>
+
+    <xs:complexType name="Field">
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="Description" type="xs:string" use="optional" />
+        <xs:attribute name="FieldType" type="xs:string" use="required" />
+        <xs:attribute name="Mandatory" type="xs:boolean" use="optional" />
+        <xs:attribute name="Cascade" type="Cascade" use="required" />
+        <xs:attribute name="MaxLength" type="xs:integer" use="optional" />
+        <xs:attribute name="Unique" type="xs:boolean" use="optional" />
+		<xs:attribute name="DecimalPrecision" type="xs:integer" use="optional" />
+		<xs:attribute name="DecimalScale" type="xs:integer" use="optional" />
+		<xs:attribute name="DateOnly" type="xs:boolean" use="optional" />
+        <xs:attribute name="EagerLoad" type="xs:boolean" use="optional" />
+        <xs:attribute name="Enum" type="xs:boolean" use="optional" />
+    </xs:complexType>
+
+	<xs:complexType name="ListField">
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="Description" type="xs:string" use="optional" />
+        <xs:attribute name="FieldType" type="xs:string" use="required" />
+        <xs:attribute name="Cascade" type="Cascade" use="required" />
+        <xs:attribute name="ReferenceField" type="xs:string" use="required" />
+        <xs:attribute name="EagerLoad" type="xs:boolean" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="VirtualField">
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="Description" type="xs:string" use="optional" />
+        <xs:attribute name="FieldType" type="xs:string" use="required" />
+        <xs:attribute name="Expression" type="xs:string" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="VirtualListField">
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="FieldType" type="xs:string" use="required" />
+        <xs:attribute name="Expression" type="xs:string" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="Interface">
+		<xs:attribute name="Name" type="xs:string" use="required" />
+	</xs:complexType>
+	
+</xs:schema>

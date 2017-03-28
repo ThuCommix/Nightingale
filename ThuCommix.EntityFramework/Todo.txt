@@ -1,0 +1,4 @@
+﻿- Implement QueryCache?
+- Testing
+- Query dialect can differ from database system (Query uses Limit to set a max result in MSSQL it's TOP) maybe IQueryAdapter which lets the implementation generate specific sql parts?
+- Migration support (Table object)
