@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Reflection;
 
 namespace ThuCommix.EntityFramework
@@ -13,6 +14,11 @@ namespace ThuCommix.EntityFramework
         public static PropertyInfo[] GetProperties(Type type)
         {
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        }
+
+        public static string GetDisplayName(Type type)
+        {
+            return type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
         }
     }
 }

@@ -65,7 +65,7 @@ namespace ThuCommix.EntityFramework.Sessions
             _flushList = new List<Entity>();
 
             var dataProviderType = dataProvider.GetType();
-            _dataProviderName = dataProviderType.GetCustomAttributes(typeof(DisplayNameAttribute), true).OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? dataProviderType.Name;
+            _dataProviderName = ReflectionHelper.GetDisplayName(dataProviderType) ?? dataProviderType.Name;
 
             DataProvider.Open();
         }
@@ -104,17 +104,17 @@ namespace ThuCommix.EntityFramework.Sessions
         /// <param name="entity">The entity.</param>
         public virtual void SaveOrUpdate(Entity entity)
         {
-            if (entity.Evicted)
-                throw new SessionException("An evicted entity can not be saved or updated. Reload the entity before performing any actions on it.");
-
             var entities = EntityService.GetChildEntities(entity, Cascade.Save);
 
             if (entities.Any(x => x.Deleted && x.IsNotSaved))
                 throw new SessionException("Insertion of a deleted entity is not allowed.");
 
-            foreach(var entityToSave in entities.Where(x => !x.Evicted))
+            foreach(var entityToSave in entities)
             {
-                if(!_flushList.Contains(entityToSave))
+                if(entityToSave.Evicted)
+                    throw new SessionException("An evicted entity can not be saved or updated. Reload the entity before performing any actions on it.");
+
+                if (!_flushList.Contains(entityToSave))
                 {
                     _flushList.Add(entityToSave);
                 }
