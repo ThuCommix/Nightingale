@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using ThuCommix.EntityFramework.Metadata;
 
@@ -11,6 +12,7 @@ namespace EntityGenerator
 			if(args.Length < 2)
 				ExitWithMessage("Invalid arguments. Please specify 1.) Input folder, 2.) Output folder", 1);
 
+            Console.WriteLine($"ThuCommix.EntityFramework v{typeof(EntityMetadata).Assembly.GetName().Version}\r\n");
             Console.WriteLine($"InputPath: {args[0]}");
             Console.WriteLine($"OutputPath: {args[1]}");
 
@@ -34,19 +36,34 @@ namespace EntityGenerator
 
 				try
 				{
-					entityService.GenerateEntity(inputStream, destinationStream);
-					Console.WriteLine($"Generated entity '{entityFile.Name}'.");
+                    PadMessage($"Validating '{entityFile.Name}' ...");
+
+                    var validationIssues = new List<string>();
+                    if (!entityService.ValidateXml(inputStream, validationIssues))
+                    {
+                        Console.WriteLine("\t[Failed]");
+                        Console.WriteLine($"Validation failed for '{entityFile.Name}'.");
+                        validationIssues.ForEach(x => Console.WriteLine($"\t-> {x}"));
+                    }
+                    Console.WriteLine("\t[Success]");
+
+                    inputStream.Seek(0, SeekOrigin.Begin);
+
+                    entityService.GenerateEntity(inputStream, destinationStream);
+					PadMessage($"Generated entity '{entityFile.Name}'.");
 				}
-				catch (Exception)
+				catch (Exception e)
 				{
-					ExitWithMessage($"Failed to generate entity '{entityFile.Name}'.");
+                    ExitWithMessage($"Failed to generate entity '{entityFile.Name}'. \r\n\t-> {e.Message}{e.StackTrace}");
 				}
 
-				inputStream.Dispose();
+                Console.WriteLine("\t[Success]");
+
+                inputStream.Dispose();
 				destinationStream.Dispose();
 			}
 
-			ExitWithMessage("Entity generation completed.");
+			ExitWithMessage($"Entity generation completed ({entityFiles.Length}).");
 		}
 
 		private static void ExitWithMessage(string message, int exitCode = 0)
@@ -54,5 +71,10 @@ namespace EntityGenerator
 			Console.WriteLine(message);
 			Environment.Exit(exitCode);
 		}
+
+        private static void PadMessage(string message)
+        {
+            Console.Write(message.PadRight(50));
+        }
 	}
 }
