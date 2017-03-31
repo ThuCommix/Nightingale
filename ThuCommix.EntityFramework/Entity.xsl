@@ -206,7 +206,7 @@ namespace <xsl:value-of select="@Namespace" />
 
 	<xsl:for-each select="VirtualFields/VirtualField">
 		/// &lt;summary&gt;
-		/// <xsl:value-of select="@Description" />
+		/// <xsl:choose><xsl:when test="@Description = '' or not(@Description)"><xsl:value-of select="translate(@Expression, '&quot;', '')" /></xsl:when><xsl:otherwise><xsl:value-of select="@Description" /></xsl:otherwise></xsl:choose> 
 		/// &lt;/summary&gt;
 		[Description("<xsl:value-of select="@Description" />")]
 		[Expression("<xsl:value-of select="translate(@Expression, '&quot;', '')" />")]
@@ -217,7 +217,7 @@ namespace <xsl:value-of select="@Namespace" />
 
 	<xsl:for-each select="VirtualListFields/VirtualListField">
 		/// &lt;summary&gt;
-		/// <xsl:value-of select="@Description" />
+		/// <xsl:choose><xsl:when test="@Description = '' or not(@Description)"><xsl:value-of select="translate(@Expression, '&quot;', '')" /></xsl:when><xsl:otherwise><xsl:value-of select="@Description" /></xsl:otherwise></xsl:choose> 
 		/// &lt;/summary&gt;
 		[Description("<xsl:value-of select="@Description" />")]
         [Expression("<xsl:value-of select="translate(@Expression, '&quot;', '')" />")]
