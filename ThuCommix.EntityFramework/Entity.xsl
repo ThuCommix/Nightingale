@@ -52,7 +52,10 @@ namespace <xsl:value-of select="@Namespace" />
             get { return _<xsl:value-of select="@Name" />; }
             set
             {
-                var newValue = value<xsl:if test="@FieldType = 'string' and @MaxLength > 0">.Substring(0, value.Length > <xsl:value-of select="@MaxLength" /> ? <xsl:value-of select="@MaxLength" /> : value.Length)</xsl:if>;
+                var newValue = value;
+                if(newValue != null)
+                    newValue = value<xsl:if test="@FieldType = 'string' and @MaxLength > 0">.Substring(0, value.Length > <xsl:value-of select="@MaxLength" /> ? <xsl:value-of select="@MaxLength" /> : value.Length)</xsl:if>;
+                
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(<xsl:value-of select="@Name" />), _<xsl:value-of select="@Name" />, newValue);
                 _<xsl:value-of select="@Name" /> = newValue;
             }
