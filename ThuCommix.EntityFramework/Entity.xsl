@@ -242,8 +242,10 @@ namespace <xsl:value-of select="@Namespace" />
         public override bool Validate()
         {
         <xsl:for-each select="Fields/Field"><xsl:if test="@Mandatory = 'true' and (not(@Enum) or @Enum = 'false')">
-			if(<xsl:choose><xsl:when test="@FieldType != 'string' and @FieldType != 'int' and @FieldType != 'decimal' and @FieldType != 'bool' and @FieldType != 'DateTime'">FK_<xsl:value-of select="@Name" />_ID</xsl:when><xsl:otherwise><xsl:value-of select="@Name" /></xsl:otherwise></xsl:choose> == null)
-				return false;
+            <xsl:if test="not(@FieldType = 'int' or @FieldType = 'decimal' or @FieldType = 'bool' or @FieldType = 'DateTime')">
+			if(<xsl:value-of select="@Name" /> == null)
+				return false;    
+            </xsl:if>
 		</xsl:if></xsl:for-each>	
 
 			return true;
