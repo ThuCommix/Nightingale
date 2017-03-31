@@ -357,26 +357,6 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
         }
 
         [Test]
-        public void SaveOrUpdate_Throws_Exception_When_Entity_Is_Evicted()
-        {
-            // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
-
-            var entity = TestHelper.CreateEntityWithId<Artist>(1);
-
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
-
-            // act
-            session.Evict(entity);
-            Assert.Throws<SessionException>(() => session.SaveOrUpdate(entity));
-
-            // assert
-            dataProviderMock.VerifyAll();
-        }
-
-        [Test]
         public void SaveOrUpdate_Resolved_Child_Entities()
         {
             // arrange

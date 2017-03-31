@@ -113,9 +113,6 @@ namespace ThuCommix.EntityFramework.Sessions
 
             foreach(var entityToSave in entities)
             {
-                if(entityToSave.Evicted)
-                    throw new SessionException("An evicted entity can not be saved or updated. Reload the entity before performing any actions on it.");
-
                 if (!_flushList.Contains(entityToSave))
                 {
                     _flushList.Add(entityToSave);
