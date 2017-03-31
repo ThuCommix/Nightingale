@@ -10,6 +10,8 @@ namespace ThuCommix.EntityFramework
         static DependencyResolver()
         {
             _dependencies = new Dictionary<Type, object>();
+
+            Registry.Initialize();
         }
 
         public static void Register<T>(T instance)

@@ -4,7 +4,7 @@ namespace ThuCommix.EntityFramework
 {
     internal static class Registry
     {
-        static Registry()
+        internal static void Initialize()
         {
             DependencyResolver.Register<IEntityMetadataService>(new EntityMetadataService());
             DependencyResolver.Register<IEntityMetadataResolver>(new EntityMetadataResolver());
