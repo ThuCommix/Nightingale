@@ -64,6 +64,7 @@
     <Compile Include="DataSources\Artist.cs" />
     <Compile Include="PropertyChangeTrackerTests.cs" />
     <Compile Include="RepositoryTests.cs" />
+    <Compile Include="Sessions\SessionTests.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -80,7 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Queries\" />
-    <Folder Include="Sessions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

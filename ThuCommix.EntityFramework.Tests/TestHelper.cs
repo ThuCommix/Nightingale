@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -44,6 +45,31 @@ namespace ThuCommix.EntityFramework.Tests
             var session = SetupMock<Session>(dataProviderMock.Object);
 
             return session;
+        }
+
+        public static Mock<IDataProvider> SetupDataProvider()
+        {
+            var dataProviderMock = SetupMock<IDataProvider>();
+            dataProviderMock.Setup(s => s.Open());
+
+            return dataProviderMock;
+        }
+
+        public static bool CheckEvicted(Entity entity)
+        {
+            return (bool)entity.GetType().GetProperty("Evicted", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity);
+        }
+
+        public static void MarkEntityDeleted(Entity entity)
+        {
+            entity.GetType().GetProperty("Deleted").SetValue(entity, true);
+        }
+
+        public static void SetupDataReaderEntityBaseProperties(Mock<IDataReader> dataReader)
+        {
+            /*dataReader.Setup(s => s["Id"]).Returns(1);
+            dataReader.Setup(s => s["Version"]).Returns(1);
+            dataReader.Setup(s => s["Deleted"]).Returns(false);*/
         }
     }
 }

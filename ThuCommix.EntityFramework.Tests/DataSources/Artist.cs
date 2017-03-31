@@ -95,14 +95,14 @@ namespace ThuCommix.EntityFramework.Tests.DataSources
 
         public string Label { get; set; }
 
-        public Artist AnotherArtist { get; set; }
-
         [Description("")]
         [Mapped]
         [FieldType("Artist")]
-        [Cascade(Cascade.Save)]
         [ForeignKey("AnotherArtist")]
-        public int FK_AnotherArtist_ID { get; protected set; }
+        [Cascade(Cascade.Save)]
+        public int? FK_AnotherArtist_ID { get; protected set; }
+
+        public Artist AnotherArtist { get; set; }
 
         protected override void EagerLoadProperties()
         {
