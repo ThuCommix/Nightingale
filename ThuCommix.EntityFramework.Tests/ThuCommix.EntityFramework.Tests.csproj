@@ -60,6 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataSources\ArtistStatisticValues.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataSources\Artist.cs" />
     <Compile Include="PropertyChangeTrackerTests.cs" />

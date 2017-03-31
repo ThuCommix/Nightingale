@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using ThuCommix.EntityFramework.Entities;
+using ThuCommix.EntityFramework.Metadata;
 using ThuCommix.EntityFramework.Sessions;
 
 namespace ThuCommix.EntityFramework.Tests
@@ -43,7 +44,10 @@ namespace ThuCommix.EntityFramework.Tests
         public static T CreateEntityWithId<T>(int id) where T : Entity
         {
             var entity = (T)Activator.CreateInstance(typeof(T));
+            entity.PropertyChangeTracker.DisableChangeTracking = true;
             entity.GetType().GetProperty("Id").SetValue(entity, id);
+            entity.GetType().GetProperty("Version").SetValue(entity, 1);
+            entity.PropertyChangeTracker.DisableChangeTracking = false;
 
             return entity;
         }
@@ -81,6 +85,12 @@ namespace ThuCommix.EntityFramework.Tests
             /*dataReader.Setup(s => s["Id"]).Returns(1);
             dataReader.Setup(s => s["Version"]).Returns(1);
             dataReader.Setup(s => s["Deleted"]).Returns(false);*/
+        }
+
+        public static void SetupEntityMetadataServices()
+        {
+            DependencyResolver.Register<IEntityMetadataService>(new EntityMetadataService());
+            DependencyResolver.Register<IEntityMetadataResolver>(new EntityMetadataResolver());
         }
     }
 }

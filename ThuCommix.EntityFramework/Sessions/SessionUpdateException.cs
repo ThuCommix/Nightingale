@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace ThuCommix.EntityFramework.Sessions
 {
     [Serializable]
-    internal class SessionUpdateException : Exception
+    public class SessionUpdateException : Exception
     {
         public SessionUpdateException()
         {
