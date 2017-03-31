@@ -10,6 +10,7 @@ using Moq;
 using ThuCommix.EntityFramework.Entities;
 using ThuCommix.EntityFramework.Metadata;
 using ThuCommix.EntityFramework.Sessions;
+using ThuCommix.EntityFramework.Tests.DataSources;
 
 namespace ThuCommix.EntityFramework.Tests
 {
@@ -26,6 +27,11 @@ namespace ThuCommix.EntityFramework.Tests
             RegisterMockInDependencyResolver(mock);
 
             return mock;
+        }
+
+        public static void SetEntityEvict(Artist entity, bool value)
+        {
+            entity.GetType().GetProperty("Evicted", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(entity, value);
         }
 
         public static Mock<T> SetupMock<T>(params object[] parameters) where T : class

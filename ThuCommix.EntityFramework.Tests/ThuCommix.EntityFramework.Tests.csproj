@@ -67,6 +67,8 @@
     <Compile Include="RepositoryTests.cs" />
     <Compile Include="Sessions\SessionFactoryTests.cs" />
     <Compile Include="Sessions\SessionTests.cs" />
+    <Compile Include="Sessions\StatefulSessionTests.cs" />
+    <Compile Include="Sessions\StatelessSessionTests.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
