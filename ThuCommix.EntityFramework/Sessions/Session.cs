@@ -35,7 +35,12 @@ namespace ThuCommix.EntityFramework.Sessions
         /// <summary>
         /// Gets the entity service.
         /// </summary>
-        protected IEntityService EntityService { get; }
+        protected IEntityService EntityService => DependencyResolver.GetInstance<IEntityService>();
+
+        /// <summary>
+        /// Gets the entity metadata resolver.
+        /// </summary>
+        protected IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
 
         /// <summary>
         /// Gets the data provider.
@@ -59,8 +64,6 @@ namespace ThuCommix.EntityFramework.Sessions
             FlushMode = SessionFlushMode.Commit;
             DeletionMode = DeletionMode.Soft;
             DebugMode = true;
-            
-            EntityService = new EntityService();
 
             _flushList = new List<Entity>();
 
@@ -443,7 +446,7 @@ namespace ThuCommix.EntityFramework.Sessions
         {
             var constraints = new List<string>();
             var entityType = entity.GetType();
-            var entityMetadataList = EntityMetadataResolver.EntityMetadataList.Where(x => x.Fields.Any(y => y.FieldType == entityType.Name && y.Mandatory));
+            var entityMetadataList = EntityMetadataResolver.EntityMetadata.Where(x => x.Fields.Any(y => y.FieldType == entityType.Name && y.Mandatory));
 
             foreach (var entityMetadata in entityMetadataList)
             {

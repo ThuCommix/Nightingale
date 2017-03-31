@@ -121,7 +121,7 @@ namespace ThuCommix.EntityFramework.Entities
         public virtual bool Validate()
         {
             var properties = ReflectionHelper.GetProperties(GetType());
-            var metadata = EntityMetadataResolver.GetEntityMetadata(this);
+            var metadata = DependencyResolver.GetInstance<IEntityMetadataResolver>().GetEntityMetadata(this);
 
             return
                 metadata.Fields.Where(x => x.Mandatory)

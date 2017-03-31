@@ -15,6 +15,7 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
         [SetUp]
         public void Setup()
         {
+            DependencyResolver.Clear();
         }
 
         [Test]
@@ -312,8 +313,11 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             // arrange
             var dataProviderMock = TestHelper.SetupDataProvider();
             var session = new SessionProxy(dataProviderMock.Object);
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
 
             var entity = new Artist();
+
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
 
             session.SaveOrUpdate(entity);
             var flushListCountBeforeEvict = session.CallGetFlushList().Count;
@@ -339,6 +343,9 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             var artist = new Artist();
             TestHelper.MarkEntityDeleted(artist);
 
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(artist, Cascade.Save)).Returns(new List<Entity> { artist });
+
             // act
             Assert.Throws<SessionException>(() => session.SaveOrUpdate(artist));
 
@@ -354,6 +361,9 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             var session = new SessionProxy(dataProviderMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
 
             // act
             session.Evict(entity);
@@ -372,6 +382,9 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             entity.AnotherArtist = new Artist();
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity, entity.AnotherArtist });
 
             // act
             session.SaveOrUpdate(entity);
@@ -398,7 +411,7 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             dataProviderMock.VerifyAll();
         }
 
-        [Test, Ignore]
+        [Test]
         public void ExecuteQuery_Creates_Entity_Result_List()
         {
             // arrange
@@ -410,9 +423,13 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
 
             var query = Query.CreateQuery<Artist>();
 
-            dataReaderMock.Setup(s => s.Read()).Returns(canRead).Callback(() => canRead = false);
-            TestHelper.SetupDataReaderEntityBaseProperties(dataReaderMock);
+            dataReaderMock.Setup(s => s.Read()).Returns(() => { if (canRead) { canRead = false; return true; } return false; });
             dataProviderMock.Setup(s => s.ExecuteReader(query)).Returns(dataReaderMock.Object);
+            dataReaderMock.Setup(s => s.Close());
+            dataReaderMock.Setup(s => s.Dispose());
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.CreateEntity(dataReaderMock.Object, query.EntityType)).Returns(new Artist());
 
             // act
             var result = session.ExecuteQuery(query);

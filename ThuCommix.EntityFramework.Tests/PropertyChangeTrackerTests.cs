@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
+using ThuCommix.EntityFramework.Metadata;
 using ThuCommix.EntityFramework.Tests.DataSources;
 
 namespace ThuCommix.EntityFramework.Tests
@@ -10,6 +11,9 @@ namespace ThuCommix.EntityFramework.Tests
         [SetUp]
         public void Setup()
         {
+            DependencyResolver.Clear();
+            DependencyResolver.Register<IEntityMetadataService>(new EntityMetadataService());
+            DependencyResolver.Register<IEntityMetadataResolver>(new EntityMetadataResolver());
         }
 
         [Test]

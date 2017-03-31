@@ -21,12 +21,23 @@ namespace ThuCommix.EntityFramework.Tests
 
         public static Mock<T> SetupMock<T>() where T : class
         {
-            return new Mock<T>(MockBehavior.Strict);
+            var mock = new Mock<T>(MockBehavior.Strict);
+            RegisterMockInDependencyResolver(mock);
+
+            return mock;
         }
 
         public static Mock<T> SetupMock<T>(params object[] parameters) where T : class
         {
-            return new Mock<T>(MockBehavior.Strict, parameters);
+            var mock = new Mock<T>(MockBehavior.Strict, parameters);
+            RegisterMockInDependencyResolver(mock);
+
+            return mock;
+        }
+
+        private static void RegisterMockInDependencyResolver<T>(Mock<T> mock) where T : class
+        {
+            DependencyResolver.Register(mock.Object);
         }
 
         public static T CreateEntityWithId<T>(int id) where T : Entity

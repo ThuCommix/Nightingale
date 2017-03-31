@@ -10,6 +10,8 @@ namespace ThuCommix.EntityFramework
 {
     public class EntityService : IEntityService
     {
+        protected IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
+
         /// <summary>
         /// Gets the child entities which would be affected by the specified cascade.
         /// </summary>

@@ -5,24 +5,24 @@ using ThuCommix.EntityFramework.Entities;
 
 namespace ThuCommix.EntityFramework.Metadata
 {
-	public static class EntityMetadataResolver
+	public class EntityMetadataResolver : IEntityMetadataResolver
 	{
         /// <summary>
         /// Gets the entity metadata collection.
         /// </summary>
-	    public static IEnumerable<EntityMetadata> EntityMetadataList => EntityMetadata.Select(x => x.Value); 
+	    public IEnumerable<EntityMetadata> EntityMetadata => _entityMetadata.Select(x => x.Value); 
 
-		private static readonly Dictionary<Type, EntityMetadata> EntityMetadata = new Dictionary<Type, EntityMetadata>();
-		private static readonly IEntityMetadataService EntityMetadataService = new EntityMetadataService();
+		private readonly Dictionary<Type, EntityMetadata> _entityMetadata = new Dictionary<Type, EntityMetadata>();
+        private readonly IEntityMetadataService EntityMetadataService = DependencyResolver.GetInstance<IEntityMetadataService>();
 
-	    static EntityMetadataResolver()
+	    public EntityMetadataResolver()
 	    {
 	        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 	        var entityTypes = assemblies.SelectMany(x => x.GetTypes().Where(y =>y.BaseType == typeof (Entity) && !y.IsAbstract));
 
 	        foreach (var entityType in entityTypes)
 	        {
-                EntityMetadata[entityType] = EntityMetadataService.GetEntityMetadata(entityType);
+                _entityMetadata[entityType] = EntityMetadataService.GetEntityMetadata(entityType);
             }
 	    }
 
@@ -31,9 +31,9 @@ namespace ThuCommix.EntityFramework.Metadata
         /// </summary>
         /// <param name="entityMetadata">The entity metadata.</param>
         /// <returns>Returns the type or null.</returns>
-        public static Type GetEntityType(EntityMetadata entityMetadata)
+        public Type GetEntityType(EntityMetadata entityMetadata)
         {
-            return EntityMetadata.FirstOrDefault(x => x.Value == entityMetadata).Key;
+            return _entityMetadata.FirstOrDefault(x => x.Value == entityMetadata).Key;
         }
 
 		/// <summary>
@@ -41,7 +41,7 @@ namespace ThuCommix.EntityFramework.Metadata
 		/// </summary>
 		/// <param name="entity">The entity.</param>
 		/// <returns>The entity metadata.</returns>
-		public static EntityMetadata GetEntityMetadata(Entity entity)
+		public EntityMetadata GetEntityMetadata(Entity entity)
 		{
             return GetEntityMetadata(entity.GetType());
 		}
@@ -51,14 +51,14 @@ namespace ThuCommix.EntityFramework.Metadata
         /// </summary>
         /// <param name="entityType">The entity type.</param>
         /// <returns>The entity metadata.</returns>
-        public static EntityMetadata GetEntityMetadata(Type entityType)
+        public EntityMetadata GetEntityMetadata(Type entityType)
 	    {
-            if (!EntityMetadata.ContainsKey(entityType))
+            if (!_entityMetadata.ContainsKey(entityType))
             {
-                EntityMetadata[entityType] = EntityMetadataService.GetEntityMetadata(entityType);
+                _entityMetadata[entityType] = EntityMetadataService.GetEntityMetadata(entityType);
             }
 
-            return EntityMetadata[entityType];
+            return _entityMetadata[entityType];
         }
 	}
 }

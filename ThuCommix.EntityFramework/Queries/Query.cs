@@ -97,7 +97,8 @@ namespace ThuCommix.EntityFramework.Queries
 
         private void CompileSql()
         {
-            var metadata = EntityMetadataResolver.GetEntityMetadata(EntityType);
+            var entityMetadataResolver = DependencyResolver.GetInstance<IEntityMetadataResolver>();
+            var metadata = entityMetadataResolver.GetEntityMetadata(EntityType);
             var commandBuilder = new StringBuilder();
             var entityName = EntityType.Name.ToLower();
             var parameters = new List<QueryParameter>();
@@ -154,7 +155,7 @@ namespace ThuCommix.EntityFramework.Queries
                                 joins.Add(new Tuple<string, string>(currentPropertyPath, aliasName));
                             }
 
-                            currentMetadata = EntityMetadataResolver.EntityMetadataList.FirstOrDefault(x => x.Name == fieldMetadata.FieldType);
+                            currentMetadata = entityMetadataResolver.EntityMetadata.FirstOrDefault(x => x.Name == fieldMetadata.FieldType);
                         }
                     }
 

@@ -17,7 +17,7 @@ namespace ThuCommix.EntityFramework
         /// <summary>
         /// Gets the entity metadata.
         /// </summary>
-        protected EntityMetadata Metadata => EntityMetadataResolver.GetEntityMetadata(Type);
+        protected EntityMetadata Metadata => DependencyResolver.GetInstance<IEntityMetadataResolver>().GetEntityMetadata(Type);
 
         /// <summary>
         /// Gets thje data provider.

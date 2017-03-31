@@ -15,6 +15,7 @@ namespace ThuCommix.EntityFramework.Tests
         [SetUp]
         public void Setup()
         {
+            DependencyResolver.Clear();
         }
 
         [Test]

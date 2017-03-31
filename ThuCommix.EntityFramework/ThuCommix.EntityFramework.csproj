@@ -47,6 +47,7 @@
     <Compile Include="Caching\PersistenceCache.cs" />
     <Compile Include="Column.cs" />
     <Compile Include="ColumnType.cs" />
+    <Compile Include="DependencyResolver.cs" />
     <Compile Include="Entities\EagerLoadAttribute.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\EnumAttribute.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="ICommitListener.cs" />
     <Compile Include="IEntityCollection.cs" />
     <Compile Include="IRepository.cs" />
+    <Compile Include="Metadata\IEntityMetadataResolver.cs" />
     <Compile Include="PropertyChangeTracker.cs" />
     <Compile Include="IDataProvider.cs" />
     <Compile Include="EntityService.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="Queries\QueryJunction.cs" />
     <Compile Include="Queries\QueryParameter.cs" />
     <Compile Include="ReflectionHelper.cs" />
+    <Compile Include="Registry.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="Sessions\DeletionMode.cs" />
     <Compile Include="Sessions\Session.cs" />

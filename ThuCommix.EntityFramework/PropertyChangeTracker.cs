@@ -26,6 +26,8 @@ namespace ThuCommix.EntityFramework
             }
         }
 
+        private IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
+
         private readonly List<PropertyChangedItem> _propertyChangedItems;
         private readonly Entity _entity;
 
