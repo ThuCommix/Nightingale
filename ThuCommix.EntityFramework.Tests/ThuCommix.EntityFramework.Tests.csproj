@@ -65,6 +65,7 @@
     <Compile Include="DataSources\Artist.cs" />
     <Compile Include="PropertyChangeTrackerTests.cs" />
     <Compile Include="RepositoryTests.cs" />
+    <Compile Include="Sessions\SessionFactoryTests.cs" />
     <Compile Include="Sessions\SessionTests.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>

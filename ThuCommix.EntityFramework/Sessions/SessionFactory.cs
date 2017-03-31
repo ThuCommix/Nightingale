@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ThuCommix.EntityFramework.Sessions
 {
@@ -7,7 +8,17 @@ namespace ThuCommix.EntityFramework.Sessions
         /// <summary>
         /// Gets the current session.
         /// </summary>
-        public static Session CurrentSession { get; private set; }
+        public static IEnumerable<Session> Sessions => _sessions;
+
+        private static readonly List<Session> _sessions;
+
+        /// <summary>
+        /// Initializes a new SessionFactory class.
+        /// </summary>
+        static SessionFactory()
+        {
+            _sessions = new List<Session>();
+        }
 
         /// <summary>
         /// Opens a new stateful session.
@@ -16,8 +27,10 @@ namespace ThuCommix.EntityFramework.Sessions
         /// <returns>Returns the stateful session.</returns>
         public static Session OpenSession(IDataProvider dataProvider)
         {
-            CurrentSession = new StatefulSession(dataProvider);
-            return CurrentSession;
+            var session = new StatefulSession(dataProvider);
+            _sessions.Add(session);
+
+            return session;
         }
 
         /// <summary>
@@ -28,8 +41,10 @@ namespace ThuCommix.EntityFramework.Sessions
         /// <returns>Returns the session.</returns>
         public static Session OpenSession<T>(IDataProvider dataProvider) where T : Session
         {
-            CurrentSession = (Session)Activator.CreateInstance(typeof(T), dataProvider);
-            return CurrentSession;
+            var session = (Session)Activator.CreateInstance(typeof(T), dataProvider);
+            _sessions.Add(session);
+
+            return session;
         }
     }
 }
