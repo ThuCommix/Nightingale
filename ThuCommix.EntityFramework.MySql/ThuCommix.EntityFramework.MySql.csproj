@@ -42,7 +42,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Visual Studio 2017\Projects\ThuCommix.EntityFramework\ThuCommix.EntityFramework\ThuCommix.EntityFramework.csproj">
+    <ProjectReference Include="..\ThuCommix.EntityFramework\ThuCommix.EntityFramework.csproj">
       <Project>{500734c8-d477-4aed-9225-a7e1142109a7}</Project>
       <Name>ThuCommix.EntityFramework</Name>
     </ProjectReference>
