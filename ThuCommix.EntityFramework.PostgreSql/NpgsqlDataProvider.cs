@@ -57,6 +57,8 @@ namespace ThuCommix.EntityFramework.PostgreSql
         public void Rollback()
         {
             _currentTransaction.Rollback();
+            _currentTransaction.Dispose();
+            _currentTransaction = null;
         }
 
         /// <summary>
@@ -83,6 +85,8 @@ namespace ThuCommix.EntityFramework.PostgreSql
         public void Commit()
         {
             _currentTransaction.Commit();
+            _currentTransaction.Dispose();
+            _currentTransaction = null;
         }
 
         /// <summary>
