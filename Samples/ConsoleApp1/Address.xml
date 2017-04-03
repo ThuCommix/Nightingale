@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Entity Name="Address" Namespace="ConsoleApp1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="../../ThuCommix.EntityFramework/Entity.xsd">
+    <Fields>
+        <Field Name="Person" FieldType="Person" Mandatory="true" Cascade="None" />
+        <Field Name="IsValid" FieldType="bool" Mandatory="true" Cascade="None" />
+        <Field Name="ValidFrom" FieldType="DateTime" Mandatory="true" DateOnly="true" Cascade="None" />
+        <Field Name="ValidTo" FieldType="DateTime" Mandatory="false" DateOnly="false" Cascade="None" />
+        <Field Name="Zip" FieldType="string" MaxLength="12" Mandatory="true" Cascade="None" />
+        <Field Name="Town" FieldType="string" MaxLength="50" Mandatory="true" Cascade="None" />
+        <Field Name="Street" FieldType="string" MaxLength="100" Mandatory="true" Cascade="None" />
+    </Fields>
+</Entity>

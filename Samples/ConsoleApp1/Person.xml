@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Entity Name="Person" Namespace="ConsoleApp1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="../../ThuCommix.EntityFramework/Entity.xsd">
+    <Fields>
+        <Field Name="FirstName" FieldType="string" Mandatory="true" MaxLength="50" Cascade="None" />
+        <Field Name="Name" FieldType="string" Mandatory="true" MaxLength="50" Cascade="None" />
+        <Field Name="Age" FieldType="int" Mandatory="false" Cascade="None" />
+        <Field Name="IsLegalAge" FieldType="bool" Mandatory="false" Cascade="None" />
+    </Fields>
+    <ListFields>
+        <ListField Name="Addresses" FieldType="Address" ReferenceField="Person" Cascade="SaveDelete" />
+    </ListFields>
+    <VirtualFields>
+        <VirtualField Name="FullName" FieldType="string" Expression="$&quot; {Name}, {FirstName}&quot;" />
+    </VirtualFields>
+    <VirtualListFields>
+        <VirtualListField Name="ValidAddresses" FieldType="Address" Expression="Addresses.Where(x =&gt; x.IsValid).ToList()" />
+    </VirtualListFields>
+</Entity>
