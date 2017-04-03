@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using ThuCommix.EntityFramework.Entities;
 using ThuCommix.EntityFramework.Extensions;
@@ -124,6 +125,7 @@ namespace ThuCommix.EntityFramework.Queries
                     var previousAlias = entityName;
                     var parameterName = GetParameterName(ref parameterIndex);
                     var currentPropertyPath = string.Empty;
+                    var operatorSymbol = GetOperatorSymbol(condition);
 
                     foreach (var propertyName in propertyList)
                     {
@@ -131,13 +133,13 @@ namespace ThuCommix.EntityFramework.Queries
                         var fieldMetadata = currentMetadata.Fields.FirstOrDefault(x => x.Name == propertyName || x.Name == $"FK_{propertyName}_ID");
                         if (!fieldMetadata.IsComplexFieldType && !fieldMetadata.IsForeignKey)
                         {
-                            conditionCommands.Add($"{previousAlias}.{fieldMetadata.Name} = {parameterName}");
+                            conditionCommands.Add($"{previousAlias}.{fieldMetadata.Name} {operatorSymbol} {parameterName}");
                         }
                         else
                         {
                             if (propertyList.Length == 1)
                             {
-                                conditionCommands.Add($"{previousAlias}.{fieldMetadata.Name} = {parameterName}");
+                                conditionCommands.Add($"{previousAlias}.{fieldMetadata.Name} {operatorSymbol} {parameterName}");
                                 break;
                             }
 
@@ -204,6 +206,27 @@ namespace ThuCommix.EntityFramework.Queries
         private static string GetJoinType(FieldMetadata field)
         {
             return field.Mandatory ? "INNER" : "LEFT";
+        }
+
+        private string GetOperatorSymbol(QueryCondition condition)
+        {
+            switch(condition.ExpressionType)
+            {
+                case ExpressionType.Equal:
+                    return condition.EquationValue == null ? "IS" : "=";
+                case ExpressionType.NotEqual:
+                    return condition.EquationValue == null ? "IS NOT" : "!=";
+                case ExpressionType.GreaterThan:
+                    return ">";
+                case ExpressionType.GreaterThanOrEqual:
+                    return ">=";
+                case ExpressionType.LessThan:
+                    return "<";
+                case ExpressionType.LessThanOrEqual:
+                    return "<=";
+                default:
+                    throw new NotSupportedException($"The expression type '{condition.ExpressionType}' was not supported.");
+            }
         }
 
         /// <summary>

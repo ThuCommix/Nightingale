@@ -21,6 +21,11 @@ namespace ThuCommix.EntityFramework.Queries
         public object EquationValue { get; }
 
         /// <summary>
+        /// Gets the expression type.
+        /// </summary>
+        public ExpressionType ExpressionType { get; }
+
+        /// <summary>
         /// Initializes a new QueryCondition class.
         /// </summary>
         /// <param name="expression">The expression.</param>
@@ -32,6 +37,7 @@ namespace ThuCommix.EntityFramework.Queries
             Expression = expression;
             PropertyPath = GetPropertyPath(expression);
             EquationValue = GetEquationValue(expression);
+            ExpressionType = GetExpressionType(expression);
         }
 
         /// <summary>
@@ -39,13 +45,15 @@ namespace ThuCommix.EntityFramework.Queries
         /// </summary>
         /// <param name="propertyPath">The property path.</param>
         /// <param name="equationValue">The equation value.</param>
-        public QueryCondition(string propertyPath, object equationValue)
+        /// <param name="expressionType">The expression type.</param>
+        public QueryCondition(string propertyPath, object equationValue, ExpressionType expressionType)
         {
             if (string.IsNullOrWhiteSpace(propertyPath))
                 throw new ArgumentNullException(nameof(propertyPath));
 
             PropertyPath = propertyPath;
             EquationValue = equationValue;
+            ExpressionType = expressionType;
         }
 
         /// <summary>
@@ -80,6 +88,19 @@ namespace ThuCommix.EntityFramework.Queries
             var binaryExpression = lambdaExpression.Body as BinaryExpression;
 
             return Expression.Lambda(binaryExpression.Right).Compile().DynamicInvoke();
+        }
+
+        /// <summary>
+        /// Gets the expression type.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>Returns the expression type.</returns>
+        private ExpressionType GetExpressionType(Expression expression)
+        {
+            var lambdaExpression = expression as LambdaExpression;
+            var binaryExpression = lambdaExpression.Body as BinaryExpression;
+
+            return binaryExpression.NodeType;
         }
     }
 }

@@ -452,7 +452,7 @@ namespace ThuCommix.EntityFramework.Sessions
                 foreach (var field in fields)
                 {
                     var group = query.CreateQueryConditionGroup(QueryJunction.Or);
-                    group.CreateQueryCondition(field.Name, entity.Id);
+                    group.CreateQueryCondition(field.Name, entity.Id, System.Linq.Expressions.ExpressionType.Equal);
                 }
 
                 var results = ExecuteQuery(query).Where(x => !entitiesToDelete.Any(y => y.Id == x.Id && y.GetType() == x.GetType())).ToList();
