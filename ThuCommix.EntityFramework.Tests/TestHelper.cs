@@ -88,9 +88,9 @@ namespace ThuCommix.EntityFramework.Tests
 
         public static void SetupDataReaderEntityBaseProperties(Mock<IDataReader> dataReader)
         {
-            /*dataReader.Setup(s => s["Id"]).Returns(1);
+            dataReader.Setup(s => s["Id"]).Returns(1);
             dataReader.Setup(s => s["Version"]).Returns(1);
-            dataReader.Setup(s => s["Deleted"]).Returns(false);*/
+            dataReader.Setup(s => s["Deleted"]).Returns(false);
         }
 
         public static void SetupEntityMetadataServices()

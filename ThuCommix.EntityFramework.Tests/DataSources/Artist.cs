@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ThuCommix.EntityFramework.Entities;
 
 namespace ThuCommix.EntityFramework.Tests.DataSources
@@ -102,7 +104,41 @@ namespace ThuCommix.EntityFramework.Tests.DataSources
         [Cascade(Cascade.Save)]
         public int? FK_AnotherArtist_ID { get; protected set; }
 
-        public Artist AnotherArtist { get; set; }
+        private Artist _AnotherArtist;
+
+        public Artist AnotherArtist
+        {
+            get { return _AnotherArtist; }
+            set
+            {
+                _AnotherArtist = value;
+                FK_AnotherArtist_ID = value?.Id;
+            }
+        }
+
+        [Description("")]
+        [Mapped]
+        [FieldType("ArtistStatisticValues")]
+        [Cascade(Cascade.Save)]
+        [ReferenceField("FK_AnotherArtist_ID")]
+        public EntityCollection<ArtistStatisticValues> StatisticValues { get; }
+
+        [Description("")]
+        [FieldType("string")]
+        [VirtualProperty]
+        [Expression("TestExpression")]
+        public string FullName => $"{this.Name} ({this.Alias})";
+
+        [Description("")]
+        [FieldType("ArtistStatisticValues")]
+        [VirtualProperty]
+        [Expression("TestExpression")]
+        public List<ArtistStatisticValues> StatisticValuesWithSecondArtist => this.StatisticValues.Where(x => x.FK_SecondArtist_ID != null).ToList();
+
+        public Artist()
+        {
+            StatisticValues = new EntityCollection<ArtistStatisticValues>(this, "AnotherArtist");
+        }
 
         protected override void EagerLoadProperties()
         {

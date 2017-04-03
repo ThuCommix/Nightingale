@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ThuCommix.EntityFramework.Entities;
 using ThuCommix.EntityFramework.Extensions;
+using ThuCommix.EntityFramework.Metadata;
 
 namespace ThuCommix.EntityFramework
 {
@@ -56,6 +57,10 @@ namespace ThuCommix.EntityFramework
         /// <param name="item">The item.</param>
         private void RemoveReferenceField(T item)
         {
+            var fieldMetadata = DependencyResolver.GetInstance<IEntityMetadataResolver>().GetEntityMetadata(item).Fields.FirstOrDefault(x => x.Name == $"FK_{_referenceField}_ID");
+            if (fieldMetadata?.Mandatory == true)
+                return;
+
             ReflectionHelper.GetProperty(item.GetType(), _referenceField).SetValue(item, null);
         }
 

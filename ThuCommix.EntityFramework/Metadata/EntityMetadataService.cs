@@ -197,7 +197,7 @@ namespace ThuCommix.EntityFramework.Metadata
                     if(property.GetCustomAttribute<VirtualPropertyAttribute>() == null)
                         continue;
 
-                    if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+                    if (typeof(IList).IsAssignableFrom(property.PropertyType))
                     {
                         var virtualListFieldMetadata = new VirtualListFieldMetadata();
                         virtualListFieldMetadata.Name = property.GetCustomAttribute<FieldTypeAttribute>().FieldType;

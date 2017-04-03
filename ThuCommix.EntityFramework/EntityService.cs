@@ -130,8 +130,11 @@ namespace ThuCommix.EntityFramework
             var metadata = EntityMetadataResolver.GetEntityMetadata(entityType);
             foreach(var field in metadata.Fields.Where(x => x.IsForeignKey))
             {
-                var propertyValue = ((Entity)ReflectionHelper.GetProperty(entityType, field.ForeignKey).GetValue(entity)).Id;
-                ReflectionHelper.GetProperty(entityType, field.Name).SetValue(entity, propertyValue);
+                var propertyValue = ((Entity)ReflectionHelper.GetProperty(entityType, field.ForeignKey).GetValue(entity))?.Id;
+                if (propertyValue == null)
+                    continue;
+
+                ReflectionHelper.GetProperty(entityType, field.Name).SetValue(entity, propertyValue.Value);
             }
 
             foreach(var listField in metadata.ListFields)
