@@ -137,7 +137,7 @@ namespace ThuCommix.EntityFramework.MsSql
         public IDataReader ExecuteReader(IQuery query)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = query.Command;
+            command.CommandText = QueryConverter.GetQueryCommand(query);
             command.Transaction = _currentTransaction;
             command.Parameters.AddRange(query.Parameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
