@@ -88,6 +88,15 @@ namespace ThuCommix.EntityFramework
         void Delete(Entity entity);
 
         /// <summary>
+        /// Executes the specified function and returns the result object.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="name">The function name.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>Returns the result object.</returns>
+        T ExecuteFunc<T>(string name, params QueryParameter[] parameters);
+
+        /// <summary>
         /// Flushs the repository.
         /// </summary>
         void Flush();

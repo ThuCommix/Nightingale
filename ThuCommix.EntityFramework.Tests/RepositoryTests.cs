@@ -202,5 +202,22 @@ namespace ThuCommix.EntityFramework.Tests
             commitListener.VerifyAll();
             sessionMock.VerifyAll();
         }
+
+        [Test]
+        public void ExecuteFunc_Calls_Session()
+        {
+            // arrange
+            var sessionMock = TestHelper.CreateSessionMock();
+            var repository = new Repository(sessionMock.Object);
+
+            sessionMock.Setup(s => s.ExecuteFunc<int>("dbo.test", null)).Returns(0);
+
+            // act
+            var result = repository.ExecuteFunc<int>("dbo.test", null);
+
+            // assert
+            Assert.That(result, Is.EqualTo(0));
+            sessionMock.VerifyAll();
+        }
     }
 }

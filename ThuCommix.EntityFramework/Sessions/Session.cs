@@ -352,6 +352,20 @@ namespace ThuCommix.EntityFramework.Sessions
         }
 
         /// <summary>
+        /// Executes the specified function and returns the result object.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="name">The function name.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>Returns the result object.</returns>
+        public virtual T ExecuteFunc<T>(string name, params QueryParameter[] parameters)
+        {
+            var query = new Query($"SELECT {name}({string.Join(",", parameters.Select(x => x.Name))})", null, parameters);
+
+            return (T)DataProvider.ExecuteScalar(query);
+        }
+
+        /// <summary>
         /// Inserts the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>

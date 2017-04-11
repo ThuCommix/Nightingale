@@ -186,6 +186,18 @@ namespace ThuCommix.EntityFramework
         }
 
         /// <summary>
+        /// Executes the specified function and returns the result object.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="name">The function name.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>Returns the result object.</returns>
+        public T ExecuteFunc<T>(string name, params QueryParameter[] parameters)
+        {
+            return Session.ExecuteFunc<T>(name, parameters);
+        }
+
+        /// <summary>
         /// Disposes this instance.
         /// </summary>
         public void Dispose()

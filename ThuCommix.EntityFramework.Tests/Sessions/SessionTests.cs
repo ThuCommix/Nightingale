@@ -1001,6 +1001,26 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             dataProviderMock.VerifyAll();
         }
 
+        [Test]
+        public void ExecuteFunc_Builds_Expected_Query()
+        {
+            // arrange
+            var dataProviderMock = TestHelper.SetupDataProvider();
+            var session = new SessionProxy(dataProviderMock.Object);
+
+            IQuery query = null;
+            dataProviderMock.Setup(s => s.ExecuteScalar(It.IsAny<IQuery>())).Returns(0).Callback<IQuery>((q) => query = q);
+
+            // act
+            var result = session.ExecuteFunc<int>("dbo.test");
+
+            // assert
+            Assert.That(result, Is.EqualTo(0));
+            Assert.That(query.Command, Is.EqualTo("SELECT dbo.test()"));
+
+            dataProviderMock.VerifyAll();
+        }
+
         private class SessionProxy : Session
         {
             public bool PerformInsertCalled { get; private set; }
