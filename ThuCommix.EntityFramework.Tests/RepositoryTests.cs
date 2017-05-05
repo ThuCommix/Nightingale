@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using ThuCommix.EntityFramework.Entities;
 using ThuCommix.EntityFramework.Queries;
+using ThuCommix.EntityFramework.Tests.DataSources;
 
 namespace ThuCommix.EntityFramework.Tests
 {
@@ -39,6 +40,9 @@ namespace ThuCommix.EntityFramework.Tests
             // arrange
             var sessionMock = TestHelper.CreateSessionMock();
             var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            entityServiceMock.Setup(s => s.GetChildEntities(null, Cascade.Save)).Returns(new List<Entity> { null });
 
             entityListener.Setup(s => s.Save(null)).Returns(true);
             sessionMock.Setup(s => s.SaveOrUpdate(null));
@@ -52,6 +56,7 @@ namespace ThuCommix.EntityFramework.Tests
             // assert
             sessionMock.VerifyAll();
             entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
         }
 
         [Test]
@@ -60,7 +65,9 @@ namespace ThuCommix.EntityFramework.Tests
             // arrange
             var sessionMock = TestHelper.CreateSessionMock();
             var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
 
+            entityServiceMock.Setup(s => s.GetChildEntities(null, Cascade.Save)).Returns(new List<Entity> { null });
             entityListener.Setup(s => s.Save(null)).Returns(false);
 
             var repository = new Repository(sessionMock.Object);
@@ -72,6 +79,7 @@ namespace ThuCommix.EntityFramework.Tests
             // assert
             sessionMock.VerifyAll();
             entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
         }
 
         [Test]
@@ -80,6 +88,9 @@ namespace ThuCommix.EntityFramework.Tests
             // arrange
             var sessionMock = TestHelper.CreateSessionMock();
             var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            entityServiceMock.Setup(s => s.GetChildEntities(null, Cascade.SaveDelete)).Returns(new List<Entity> { null });
 
             entityListener.Setup(s => s.Delete(null)).Returns(true);
             sessionMock.Setup(s => s.Delete(null));
@@ -93,6 +104,7 @@ namespace ThuCommix.EntityFramework.Tests
             // assert
             sessionMock.VerifyAll();
             entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
         }
 
         [Test]
@@ -101,7 +113,9 @@ namespace ThuCommix.EntityFramework.Tests
             // arrange
             var sessionMock = TestHelper.CreateSessionMock();
             var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
 
+            entityServiceMock.Setup(s => s.GetChildEntities(null, Cascade.SaveDelete)).Returns(new List<Entity> { null });
             entityListener.Setup(s => s.Delete(null)).Returns(false);
 
             var repository = new Repository(sessionMock.Object);
@@ -113,6 +127,7 @@ namespace ThuCommix.EntityFramework.Tests
             // assert
             sessionMock.VerifyAll();
             entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
         }
 
         [Test]
@@ -218,6 +233,60 @@ namespace ThuCommix.EntityFramework.Tests
             // assert
             Assert.That(result, Is.EqualTo(0));
             sessionMock.VerifyAll();
+        }
+
+        [Test]
+        public void Save_Calls_EntityListeners_For_Cascaded_Entities()
+        {
+            // arrange
+            var sessionMock = TestHelper.CreateSessionMock();
+            var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            var cascadedEntities = new List<Entity> { new Artist(), new Artist() };
+
+            entityServiceMock.Setup(s => s.GetChildEntities(null, Cascade.Save)).Returns(cascadedEntities);
+
+            entityListener.Setup(s => s.Save(It.Is<Artist>(x => x == cascadedEntities[0] || x == cascadedEntities[1]))).Returns(true);
+            sessionMock.Setup(s => s.SaveOrUpdate(null));
+
+            var repository = new Repository(sessionMock.Object);
+            repository.EntityListeners.Add(entityListener.Object);
+
+            // act
+            repository.Save(null);
+
+            // assert
+            sessionMock.VerifyAll();
+            entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
+        }
+
+        [Test]
+        public void Delete_Calls_EntityListeners_For_Cascaded_Entities()
+        {
+            // arrange
+            var sessionMock = TestHelper.CreateSessionMock();
+            var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            var cascadedEntities = new List<Entity> { new Artist(), new Artist() };
+
+            entityServiceMock.Setup(s => s.GetChildEntities(null, Cascade.SaveDelete)).Returns(cascadedEntities);
+
+            entityListener.Setup(s => s.Delete(It.Is<Artist>(x => x == cascadedEntities[0] || x == cascadedEntities[1]))).Returns(true);
+            sessionMock.Setup(s => s.Delete(null));
+
+            var repository = new Repository(sessionMock.Object);
+            repository.EntityListeners.Add(entityListener.Object);
+
+            // act
+            repository.Delete(null);
+
+            // assert
+            sessionMock.VerifyAll();
+            entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
         }
     }
 }

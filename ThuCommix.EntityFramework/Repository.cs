@@ -27,6 +27,11 @@ namespace ThuCommix.EntityFramework
         protected Session Session { get; }
 
         /// <summary>
+        /// Gets the entity service.
+        /// </summary>
+        protected IEntityService EntityService => DependencyResolver.GetInstance<IEntityService>();
+
+        /// <summary>
         /// Initializes a new RepositoryBase class.
         /// </summary>
         /// <param name="session">The session.</param>
@@ -116,8 +121,12 @@ namespace ThuCommix.EntityFramework
         /// <param name="entity">The entity.</param>
         public virtual void Save(Entity entity)
         {
-            if (!EntityListeners.All(x => x.Save(entity)))
-                throw new InvalidOperationException("The entity could not be marked for save or update because an entity listener returned false.");
+            var entities = EntityService.GetChildEntities(entity, Cascade.Save);
+            foreach(var cascadedEntity in entities)
+            {
+                if (!EntityListeners.All(x => x.Save(cascadedEntity)))
+                    throw new InvalidOperationException("The entity could not be marked for save or update because an entity listener returned false.");
+            }
 
             Session.SaveOrUpdate(entity);
         }
@@ -128,8 +137,12 @@ namespace ThuCommix.EntityFramework
         /// <param name="entity">The entity.</param>
         public virtual void Delete(Entity entity)
         {
-            if (!EntityListeners.All(x => x.Delete(entity)))
-                throw new InvalidOperationException("The entity could not be marked for deletion because an entity listener returned false.");
+            var entities = EntityService.GetChildEntities(entity, Cascade.SaveDelete);
+            foreach (var cascadedEntity in entities)
+            {
+                if (!EntityListeners.All(x => x.Delete(cascadedEntity)))
+                    throw new InvalidOperationException("The entity could not be marked for deletion because an entity listener returned false.");
+            }
 
             Session.Delete(entity);
         }
