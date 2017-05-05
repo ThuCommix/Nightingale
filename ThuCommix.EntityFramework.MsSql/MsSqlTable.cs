@@ -29,7 +29,8 @@ namespace ThuCommix.EntityFramework.MsSql
         public override void Create()
         {
             var commandBuilder = new StringBuilder();
-            commandBuilder.AppendLine($"CREATE TABLE IF NOT EXISTS {Metadata.Table} (");
+            commandBuilder.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.Tables WHERE Name=N'{Metadata.Table}' AND Type=N'U')");
+            commandBuilder.AppendLine($"CREATE TABLE {Metadata.Table} (");
             var fieldDefinitions = new List<string>();
             fieldDefinitions.Add("Id int NOT NULL IDENTITY(1, 1) PRIMARY KEY");
             fieldDefinitions.Add("Deleted bit NOT NULL");
