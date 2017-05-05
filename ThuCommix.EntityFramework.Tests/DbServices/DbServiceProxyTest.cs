@@ -64,8 +64,8 @@ namespace ThuCommix.EntityFramework.Tests.DbServices
             int GetAdminId();
 
             [Procedure("dbo.getSecret")]
-            [Parameter("@User")]
-            [Parameter("@Password")]
+            [Parameter("@User", System.Data.SqlDbType.Text)]
+            [Parameter("@Password", System.Data.SqlDbType.Text)]
             string GetSecret(string username, string password);
         }
     }

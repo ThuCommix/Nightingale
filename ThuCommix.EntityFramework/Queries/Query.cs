@@ -145,22 +145,6 @@ namespace ThuCommix.EntityFramework.Queries
         /// <summary>
         /// Adds a new query parameter.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="value">The value.</param>
-        public void AddQueryParameter(string name, object value)
-        {
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
-
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
-            AddQueryParameter(new QueryParameter(name, value));
-        }
-
-        /// <summary>
-        /// Adds a new query parameter.
-        /// </summary>
         /// <param name="parameter">The query parameter.</param>
         public void AddQueryParameter(QueryParameter parameter)
         {
@@ -200,11 +184,12 @@ namespace ThuCommix.EntityFramework.Queries
                     var parameterName = GetParameterName(ref parameterIndex);
                     var currentPropertyPath = string.Empty;
                     var operatorSymbol = GetOperatorSymbol(condition);
+                    FieldMetadata fieldMetadata = null;
 
                     foreach (var propertyName in propertyList)
                     {
                         currentPropertyPath += currentPropertyPath == string.Empty ? propertyName : $".{propertyName}";
-                        var fieldMetadata = currentMetadata.Fields.FirstOrDefault(x => x.Name == propertyName || x.Name == $"FK_{propertyName}_ID");
+                        fieldMetadata = currentMetadata.Fields.FirstOrDefault(x => x.Name == propertyName || x.Name == $"FK_{propertyName}_ID");
                         if (!fieldMetadata.IsComplexFieldType && !fieldMetadata.IsForeignKey)
                         {
                             conditionCommands.Add($"{previousAlias}.{fieldMetadata.Name} {operatorSymbol} {parameterName}");
@@ -235,7 +220,7 @@ namespace ThuCommix.EntityFramework.Queries
                         }
                     }
 
-                    parameters.Add(new QueryParameter(parameterName, equationValue));
+                    parameters.Add(GetQueryParameter(parameterName, equationValue, fieldMetadata));
                 }
 
                 conditionGroupCommands.Add(string.Join(" AND ", conditionCommands));
@@ -342,6 +327,18 @@ namespace ThuCommix.EntityFramework.Queries
         public static Query CreateQuery<T>() where T : Entity
         {
             return new Query(typeof(T));
+        }
+
+        /// <summary>
+        /// Gets a query parameter based on the specified name, value and field metadata.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="fieldMetadata">The field metadata.</param>
+        /// <returns>Returns a QueryParameter instance.</returns>
+        public static QueryParameter GetQueryParameter(string name, object value, FieldMetadata fieldMetadata)
+        {
+            return new QueryParameter(name, value, fieldMetadata.GetSqlDbType(), !fieldMetadata.Mandatory, fieldMetadata.MaxLength);
         }
     }
 }

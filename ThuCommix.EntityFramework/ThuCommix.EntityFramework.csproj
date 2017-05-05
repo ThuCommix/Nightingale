@@ -64,6 +64,7 @@
     <Compile Include="Entities\PrimaryKeyAttribute.cs" />
     <Compile Include="EntityCollection.cs" />
     <Compile Include="EntityListener.cs" />
+    <Compile Include="Extensions\FieldMetadataExtensions.cs" />
     <Compile Include="Extensions\TableExtensions.cs" />
     <Compile Include="ICommitListener.cs" />
     <Compile Include="DbServices\IDbService.cs" />

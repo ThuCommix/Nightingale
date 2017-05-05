@@ -1,4 +1,6 @@
-﻿namespace ThuCommix.EntityFramework.Queries
+﻿using System.Data;
+
+namespace ThuCommix.EntityFramework.Queries
 {
     public class QueryParameter
     {
@@ -13,6 +15,21 @@
         public object Value { get; set; }
 
         /// <summary>
+        /// Gets or sets the db type.
+        /// </summary>
+        public SqlDbType DbType { get; set; }
+
+        /// <summary>
+        /// A value indicating whether the parameter is nullable.
+        /// </summary>
+        public bool IsNullable { get; set; }
+
+        /// <summary>
+        /// Sets the size of size dependent dbtypes e.g. varchar.
+        /// </summary>
+        public int Size { get; set; }
+
+        /// <summary>
         /// Initializes a new QueryParameter class.
         /// </summary>
         public QueryParameter()
@@ -24,10 +41,16 @@
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="value">The value.</param>
-        public QueryParameter(string name, object value)
+        /// <param name="dbType">The dbtype.</param>
+        /// <param name="isNullable">A value indicating the parameter is nullable.</param>
+        /// <param name="size">The size.</param>
+        public QueryParameter(string name, object value, SqlDbType dbType, bool isNullable, int size = 0)
         {
             Name = name;
             Value = value;
+            DbType = dbType;
+            IsNullable = isNullable;
+            Size = size;
         }
     }
 }

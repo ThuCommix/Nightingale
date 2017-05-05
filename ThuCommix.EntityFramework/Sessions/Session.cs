@@ -388,7 +388,7 @@ namespace ThuCommix.EntityFramework.Sessions
             foreach (var field in fields)
             {
                 var propertyValue = ReflectionHelper.GetProperty(entityType, field.Name).GetValue(entity);
-                parameters.Add(new QueryParameter($"@{field.Name}", propertyValue));
+                parameters.Add(Query.GetQueryParameter($"@{field.Name}", propertyValue, field));
             }
 
             var query = new Query(commandBuilder.ToString(), entityType, parameters);
@@ -409,18 +409,18 @@ namespace ThuCommix.EntityFramework.Sessions
             var commandBuilder = new StringBuilder();
             var parameters = new List<QueryParameter>();
 
-            var changedFields = entity.PropertyChangeTracker.GetChangedProperties();
+            var changedFields = entity.PropertyChangeTracker.GetChangedProperties().Select(x => metadata.Fields.FirstOrDefault(y => y.Name == x)).ToList();
             if (changedFields.Count == 0)
                 return;
 
             commandBuilder.Append($"UPDATE {metadata.Table} SET ");
-            commandBuilder.Append(string.Join(",", changedFields.Select(x => $"{x} = @{x}")));
+            commandBuilder.Append(string.Join(",", changedFields.Select(x => $"{x.Name} = @{x.Name}")));
             commandBuilder.Append($" WHERE Id = {entity.Id} AND Version = {entity.Version - 1}");
 
             foreach (var field in changedFields)
             {
-                var propertyValue = ReflectionHelper.GetProperty(entityType, field).GetValue(entity);
-                parameters.Add(new QueryParameter($"@{field}", propertyValue));
+                var propertyValue = ReflectionHelper.GetProperty(entityType, field.Name).GetValue(entity);
+                parameters.Add(Query.GetQueryParameter($"@{field.Name}", propertyValue, field));
             }
 
             var query = new Query(commandBuilder.ToString(), entityType, parameters);

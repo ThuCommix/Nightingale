@@ -107,7 +107,16 @@ namespace ThuCommix.EntityFramework.MsSql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach(var parameter in query.Parameters)
+            {
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
+                sqlParameter.IsNullable = parameter.IsNullable;
+                sqlParameter.Value = parameter.Value;
+
+                command.Parameters.Add(sqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteNonQuery();
@@ -123,7 +132,16 @@ namespace ThuCommix.EntityFramework.MsSql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
+                sqlParameter.IsNullable = parameter.IsNullable;
+                sqlParameter.Value = parameter.Value;
+
+                command.Parameters.Add(sqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteScalar();
@@ -139,7 +157,16 @@ namespace ThuCommix.EntityFramework.MsSql
             var command = _connection.CreateCommand();
             command.CommandText = QueryConverter.GetQueryCommand(query);
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
+                sqlParameter.IsNullable = parameter.IsNullable;
+                sqlParameter.Value = parameter.Value;
+
+                command.Parameters.Add(sqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteReader();
@@ -155,7 +182,16 @@ namespace ThuCommix.EntityFramework.MsSql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command + " SELECT CAST(scope_identity() AS int)";
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
+                sqlParameter.IsNullable = parameter.IsNullable;
+                sqlParameter.Value = parameter.Value;
+
+                command.Parameters.Add(sqlParameter);
+            }
+
             command.Prepare();
 
             return Convert.ToInt32(command.ExecuteScalar());

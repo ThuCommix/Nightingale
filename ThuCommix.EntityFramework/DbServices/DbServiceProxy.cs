@@ -53,7 +53,8 @@ namespace ThuCommix.EntityFramework.DbServices
             {
                 for (var i = 0; i < parameters.Count; i++)
                 {
-                    queryParameters.Add(new QueryParameter(parameters[i].Name, msg.Args[i]));
+                    var parameter = parameters[i];
+                    queryParameters.Add(new QueryParameter(parameter.Name, msg.Args[i], parameter.DbType, parameter.IsNullable, parameter.Size));
                 }
             }
 
