@@ -1,4 +1,4 @@
-# ThuCommix.EntityFramework
+# ThuCommix.EntityFramework [![Build Status](https://travis-ci.org/ThuCommix/ThuCommix.EntityFramework.svg?branch=master)](https://travis-ci.org/ThuCommix/ThuCommix.EntityFramework)
 
 ThuCommix.EntityFramework is an object relational mapper (ORM) for .NET languages. It follows the model first pattern in which you declare your entity metadata via xml files. Through this metadata C# classes are generated which are annotated with attributes to fetch the right tables and columns during runtime.
 
