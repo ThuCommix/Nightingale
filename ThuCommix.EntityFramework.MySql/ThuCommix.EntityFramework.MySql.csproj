@@ -32,6 +32,9 @@
       <HintPath>..\packages\MySql.Data.6.9.9\lib\net45\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="ThuCommix.EntityFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ThuCommix.EntityFramework.1.0.0\lib\net45\ThuCommix.EntityFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MySqlDataProvider.cs" />
@@ -40,12 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ThuCommix.EntityFramework\ThuCommix.EntityFramework.csproj">
-      <Project>{500734c8-d477-4aed-9225-a7e1142109a7}</Project>
-      <Name>ThuCommix.EntityFramework</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

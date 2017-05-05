@@ -29,6 +29,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="ThuCommix.EntityFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ThuCommix.EntityFramework.1.0.0\lib\net45\ThuCommix.EntityFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MsSqlDataProvider.cs" />
@@ -37,10 +40,7 @@
     <Compile Include="QueryConverter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ThuCommix.EntityFramework\ThuCommix.EntityFramework.csproj">
-      <Project>{500734C8-D477-4AED-9225-A7E1142109A7}</Project>
-      <Name>ThuCommix.EntityFramework</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

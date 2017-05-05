@@ -6,7 +6,7 @@ ThuCommix.EntityFramework is an object relational mapper (ORM) for .NET language
 
 1. MSSQL
 2. MySQL
-3. PostgreSQL
+3. PostgreSQL (currently not tested)
 4. SQLite
 
 ### Getting started
@@ -14,6 +14,15 @@ ThuCommix.EntityFramework is an object relational mapper (ORM) for .NET language
 1. Create a new project and add ThuCommix.Framework via nuget
 2. Select a data provider (also available via nuget) and add it to your project
 3. Create an entity via xml as described below
+
+```
+PM> Install-Package ThuCommix.EntityFramework
+```
+```
+PM> Install-Package ThuCommix.EntityFramework.SQLite
+```
+
+(This also installs the dependencies of SQLite, you can delete all but "System.Data.SQLite")
 
 [Metadata for Person.xml](https://gist.github.com/ThuCommix/fbd987fd81d7544ac8252008a243916c "Person.xml")
 [Metadata for Address.xml](https://gist.github.com/ThuCommix/7dc00f0c5fc6e76536970c8db7c93a3c "Address.xml")

@@ -1,0 +1,8 @@
+language: csharp
+solution: ThuCommix.EntityFramework.sln
+before_install:
+  - sudo apt-get install nunit-console
+before_script:
+  - nuget restore ThuCommix.EntityFramework.sln
+after_script:
+  - nunit-console ThuCommix.EntityFramework.Tests/bin/Debug/ThuCommix.EntityFramework.Tests.dll

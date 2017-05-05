@@ -32,17 +32,14 @@
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.104.0\lib\net45\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="ThuCommix.EntityFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ThuCommix.EntityFramework.1.0.0\lib\net45\ThuCommix.EntityFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLiteDataProvider.cs" />
     <Compile Include="SQLiteTable.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ThuCommix.EntityFramework\ThuCommix.EntityFramework.csproj">
-      <Project>{500734C8-D477-4AED-9225-A7E1142109A7}</Project>
-      <Name>ThuCommix.EntityFramework</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

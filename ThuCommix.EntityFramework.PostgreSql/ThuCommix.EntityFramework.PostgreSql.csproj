@@ -42,6 +42,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="ThuCommix.EntityFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ThuCommix.EntityFramework.1.0.0\lib\net45\ThuCommix.EntityFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NpgsqlDataProvider.cs" />
@@ -50,12 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ThuCommix.EntityFramework\ThuCommix.EntityFramework.csproj">
-      <Project>{500734c8-d477-4aed-9225-a7e1142109a7}</Project>
-      <Name>ThuCommix.EntityFramework</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -91,17 +91,17 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ThuCommix.EntityFramework\ThuCommix.EntityFramework.csproj">
-      <Project>{500734c8-d477-4aed-9225-a7e1142109a7}</Project>
-      <Name>ThuCommix.EntityFramework</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Queries\ExpectedQueryOutputs.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ExpectedQueryOutputs.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ThuCommix.EntityFramework\ThuCommix.EntityFramework.csproj">
+      <Project>{500734c8-d477-4aed-9225-a7e1142109a7}</Project>
+      <Name>ThuCommix.EntityFramework</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
