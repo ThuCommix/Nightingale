@@ -78,8 +78,12 @@
     <Compile Include="Queries\Query.cs" />
     <Compile Include="Queries\QueryCondition.cs" />
     <Compile Include="Queries\QueryConditionGroup.cs" />
+    <Compile Include="Queries\QueryException.cs" />
+    <Compile Include="Queries\QueryHelper.cs" />
     <Compile Include="Queries\QueryJunction.cs" />
     <Compile Include="Queries\QueryParameter.cs" />
+    <Compile Include="Queries\SortExpression.cs" />
+    <Compile Include="Queries\SortingMode.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Registry.cs" />
     <Compile Include="Repository.cs" />
@@ -124,7 +128,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="Todo.txt" />
   </ItemGroup>

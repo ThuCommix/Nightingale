@@ -147,4 +147,16 @@
     <data name="Query_Max_Results_Are_Applied_When_Not_Null_False" xml:space="preserve">
         <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) </value>
     </data>
+    <data name="Query_Resolves_Sorting_Expression_Ascending" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias ASC </value>
+    </data>
+    <data name="Query_Resolves_Sorting_Expression_Descending" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC </value>
+    </data>
+    <data name="Query_Resolves_Multiple_Sorting_Expressions" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC, artist.Name ASC, a0.Biography DESC </value>
+    </data>
+    <data name="Query_No_Sorting" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) </value>
+    </data>
 </root>

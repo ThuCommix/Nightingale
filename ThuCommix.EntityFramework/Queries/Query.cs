@@ -30,7 +30,7 @@ namespace ThuCommix.EntityFramework.Queries
         /// <summary>
         /// Gets the parameters.
         /// </summary>
-        public IEnumerable<QueryParameter> Parameters { get; private set; }
+        public IEnumerable<QueryParameter> Parameters => _parameters;
 
         /// <summary>
         /// Gets or sets the entity type.
@@ -47,6 +47,13 @@ namespace ThuCommix.EntityFramework.Queries
         /// </summary>
         public IEnumerable<QueryConditionGroup> ConditionGroups => _groups;
 
+        /// <summary>
+        /// Gets the sorting expressions.
+        /// </summary>
+        public IEnumerable<SortExpression> SortingExpressions => _sortingExpressions;
+
+        private readonly List<SortExpression> _sortingExpressions;
+        private readonly List<QueryParameter> _parameters;
         private readonly List<QueryConditionGroup> _groups;
         private string _command;
 
@@ -56,7 +63,8 @@ namespace ThuCommix.EntityFramework.Queries
         public Query()
         {
             _groups = new List<QueryConditionGroup>();
-            Parameters = new List<QueryParameter>();
+            _sortingExpressions = new List<SortExpression>();
+            _parameters = new List<QueryParameter>();
         }
 
         /// <summary>
@@ -71,7 +79,7 @@ namespace ThuCommix.EntityFramework.Queries
             EntityType = entityType;
 
             if(parameters != null)
-                Parameters = parameters;
+                _parameters.AddRange(parameters);
         }
 
         /// <summary>
@@ -96,6 +104,72 @@ namespace ThuCommix.EntityFramework.Queries
             return queryConditionGroup;
         }
 
+        /// <summary>
+        /// Adds a new query condition group.
+        /// </summary>
+        /// <param name="conditionGroup">The query condition group.</param>
+        public void AddQueryConditionGroup(QueryConditionGroup conditionGroup)
+        {
+            if (conditionGroup == null)
+                throw new ArgumentNullException(nameof(conditionGroup));
+
+            _groups.Add(conditionGroup);
+        }
+
+        /// <summary>
+        /// Adds a new sorting expression to the query.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="sortingExpression">The sorting expression.</param>
+        /// <param name="sorting">The sorting mode.</param>
+        public void AddSortingExpression<T>(Expression<Func<T, object>> sortingExpression, SortingMode sorting) where T : Entity
+        {
+            if (sortingExpression == null)
+                throw new ArgumentNullException(nameof(sortingExpression));
+
+            AddSortingExpression(new SortExpression(sortingExpression, sorting));
+        }
+
+        /// <summary>
+        /// Adds a new sorting expression to the query.
+        /// </summary>
+        /// <param name="sortExpression">The sort expression.</param>
+        public void AddSortingExpression(SortExpression sortExpression)
+        {
+            if (sortExpression == null)
+                throw new ArgumentNullException(nameof(sortExpression));
+
+            _sortingExpressions.Add(sortExpression);
+        }
+
+        /// <summary>
+        /// Adds a new query parameter.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
+        public void AddQueryParameter(string name, object value)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            AddQueryParameter(new QueryParameter(name, value));
+        }
+
+        /// <summary>
+        /// Adds a new query parameter.
+        /// </summary>
+        /// <param name="parameter">The query parameter.</param>
+        public void AddQueryParameter(QueryParameter parameter)
+        {
+            if (parameter == null)
+                throw new ArgumentNullException(nameof(parameter));
+
+            _parameters.Add(parameter);
+        }
+
         private void CompileSql()
         {
             var entityMetadataResolver = DependencyResolver.GetInstance<IEntityMetadataResolver>();
@@ -103,7 +177,7 @@ namespace ThuCommix.EntityFramework.Queries
             var commandBuilder = new StringBuilder();
             var entityName = EntityType.Name.ToLower();
             var parameters = new List<QueryParameter>();
-            var joins = new List<Tuple<string, string>>();
+            var joins = new List<Tuple<string, string>> { new Tuple<string, string>(string.Empty, entityName) };
             var joinCommands = new List<string>();
             var conditionGroupCommands = new List<string>();
 
@@ -184,13 +258,44 @@ namespace ThuCommix.EntityFramework.Queries
                 }
             }
 
-            if(MaxResults != null)
+            if (_sortingExpressions.Count > 0)
+            {
+                commandBuilder.AppendLine($"ORDER BY {ResolveSortingExpressions(_sortingExpressions, joins)}");
+            }
+
+            if (MaxResults != null)
             {
                 commandBuilder.AppendLine($"LIMIT {MaxResults}");
             }
 
             _command = commandBuilder.ToString().Replace(Environment.NewLine, " ");
-            Parameters = parameters;
+
+            _parameters.Clear();
+            _parameters.AddRange(parameters);
+        }
+
+        private static string ResolveSortingExpressions(IEnumerable<SortExpression> sortingExpressions, IEnumerable<Tuple<string, string>> joins)
+        {
+            var sortings = new List<string>();
+
+            foreach(var sortExpression in sortingExpressions)
+            {
+                var propertyPath = QueryHelper.GetPropertyPath(sortExpression.Expression);
+                var lastIndex = propertyPath.LastIndexOf('.');
+                var basePropertyPath = lastIndex > 0 ? propertyPath.Substring(0, propertyPath.LastIndexOf('.')) : string.Empty;
+                var aliasWithPath = joins.FirstOrDefault(x => x.Item1 == basePropertyPath);
+                if (aliasWithPath == null)
+                    throw new QueryException("The sort expression can not be resolved because the selected entity is not joined.");
+
+                sortings.Add($"{aliasWithPath.Item2}.{propertyPath.Split('.').Last()} {GetSortingName(sortExpression.Sorting)}");
+            }
+
+            return string.Join(", ", sortings);
+        }
+
+        private static string GetSortingName(SortingMode sorting)
+        {
+            return sorting == SortingMode.Ascending ? "ASC" : "DESC";
         }
 
         private static string GetParameterName(ref int parameterIndex)

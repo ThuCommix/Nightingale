@@ -265,5 +265,96 @@ namespace ThuCommix.EntityFramework.Tests.Queries
                 ? ExpectedQueryOutputs.Query_Max_Results_Are_Applied_When_Not_Null_True 
                 : ExpectedQueryOutputs.Query_Max_Results_Are_Applied_When_Not_Null_False));
         }
+
+        [Test]
+        public void Query_Resolves_Sorting_Expression_Ascending()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.AnotherArtist.Alias == "Bernd");
+
+            query.AddSortingExpression<Artist>(x => x.AnotherArtist.Alias, SortingMode.Ascending);
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Resolves_Sorting_Expression_Ascending));
+        }
+
+        [Test]
+        public void Query_Resolves_Sorting_Expression_Descending()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.AnotherArtist.Alias == "Bernd");
+
+            query.AddSortingExpression<Artist>(x => x.AnotherArtist.Alias, SortingMode.Descending);
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Resolves_Sorting_Expression_Descending));
+        }
+
+        [Test]
+        public void Query_Resolves_Multiple_Sorting_Expressions()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.AnotherArtist.Alias == "Bernd");
+
+            query.AddSortingExpression<Artist>(x => x.AnotherArtist.Alias, SortingMode.Descending);
+            query.AddSortingExpression<Artist>(x => x.Name, SortingMode.Ascending);
+            query.AddSortingExpression<Artist>(x => x.AnotherArtist.Biography, SortingMode.Descending);
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Resolves_Multiple_Sorting_Expressions));
+        }
+
+        [Test]
+        public void Query_No_Sorting_Because_No_Sorting_Expressions()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.AnotherArtist.Alias == "Bernd");
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_No_Sorting));
+        }
+
+        [Test]
+        public void Query_Throws_Exception_When_Sort_Expression_Can_Not_Be_Resolved()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.Id == 1);
+
+            query.AddSortingExpression<Artist>(x => x.AnotherArtist.Alias, SortingMode.Ascending);
+
+            // act
+            string result = null;
+            Assert.Throws<QueryException>(() => result = query.Command);
+
+            // assert
+            Assert.That(result, Is.Null);
+        }
     }
 }

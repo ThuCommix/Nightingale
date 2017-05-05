@@ -35,7 +35,7 @@ namespace ThuCommix.EntityFramework.Queries
                 throw new ArgumentNullException(nameof(expression));
 
             Expression = expression;
-            PropertyPath = GetPropertyPath(expression);
+            PropertyPath = QueryHelper.GetPropertyPath(expression);
             EquationValue = GetEquationValue(expression);
             ExpressionType = GetExpressionType(expression);
         }
@@ -54,27 +54,6 @@ namespace ThuCommix.EntityFramework.Queries
             PropertyPath = propertyPath;
             EquationValue = equationValue;
             ExpressionType = expressionType;
-        }
-
-        /// <summary>
-        /// Gets the property path.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <returns>Returns the property path.</returns>
-        private string GetPropertyPath(Expression expression)
-        {
-            var lambdaExpression = expression as LambdaExpression;
-            var binaryExpression = lambdaExpression.Body as BinaryExpression;
-            var memberExpression = binaryExpression.Left as MemberExpression;
-
-            var propertyPath = (memberExpression.Expression.ToString() + $".{memberExpression.Member.Name}");
-            var lambdaParameterName = $"{lambdaExpression.Parameters[0].Name}.";
-            if (propertyPath.StartsWith(lambdaParameterName))
-            {
-                propertyPath = propertyPath.Substring(lambdaParameterName.Length, propertyPath.Length - lambdaParameterName.Length);
-            }
-
-            return propertyPath;
         }
 
         /// <summary>

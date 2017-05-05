@@ -115,6 +115,15 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0)  ähnelt.
+        /// </summary>
+        internal static string Query_No_Sorting {
+            get {
+                return ResourceManager.GetString("Query_No_Sorting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0)  ähnelt.
         /// </summary>
         internal static string Query_Null_Checks_On_Foreign_Properties_Do_Not_Create_Joins {
@@ -192,6 +201,33 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         internal static string Query_Operator_NotEquals_Works {
             get {
                 return ResourceManager.GetString("Query_Operator_NotEquals_Works", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC, artist.Name ASC, a0.Biography DESC  ähnelt.
+        /// </summary>
+        internal static string Query_Resolves_Multiple_Sorting_Expressions {
+            get {
+                return ResourceManager.GetString("Query_Resolves_Multiple_Sorting_Expressions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias ASC  ähnelt.
+        /// </summary>
+        internal static string Query_Resolves_Sorting_Expression_Ascending {
+            get {
+                return ResourceManager.GetString("Query_Resolves_Sorting_Expression_Ascending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC  ähnelt.
+        /// </summary>
+        internal static string Query_Resolves_Sorting_Expression_Descending {
+            get {
+                return ResourceManager.GetString("Query_Resolves_Sorting_Expression_Descending", resourceCulture);
             }
         }
         
