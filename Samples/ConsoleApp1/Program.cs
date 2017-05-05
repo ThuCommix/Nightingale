@@ -33,6 +33,7 @@ namespace ConsoleApp1
             address.Zip = "0815";
             address.Town = "SampleTown";
             address.Street = "Samplestreet 75a";
+            address.Type = AddressType.Business;
 
             person.Addresses.Add(address);
 
@@ -57,7 +58,7 @@ namespace ConsoleApp1
             Console.WriteLine($"Person: {loadedPerson.FullName}, IsLegalAge: {loadedPerson.IsLegalAge}");
 
             foreach (var addr in loadedPerson.ValidAddresses)
-                Console.WriteLine(addr.Street);
+                Console.WriteLine($"{addr.Street}, Type={addr.Type}");
 
             using (repository.BeginTransaction())
             {

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Address.cs" />
     <Compile Include="AddressEntityService.cs" />
+    <Compile Include="AddressType.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="PersonEntityService.cs" />
     <Compile Include="Program.cs" />

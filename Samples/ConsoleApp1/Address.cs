@@ -214,6 +214,30 @@ namespace ConsoleApp1
         
         private string _Street;
 	    
+		/// <summary>
+		/// 
+		/// </summary>
+		[Description("")]
+		[Mapped]
+	  	
+		[Mandatory]
+		
+        [FieldType("AddressType")]
+        [Cascade(Cascade.None)]
+        
+        [Enum]            
+        public AddressType Type
+        {
+            get { return _Type; }
+            set
+            {
+                PropertyChangeTracker.AddPropertyChangedItem(nameof(Type), _Type, value);
+                _Type = value;
+            }
+        }
+        
+        private AddressType _Type;
+        
 
 		/// <summary>
 		/// Initializes a new Address class.

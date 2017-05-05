@@ -8,5 +8,6 @@
         <Field Name="Zip" FieldType="string" MaxLength="12" Mandatory="true" Cascade="None" />
         <Field Name="Town" FieldType="string" MaxLength="50" Mandatory="true" Cascade="None" />
         <Field Name="Street" FieldType="string" MaxLength="100" Mandatory="true" Cascade="None" />
+        <Field Name="Type" FieldType="AddressType" Enum="true" Mandatory="true" Cascade="None" />
     </Fields>
 </Entity>
