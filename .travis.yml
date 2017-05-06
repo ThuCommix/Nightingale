@@ -1,5 +1,7 @@
 language: csharp
 solution: ThuCommix.EntityFramework.sln
+mono:
+  - latest
 before_install:
   - sudo apt-get install nunit-console
 before_script:
