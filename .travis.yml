@@ -7,4 +7,4 @@ before_install:
 before_script:
   - nuget restore ThuCommix.EntityFramework.sln
 after_script:
-  - nunit-console ThuCommix.EntityFramework.Tests/bin/Debug/ThuCommix.EntityFramework.Tests.dll
+  - nunit-console ThuCommix.EntityFramework.Tests/bin/Release/ThuCommix.EntityFramework.Tests.dll
