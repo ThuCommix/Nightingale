@@ -88,7 +88,8 @@ namespace ThuCommix.EntityFramework.Tests
             propertyChangeTracker.AddPropertyChangedItem<Artist>(x => x.Name, "T2", "T3");
 
             // act
-            propertyChangeTracker.TryGetReplacedValue<Artist, string>(x => x.Name, out string value);
+            string value;
+            propertyChangeTracker.TryGetReplacedValue<Artist, string>(x => x.Name, out value);
 
             // assert
             Assert.That(value, Is.EqualTo("T1"));
