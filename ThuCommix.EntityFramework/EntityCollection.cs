@@ -14,7 +14,7 @@ namespace ThuCommix.EntityFramework
         /// </summary>
         /// <param name="index">The index.</param>
         /// <returns>Returns a collection item.</returns>
-        public T this[int index] { get => _collectionItems[index]; set => _collectionItems[index] = value; }
+        public T this[int index] { get { return _collectionItems[index]; } set { _collectionItems[index] = value; } }
 
         /// <summary>
         /// Gets the amount of items in the collection.
