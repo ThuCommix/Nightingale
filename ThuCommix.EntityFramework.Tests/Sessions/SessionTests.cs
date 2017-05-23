@@ -408,7 +408,6 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
 
             dataReaderMock.Setup(s => s.Read()).Returns(() => { if (canRead) { canRead = false; return true; } return false; });
             dataProviderMock.Setup(s => s.ExecuteReader(query)).Returns(dataReaderMock.Object);
-            dataReaderMock.Setup(s => s.Close());
             dataReaderMock.Setup(s => s.Dispose());
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -440,7 +439,6 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
 
             dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object).Callback<IQuery>((q) => query = q as Query);
             dataReaderMock.Setup(s => s.Read()).Returns(false);
-            dataReaderMock.Setup(s => s.Close());
             dataReaderMock.Setup(s => s.Dispose());
 
             // act
@@ -724,7 +722,6 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
 
             dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Read()).Returns(false);
-            dataReaderMock.Setup(s => s.Close());
             dataReaderMock.Setup(s => s.Dispose());
 
             TestHelper.SetupEntityMetadataServices();
@@ -758,7 +755,6 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
 
             dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Read()).Returns(false);
-            dataReaderMock.Setup(s => s.Close());
             dataReaderMock.Setup(s => s.Dispose());
 
             TestHelper.SetupEntityMetadataServices();
@@ -793,7 +789,6 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
 
             dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Read()).Returns(false);
-            dataReaderMock.Setup(s => s.Close());
             dataReaderMock.Setup(s => s.Dispose());
 
             TestHelper.SetupEntityMetadataServices();
@@ -829,7 +824,6 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
 
             dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Read()).Returns(() => { if (canRead) { canRead = false; return true; } return false; });
-            dataReaderMock.Setup(s => s.Close());
             dataReaderMock.Setup(s => s.Dispose());
 
             entityServiceMock.Setup(s => s.CreateEntity(dataReaderMock.Object, typeof(ArtistStatisticValues))).Returns(new ArtistStatisticValues());
