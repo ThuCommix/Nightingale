@@ -75,6 +75,7 @@
     <Compile Include="IDataProvider.cs" />
     <Compile Include="EntityService.cs" />
     <Compile Include="IEntityService.cs" />
+    <Compile Include="Queries\GlobalQueryFilter.cs" />
     <Compile Include="Queries\IQuery.cs" />
     <Compile Include="Queries\Query.cs" />
     <Compile Include="Queries\QueryCondition.cs" />

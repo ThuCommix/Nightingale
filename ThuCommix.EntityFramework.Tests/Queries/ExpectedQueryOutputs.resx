@@ -159,4 +159,13 @@
     <data name="Query_No_Sorting" xml:space="preserve">
         <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) </value>
     </data>
+    <data name="Query_Global_Filter" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0) AND (artist.Id = @p1) </value>
+    </data>
+    <data name="Query_Global_Filter_Multiple" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0 AND artist.Note IS @p1) AND (artist.Id = @p2) </value>
+    </data>
+    <data name="Query_No_Filter" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Id = @p0) </value>
+    </data>
 </root>

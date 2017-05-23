@@ -11,6 +11,8 @@ namespace ThuCommix.EntityFramework.Tests.Queries
         public void Setup()
         {
             DependencyResolver.Clear();
+            Query.RemoveQueryFilters<Artist>();
+            Query.RemoveQueryFilters<ArtistStatisticValues>();
             TestHelper.SetupEntityMetadataServices();
         }
 
@@ -355,6 +357,81 @@ namespace ThuCommix.EntityFramework.Tests.Queries
 
             // assert
             Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void Query_Apply_Global_Filters()
+        {
+            // arrange
+            Query.SetQueryFilter<Artist>(x => x.Deleted == false);
+
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.Id == 1);
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Global_Filter));
+        }
+
+        [Test]
+        public void Query_Apply_Global_Filters_Mutiple()
+        {
+            // arrange
+            Query.SetQueryFilter<Artist>(x => x.Deleted == false);
+            Query.SetQueryFilter<Artist>(x => x.Note == null);
+
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.Id == 1);
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Global_Filter_Multiple));
+        }
+
+        [Test]
+        public void Query_Apply_Global_Filters_For_Correct_Entity()
+        {
+            // arrange
+            Query.SetQueryFilter<Artist>(x => x.Deleted == false);
+            Query.SetQueryFilter<ArtistStatisticValues>(x => x.AnotherArtist == null);
+
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.Id == 1);
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Global_Filter));
+        }
+
+        [Test]
+        public void Query_Can_Clear_Filters()
+        {
+            // arrange
+            Query.SetQueryFilter<Artist>(x => x.Deleted == false);
+            Query.RemoveQueryFilters<Artist>();
+
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+
+            group.CreateQueryCondition<Artist>(x => x.Id == 1);
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_No_Filter));
         }
     }
 }

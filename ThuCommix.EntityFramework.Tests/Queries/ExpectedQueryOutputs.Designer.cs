@@ -61,6 +61,24 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0) AND (artist.Id = @p1)  ähnelt.
+        /// </summary>
+        internal static string Query_Global_Filter {
+            get {
+                return ResourceManager.GetString("Query_Global_Filter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0 AND artist.Note IS @p1) AND (artist.Id = @p2)  ähnelt.
+        /// </summary>
+        internal static string Query_Global_Filter_Multiple {
+            get {
+                return ResourceManager.GetString("Query_Global_Filter_Multiple", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS NOT @p0)  ähnelt.
         /// </summary>
         internal static string Query_Inner_Join_For_Mandatory_Fields_Works {
@@ -111,6 +129,15 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         internal static string Query_Multiple_ConditionGroups_Or_Works {
             get {
                 return ResourceManager.GetString("Query_Multiple_ConditionGroups_Or_Works", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Id = @p0)  ähnelt.
+        /// </summary>
+        internal static string Query_No_Filter {
+            get {
+                return ResourceManager.GetString("Query_No_Filter", resourceCulture);
             }
         }
         

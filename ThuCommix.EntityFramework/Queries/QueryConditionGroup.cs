@@ -68,6 +68,21 @@ namespace ThuCommix.EntityFramework.Queries
         /// <summary>
         /// Creates new query condition.
         /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>Returns the query condition.</returns>
+        public QueryCondition CreateQueryCondition(Expression expression)
+        {
+            var queryCondition = new QueryCondition(expression);
+            _conditions.Add(queryCondition);
+
+            IsDirty = true;
+
+            return queryCondition;
+        }
+
+        /// <summary>
+        /// Creates new query condition.
+        /// </summary>
         /// <param name="propertyPath">The property path.</param>
         /// <param name="equationValue">The equation value.</param>
         /// <returns>Returns the query condition.</returns>

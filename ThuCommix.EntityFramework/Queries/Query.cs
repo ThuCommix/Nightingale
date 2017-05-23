@@ -52,6 +52,12 @@ namespace ThuCommix.EntityFramework.Queries
         /// </summary>
         public IEnumerable<SortExpression> SortingExpressions => _sortingExpressions;
 
+        /// <summary>
+        /// Gets the global query filters.
+        /// </summary>
+        public static IEnumerable<GlobalQueryFilter> GlobalQueryFilters { get { return _globalQueryFilters; } }
+
+        private readonly static List<GlobalQueryFilter> _globalQueryFilters = new List<GlobalQueryFilter>();
         private readonly List<SortExpression> _sortingExpressions;
         private readonly List<QueryParameter> _parameters;
         private readonly List<QueryConditionGroup> _groups;
@@ -167,6 +173,8 @@ namespace ThuCommix.EntityFramework.Queries
 
             commandBuilder.AppendLine($"SELECT {string.Join(", ", metadata.Fields.Select(x => x.Name))} FROM {metadata.Table} {entityName}");
 
+            ApplyGlobalQueryFilters();
+
             var parameterIndex = 0;
             var aliasIndex = 0;
 
@@ -259,6 +267,17 @@ namespace ThuCommix.EntityFramework.Queries
             _parameters.AddRange(parameters);
         }
 
+        private void ApplyGlobalQueryFilters()
+        {
+            var filters = GlobalQueryFilters.Where(x => x.EntityType == EntityType).ToList();
+            if(filters.Count > 0)
+            {
+                var group = new QueryConditionGroup();
+                filters.ForEach(x => group.CreateQueryCondition(x.Expression));
+                _groups.Insert(0, group);
+            }
+        }
+
         private static string ResolveSortingExpressions(IEnumerable<SortExpression> sortingExpressions, IEnumerable<Tuple<string, string>> joins)
         {
             var sortings = new List<string>();
@@ -339,6 +358,25 @@ namespace ThuCommix.EntityFramework.Queries
         public static QueryParameter GetQueryParameter(string name, object value, FieldMetadata fieldMetadata)
         {
             return new QueryParameter(name, value, fieldMetadata.GetSqlDbType(), !fieldMetadata.Mandatory, fieldMetadata.MaxLength);
+        }
+
+        /// <summary>
+        /// Sets a global query filter.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="expression">The expression.</param>
+        public static void SetQueryFilter<T>(Expression<Func<T, bool>> expression) where T : Entity
+        {
+            _globalQueryFilters.Add(GlobalQueryFilter.CreateQueryFilter(expression));
+        }
+
+        /// <summary>
+        /// Removes all query filters for the specified entity type.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        public static void RemoveQueryFilters<T>()
+        {
+            _globalQueryFilters.RemoveAll(x => x.EntityType == typeof(T));
         }
     }
 }
