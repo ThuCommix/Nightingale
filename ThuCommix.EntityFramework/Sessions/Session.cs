@@ -331,22 +331,21 @@ namespace ThuCommix.EntityFramework.Sessions
 
             DebugQueryResult(query);
 
-            var dataReader = DataProvider.ExecuteReader(query);
             var entityList = new List<Entity>();
 
-            while (dataReader.Read())
+            using (var dataReader = DataProvider.ExecuteReader(query))
             {
-                var entity = EntityService.CreateEntity(dataReader, query.EntityType);
-                if (entity != null)
+                while (dataReader.Read())
                 {
-                    entity.SetSession(this);
-                    entity.EagerLoadPropertiesInternal();
-                    entityList.Add(entity);
-                }                   
+                    var entity = EntityService.CreateEntity(dataReader, query.EntityType);
+                    if (entity != null)
+                    {
+                        entity.SetSession(this);
+                        entity.EagerLoadPropertiesInternal();
+                        entityList.Add(entity);
+                    }
+                }
             }
-
-            dataReader.Close();
-            dataReader.Dispose();
 
             return entityList;
         }
