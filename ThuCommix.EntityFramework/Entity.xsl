@@ -226,7 +226,7 @@ namespace <xsl:value-of select="@Namespace" />
         [Expression("<xsl:value-of select="translate(@Expression, '&quot;', '')" />")]
         [VirtualProperty]
         [FieldType("<xsl:value-of select="@FieldType" />")]
-        public List&lt;<xsl:value-of select="@FieldType" />&gt; <xsl:value-of select="@Name" /> =&gt; <xsl:value-of select="@Expression" />;
+        public ReadOnlyCollection&lt;<xsl:value-of select="@FieldType" />&gt; <xsl:value-of select="@Name" /> =&gt; <xsl:value-of select="@Expression" />AsReadOnly();
 	</xsl:for-each>
 
 		/// &lt;summary&gt;
