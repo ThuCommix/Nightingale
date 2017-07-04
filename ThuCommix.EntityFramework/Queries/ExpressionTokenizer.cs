@@ -13,6 +13,8 @@ namespace ThuCommix.EntityFramework.Queries
         /// </summary>
         public List<Token> Tokens { get; private set; }
 
+        private string _memberPath;
+
         /// <summary>
         /// Initializes a new ExpressionTokenizer class.
         /// </summary>
@@ -76,6 +78,8 @@ namespace ThuCommix.EntityFramework.Queries
                     var memberExpression = expression as MemberExpression;
                     if(memberExpression.Expression.NodeType == ExpressionType.Constant)
                     {
+                        //here we get the property path in the member and this is the object being evaluated on
+                        _memberPath = memberExpression.Member.Name;
                         EvalInternal(memberExpression.Expression);
                     }
                     else
@@ -104,7 +108,16 @@ namespace ThuCommix.EntityFramework.Queries
                     break;
                 case ExpressionType.Constant:
                     var constantExpression = expression as ConstantExpression;
-                    Tokens.Add(new ConstantToken(constantExpression.Value));
+                    if(!string.IsNullOrWhiteSpace(_memberPath))
+                    {
+                        Tokens.Add(new ConstantToken(constantExpression.Value.GetType().GetProperty(_memberPath).GetValue(constantExpression.Value)));
+                    }
+                    else
+                    {
+                        Tokens.Add(new ConstantToken(constantExpression.Value));
+                    }
+
+                    _memberPath = null;
                     break;
                 case ExpressionType.Parameter:
                     var parameterExpression = expression as ParameterExpression;
