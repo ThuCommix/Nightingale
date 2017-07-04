@@ -77,15 +77,34 @@
     <Compile Include="IEntityService.cs" />
     <Compile Include="Queries\GlobalQueryFilter.cs" />
     <Compile Include="Queries\IQuery.cs" />
+    <Compile Include="Queries\Operator.cs" />
     <Compile Include="Queries\Query.cs" />
     <Compile Include="Queries\QueryCondition.cs" />
     <Compile Include="Queries\QueryConditionGroup.cs" />
     <Compile Include="Queries\QueryException.cs" />
+    <Compile Include="Queries\ExpressionTokenizer.cs" />
     <Compile Include="Queries\QueryHelper.cs" />
     <Compile Include="Queries\QueryJunction.cs" />
     <Compile Include="Queries\QueryParameter.cs" />
     <Compile Include="Queries\SortExpression.cs" />
     <Compile Include="Queries\SortingMode.cs" />
+    <Compile Include="Queries\Tokens\BinaryToken.cs" />
+    <Compile Include="Queries\Tokens\ConditionLinkType.cs" />
+    <Compile Include="Queries\Tokens\ConditionLinkSqlToken.cs" />
+    <Compile Include="Queries\Tokens\ConditionSqlToken.cs" />
+    <Compile Include="Queries\Tokens\ConstantToken.cs" />
+    <Compile Include="Queries\Tokens\ISqlTokenComposerService.cs" />
+    <Compile Include="Queries\Tokens\JoinSqlToken.cs" />
+    <Compile Include="Queries\Tokens\MethodToken.cs" />
+    <Compile Include="Queries\Tokens\SelectSqlToken.cs" />
+    <Compile Include="Queries\Tokens\SqlToken.cs" />
+    <Compile Include="Queries\Tokens\SqlTokenComposerService.cs" />
+    <Compile Include="Queries\Tokens\SqlTokenType.cs" />
+    <Compile Include="Queries\Tokens\TokenComposerResult.cs" />
+    <Compile Include="Queries\Tokens\TokenType.cs" />
+    <Compile Include="Queries\Tokens\TypeContextToken.cs" />
+    <Compile Include="Queries\Tokens\PropertyToken.cs" />
+    <Compile Include="Queries\Tokens\Token.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Registry.cs" />
     <Compile Include="Repository.cs" />
@@ -133,6 +152,7 @@
   <ItemGroup>
     <Content Include="Todo.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

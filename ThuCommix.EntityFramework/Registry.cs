@@ -1,4 +1,5 @@
 ﻿using ThuCommix.EntityFramework.Metadata;
+using ThuCommix.EntityFramework.Queries.Tokens;
 
 namespace ThuCommix.EntityFramework
 {
@@ -9,6 +10,7 @@ namespace ThuCommix.EntityFramework
             DependencyResolver.Register<IEntityMetadataService>(new EntityMetadataService());
             DependencyResolver.Register<IEntityMetadataResolver>(new EntityMetadataResolver());
             DependencyResolver.Register<IEntityService>(new EntityService());
+            DependencyResolver.Register<ISqlTokenComposerService>(new SqlTokenComposerService());
         }
     }
 }

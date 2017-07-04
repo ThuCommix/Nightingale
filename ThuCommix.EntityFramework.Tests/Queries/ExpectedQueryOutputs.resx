@@ -100,72 +100,87 @@
 	</resheader>
     
     <data name="Query_Left_Join_For_Non_Mandatory_Fields_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues LEFT JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_SecondArtist_ID WHERE (a0.Alias IS NOT @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues LEFT JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_SecondArtist_ID WHERE (a0.Alias IS NOT @p0)</value>
     </data>
     <data name="Query_Inner_Join_For_Mandatory_Fields_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS NOT @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS NOT @p0)</value>
     </data>
     <data name="Query_Null_Checks_On_Foreign_Properties_Do_Not_Create_Joins" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0)</value>
     </data>
     <data name="Query_Operator_Equals_For_Null_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS @p0)</value>
     </data>
     <data name="Query_Operator_Equals_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0)</value>
     </data>
     <data name="Query_Operator_NotEquals_For_Null_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0)</value>
     </data>
     <data name="Query_Operator_NotEquals_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id != @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id != @p0)</value>
     </data>
     <data name="Query_Operator_GreaterThan_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt; @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt; @p0)</value>
     </data>
     <data name="Query_Operator_GreaterThanOrEquals_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt;= @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt;= @p0)</value>
     </data>
     <data name="Query_Operator_LessThan_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt; @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt; @p0)</value>
     </data>
     <data name="Query_Operator_LessThanOrEquals_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt;= @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt;= @p0)</value>
     </data>
     <data name="Query_Same_FK_Access_Does_Not_Generate_Multiple_Joins" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0 AND a0.Biography IS NOT @p1) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0 AND a0.Biography IS NOT @p1)</value>
     </data>
     <data name="Query_Multiple_ConditionGroups_And_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) AND (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) AND (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2)</value>
     </data>
     <data name="Query_Multiple_ConditionGroups_Or_Works" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) OR (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) OR (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2)</value>
     </data>
     <data name="Query_Max_Results_Are_Applied_When_Not_Null_True" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) LIMIT 1 </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) LIMIT 1</value>
     </data>
     <data name="Query_Max_Results_Are_Applied_When_Not_Null_False" xml:space="preserve">
-        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) </value>
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0)</value>
     </data>
     <data name="Query_Resolves_Sorting_Expression_Ascending" xml:space="preserve">
-        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias ASC </value>
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias ASC</value>
     </data>
     <data name="Query_Resolves_Sorting_Expression_Descending" xml:space="preserve">
-        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC </value>
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC</value>
     </data>
     <data name="Query_Resolves_Multiple_Sorting_Expressions" xml:space="preserve">
-        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC, artist.Name ASC, a0.Biography DESC </value>
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC, artist.Name ASC, a0.Biography DESC</value>
     </data>
     <data name="Query_No_Sorting" xml:space="preserve">
-        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) </value>
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0)</value>
     </data>
     <data name="Query_Global_Filter" xml:space="preserve">
-        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0) AND (artist.Id = @p1) </value>
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0) AND (artist.Id = @p1)</value>
     </data>
     <data name="Query_Global_Filter_Multiple" xml:space="preserve">
-        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0 AND artist.Note IS @p1) AND (artist.Id = @p2) </value>
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0 AND artist.Note IS @p1) AND (artist.Id = @p2)</value>
     </data>
     <data name="Query_No_Filter" xml:space="preserve">
-        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Id = @p0) </value>
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Id = @p0)</value>
+    </data>
+    <data name="Query_Supports_Complex_Expressions" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID LEFT JOIN Artist a1 ON a1.Id = a0.FK_AnotherArtist_ID WHERE (artist.Name = @p0 AND a0.Note = @p1 OR artist.Alias = @p2 AND a1.Note != @p3)</value>
+    </data>
+    <data name="Query_Supports_Complex_Expressions2" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID LEFT JOIN Artist a1 ON a1.Id = a0.FK_AnotherArtist_ID WHERE (artist.Name LIKE @p0 AND artist.FK_AnotherArtist_ID IS @p1 OR a1.Name = @p2)</value>
+    </data>
+    <data name="Query_Supports_String_StartsWith" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1)</value>
+    </data>
+    <data name="Query_Supports_String_EndsWith" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1)</value>
+    </data>
+    <data name="Query_Supports_String_Contains" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1)</value>
     </data>
 </root>

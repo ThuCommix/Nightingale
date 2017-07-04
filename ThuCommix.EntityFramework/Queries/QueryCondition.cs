@@ -35,9 +35,6 @@ namespace ThuCommix.EntityFramework.Queries
                 throw new ArgumentNullException(nameof(expression));
 
             Expression = expression;
-            PropertyPath = QueryHelper.GetPropertyPath(expression);
-            EquationValue = GetEquationValue(expression);
-            ExpressionType = GetExpressionType(expression);
         }
 
         /// <summary>
@@ -54,32 +51,6 @@ namespace ThuCommix.EntityFramework.Queries
             PropertyPath = propertyPath;
             EquationValue = equationValue;
             ExpressionType = expressionType;
-        }
-
-        /// <summary>
-        /// Gets the equation value.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <returns>Returns the equation value.</returns>
-        private object GetEquationValue(Expression expression)
-        {
-            var lambdaExpression = expression as LambdaExpression;
-            var binaryExpression = lambdaExpression.Body as BinaryExpression;
-
-            return Expression.Lambda(binaryExpression.Right).Compile().DynamicInvoke();
-        }
-
-        /// <summary>
-        /// Gets the expression type.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <returns>Returns the expression type.</returns>
-        private ExpressionType GetExpressionType(Expression expression)
-        {
-            var lambdaExpression = expression as LambdaExpression;
-            var binaryExpression = lambdaExpression.Body as BinaryExpression;
-
-            return binaryExpression.NodeType;
         }
     }
 }

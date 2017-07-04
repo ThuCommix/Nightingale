@@ -7,6 +7,7 @@ using NUnit.Framework;
 using ThuCommix.EntityFramework.Entities;
 using ThuCommix.EntityFramework.Metadata;
 using ThuCommix.EntityFramework.Queries;
+using ThuCommix.EntityFramework.Queries.Tokens;
 using ThuCommix.EntityFramework.Sessions;
 using ThuCommix.EntityFramework.Tests.DataSources;
 
@@ -432,6 +433,7 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             var session = new SessionProxy(dataProviderMock.Object);
 
             TestHelper.SetupEntityMetadataServices();
+            TestHelper.SetupSqlTokenComposer();
 
             const int Id = 1;
 
@@ -714,6 +716,8 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             var session = new SessionProxy(dataProviderMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
+            TestHelper.SetupSqlTokenComposer();
+
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -747,6 +751,8 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             var dataProviderMock = TestHelper.SetupDataProvider();
             var session = new SessionProxy(dataProviderMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
+
+            TestHelper.SetupSqlTokenComposer();
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
@@ -782,6 +788,8 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             var session = new SessionProxy(dataProviderMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
+            TestHelper.SetupSqlTokenComposer();
+
             var entity = TestHelper.CreateEntityWithId<Artist>(saved ? 1 : 0);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -815,6 +823,7 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             var session = new SessionProxy(dataProviderMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
+            var tokenServiceMock = TestHelper.SetupSqlTokenComposer();
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -842,6 +851,7 @@ namespace ThuCommix.EntityFramework.Tests.Sessions
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
             dataProviderMock.VerifyAll();
+            tokenServiceMock.VerifyAll();
         }
 
         [Test]

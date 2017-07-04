@@ -6,6 +6,7 @@ using System.Text;
 using ThuCommix.EntityFramework.Entities;
 using ThuCommix.EntityFramework.Extensions;
 using ThuCommix.EntityFramework.Metadata;
+using ThuCommix.EntityFramework.Queries.Tokens;
 
 namespace ThuCommix.EntityFramework.Queries
 {
@@ -58,6 +59,16 @@ namespace ThuCommix.EntityFramework.Queries
         public static IEnumerable<GlobalQueryFilter> GlobalQueryFilters { get { return _globalQueryFilters; } }
 
         private readonly static List<GlobalQueryFilter> _globalQueryFilters = new List<GlobalQueryFilter>();
+
+        /// Gets the entity metadata resolver.
+        /// </summary>
+        protected IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
+
+        /// <summary>
+        /// Gets the sql token composer service.
+        /// </summary>
+        protected ISqlTokenComposerService SqlTokenComposerService => DependencyResolver.GetInstance<ISqlTokenComposerService>();
+
         private readonly List<SortExpression> _sortingExpressions;
         private readonly List<QueryParameter> _parameters;
         private readonly List<QueryConditionGroup> _groups;
@@ -86,6 +97,8 @@ namespace ThuCommix.EntityFramework.Queries
 
             if(parameters != null)
                 _parameters.AddRange(parameters);
+
+            ApplyGlobalQueryFilters();
         }
 
         /// <summary>
@@ -95,6 +108,8 @@ namespace ThuCommix.EntityFramework.Queries
         private Query(Type entityType) : this()
         {
             EntityType = entityType;
+
+            ApplyGlobalQueryFilters();
         }
 
         /// <summary>
@@ -162,109 +177,150 @@ namespace ThuCommix.EntityFramework.Queries
 
         private void CompileSql()
         {
-            var entityMetadataResolver = DependencyResolver.GetInstance<IEntityMetadataResolver>();
-            var metadata = entityMetadataResolver.GetEntityMetadata(EntityType);
-            var commandBuilder = new StringBuilder();
-            var entityName = EntityType.Name.ToLower();
-            var parameters = new List<QueryParameter>();
-            var joins = new List<Tuple<string, string>> { new Tuple<string, string>(string.Empty, entityName) };
-            var joinCommands = new List<string>();
-            var conditionGroupCommands = new List<string>();
-
-            commandBuilder.AppendLine($"SELECT {string.Join(", ", metadata.Fields.Select(x => x.Name))} FROM {metadata.Table} {entityName}");
-
-            ApplyGlobalQueryFilters();
-
-            var parameterIndex = 0;
+            var entityMetadata = EntityMetadataResolver.GetEntityMetadata(EntityType);
+            var rootSelectToken = new SelectSqlToken(entityMetadata);
+            var sqlTokens = new List<SqlToken> { rootSelectToken };
             var aliasIndex = 0;
+            var propertyAliasMapping = new Dictionary<string, string>();
+            propertyAliasMapping.Add(string.Empty, entityMetadata.Table.ToLower());
 
-            foreach(var group in ConditionGroups)
+            foreach (var group in ConditionGroups)
             {
-                var conditionCommands = new List<string>();
+                sqlTokens.Add(new ConditionLinkSqlToken(group.Junction == QueryJunction.And ? Operator.AndAlso : Operator.OrElse, ConditionLinkType.Start));
 
                 foreach(var condition in group.Conditions)
                 {
-                    var propertyPath = condition.PropertyPath;
-                    var equationValue = condition.EquationValue;
-                    var currentMetadata = metadata;
-                    var propertyList = propertyPath.Split('.');
-                    var previousAlias = entityName;
-                    var parameterName = GetParameterName(ref parameterIndex);
-                    var currentPropertyPath = string.Empty;
-                    var operatorSymbol = GetOperatorSymbol(condition);
-                    FieldMetadata fieldMetadata = null;
+                    // The expression can be null, in this case the PropertyPath, EquationValue and Binary operator is set
+                    // TypeContextToken -> PropertyToken -> BinaryToken -> ConstantToken
 
-                    foreach (var propertyName in propertyList)
+                    List<Token> tokens = null;
+
+                    if (condition.Expression == null)
                     {
-                        currentPropertyPath += currentPropertyPath == string.Empty ? propertyName : $".{propertyName}";
-                        fieldMetadata = currentMetadata.Fields.FirstOrDefault(x => x.Name == propertyName || x.Name == $"FK_{propertyName}_ID");
-                        if (!fieldMetadata.IsComplexFieldType && !fieldMetadata.IsForeignKey)
-                        {
-                            conditionCommands.Add($"{previousAlias}.{fieldMetadata.Name} {operatorSymbol} {parameterName}");
-                        }
-                        else
-                        {
-                            if (propertyList.Length == 1)
-                            {
-                                conditionCommands.Add($"{previousAlias}.{fieldMetadata.Name} {operatorSymbol} {parameterName}");
-                                break;
-                            }
+                        tokens = new List<Token> { new TypeContextToken(EntityType), new PropertyToken(condition.PropertyPath),
+                            new BinaryToken(QueryHelper.ConvertOperator(condition.ExpressionType)), new ConstantToken(condition.EquationValue) };
+                    }
+                    else
+                    {
+                        var expressionTokenizer = new ExpressionTokenizer();
+                        expressionTokenizer.Eval(condition.Expression);
+                        tokens = expressionTokenizer.Tokens;
+                    }
 
-                            var existingAlias = joins.FirstOrDefault(x => x.Item1 == currentPropertyPath);
-                            if(existingAlias != null)
+                    var conditionType = tokens.OfType<TypeContextToken>().First().Type;
+
+                    if (conditionType != EntityType && conditionType != typeof(Entity))
+                        throw new QueryException("The condition type must match the entity type of the query.");
+
+                    var currentEntityMetadata = entityMetadata;
+                    var currentAlias = rootSelectToken.Alias;
+                    var propertyPath = string.Empty;
+
+                    for (int i = 0; i < tokens.Count; i++)
+                    {
+                        var currentToken = tokens[i];
+                        if(currentToken.TokenType == TokenType.TypeContext)
+                        {
+                            var typeContextToken = (TypeContextToken)currentToken;
+                        }
+
+                        if(currentToken.TokenType == TokenType.Constant)
+                        {
+                            if(i + 1 < tokens.Count && tokens[i + 1].TokenType == TokenType.Binary)
                             {
-                                previousAlias = existingAlias.Item2;
+                                sqlTokens.Add(new ConditionLinkSqlToken(((BinaryToken)tokens[i + 1]).Operator, ConditionLinkType.Between));
+                            }
+                        }
+
+                        if(currentToken.TokenType == TokenType.Property)
+                        {
+                            var propertyToken = (PropertyToken)currentToken;
+                            var fieldMetadata = currentEntityMetadata.Fields.FirstOrDefault(x => x.Name == propertyToken.Property || x.Name == $"FK_{propertyToken.Property}_ID");
+
+                            if(tokens[i + 1].TokenType == TokenType.Binary)
+                            {
+                                var binaryToken = (BinaryToken)tokens[i + 1];
+                                var constantToken = (ConstantToken)tokens[i + 2]; // could be a problem for x => x.IsOk && .. instead of x => x.IsOk == true &&
+                                // this is a single property access without a join.
+                                sqlTokens.Add(new ConditionSqlToken(binaryToken.Operator, currentAlias, fieldMetadata, constantToken.Value));
+                                // Reset current alias
+                                currentAlias = rootSelectToken.Alias;
+                                propertyPath = string.Empty;
+                            }
+                            else if(tokens[i + 1].TokenType == TokenType.Method)
+                            {
+                                // method call on the property
+                                var methodToken = tokens[i + 1] as MethodToken;
+                                var constantToken = (ConstantToken)tokens[i + 2]; // could be a problem for x => x.IsOk && .. instead of x => x.IsOk == true &&
+
+                                if (methodToken.MethodName == "StartsWith" && methodToken.DeclaringType == typeof(string))
+                                {
+                                    sqlTokens.Add(new ConditionSqlToken(Operator.Like, currentAlias, fieldMetadata, $"{constantToken.Value}%"));
+                                }
+                                else if (methodToken.MethodName == "EndsWith" && methodToken.DeclaringType == typeof(string))
+                                {
+                                    sqlTokens.Add(new ConditionSqlToken(Operator.Like, currentAlias, fieldMetadata, $"%{constantToken.Value}"));
+                                }
+                                else if (methodToken.MethodName == "Contains" && methodToken.DeclaringType == typeof(string))
+                                {
+                                    sqlTokens.Add(new ConditionSqlToken(Operator.Like, currentAlias, fieldMetadata, $"%{constantToken.Value}%"));
+                                }
+                                else
+                                {
+                                    throw new NotSupportedException($"The method {methodToken.MethodName} was not supported.");
+                                }
+
+                                // Reset current alias
+                                currentAlias = rootSelectToken.Alias;
+                                propertyPath = string.Empty;
+                            }
+                            else if (tokens[i + 1].TokenType == TokenType.Property)
+                            {
+                                // This is just a join to reach another property
+                                var targetEntityMetadata = EntityMetadataResolver.EntityMetadata.FirstOrDefault(x => x.Name == fieldMetadata.FieldType);
+                                var existingJoinSqlToken = sqlTokens.OfType<JoinSqlToken>().FirstOrDefault(x => x.SourceAlias == currentAlias && x.NavigationFieldMetadata == fieldMetadata);
+                                if (existingJoinSqlToken == null)
+                                {
+                                    var joinSqlToken = new JoinSqlToken(aliasIndex++, currentAlias, currentEntityMetadata, fieldMetadata, targetEntityMetadata);
+                                    sqlTokens.Add(joinSqlToken);
+                                    currentAlias = joinSqlToken.TargetAlias;
+                                }
+                                else
+                                {
+                                    currentAlias = existingJoinSqlToken.TargetAlias;
+                                }
+
+                                propertyPath += string.IsNullOrWhiteSpace(propertyPath) ? propertyToken.Property : $".{propertyToken.Property}";
+                                if(!propertyAliasMapping.ContainsKey(propertyPath))
+                                    propertyAliasMapping.Add(propertyPath, currentAlias);
+
+                                currentEntityMetadata = targetEntityMetadata;
                             }
                             else
                             {
-                                var aliasName = GetAlias(ref aliasIndex);
-                                joinCommands.Add($"{GetJoinType(fieldMetadata)} JOIN {fieldMetadata.FieldType} {aliasName} ON {aliasName}.Id = {previousAlias}.{fieldMetadata.Name}");
-                                previousAlias = aliasName;
-
-                                joins.Add(new Tuple<string, string>(currentPropertyPath, aliasName));
+                                // Should not happen ;)
+                                throw new QueryException("Invalid token syntax.");
                             }
-
-                            currentMetadata = entityMetadataResolver.EntityMetadata.FirstOrDefault(x => x.Name == fieldMetadata.FieldType);
                         }
                     }
 
-                    parameters.Add(GetQueryParameter(parameterName, equationValue, fieldMetadata));
+                    if(condition != group.Conditions.Last())
+                        sqlTokens.Add(new ConditionLinkSqlToken(Operator.AndAlso, ConditionLinkType.Between));
                 }
 
-                conditionGroupCommands.Add(string.Join(" AND ", conditionCommands));
+                sqlTokens.Add(new ConditionLinkSqlToken(Operator.Equal, ConditionLinkType.End));
             }
 
-            foreach(var joinCommand in joinCommands)
-            {
-                commandBuilder.AppendLine(joinCommand);
-            }
+            var result = SqlTokenComposerService.ComposeSql(sqlTokens);
+            _command = result.Command;
+            _parameters.Clear();
+            _parameters.AddRange(result.Parameters);
 
-            commandBuilder.AppendLine("WHERE");
-
-            for (var i = 0; i < conditionGroupCommands.Count; i++)
-            {
-                commandBuilder.AppendLine($"({conditionGroupCommands[i]})");
-                if(i + 1 < conditionGroupCommands.Count)
-                {
-                    var conditionGroup = ConditionGroups.ToList()[i + 1];
-                    commandBuilder.AppendLine(conditionGroup.Junction == QueryJunction.And ? "AND" : "OR");
-                }
-            }
-
-            if (_sortingExpressions.Count > 0)
-            {
-                commandBuilder.AppendLine($"ORDER BY {ResolveSortingExpressions(_sortingExpressions, joins)}");
-            }
+            if(_sortingExpressions.Count > 0)
+                _command += $" ORDER BY {ResolveSortingExpressions(_sortingExpressions, propertyAliasMapping)}";
 
             if (MaxResults != null)
-            {
-                commandBuilder.AppendLine($"LIMIT {MaxResults}");
-            }
-
-            _command = commandBuilder.ToString().Replace(Environment.NewLine, " ");
-
-            _parameters.Clear();
-            _parameters.AddRange(parameters);
+                _command += $" LIMIT {MaxResults.Value}";
         }
 
         private void ApplyGlobalQueryFilters()
@@ -278,7 +334,7 @@ namespace ThuCommix.EntityFramework.Queries
             }
         }
 
-        private static string ResolveSortingExpressions(IEnumerable<SortExpression> sortingExpressions, IEnumerable<Tuple<string, string>> joins)
+        private static string ResolveSortingExpressions(IEnumerable<SortExpression> sortingExpressions, Dictionary<string, string> joins)
         {
             var sortings = new List<string>();
 
@@ -287,11 +343,11 @@ namespace ThuCommix.EntityFramework.Queries
                 var propertyPath = QueryHelper.GetPropertyPath(sortExpression.Expression);
                 var lastIndex = propertyPath.LastIndexOf('.');
                 var basePropertyPath = lastIndex > 0 ? propertyPath.Substring(0, propertyPath.LastIndexOf('.')) : string.Empty;
-                var aliasWithPath = joins.FirstOrDefault(x => x.Item1 == basePropertyPath);
-                if (aliasWithPath == null)
+                var aliasWithPath = joins.FirstOrDefault(x => x.Key == basePropertyPath);
+                if (aliasWithPath.Key == null)
                     throw new QueryException("The sort expression can not be resolved because the selected entity is not joined.");
 
-                sortings.Add($"{aliasWithPath.Item2}.{propertyPath.Split('.').Last()} {GetSortingName(sortExpression.Sorting)}");
+                sortings.Add($"{aliasWithPath.Value}.{propertyPath.Split('.').Last()} {GetSortingName(sortExpression.Sorting)}");
             }
 
             return string.Join(", ", sortings);
@@ -300,42 +356,6 @@ namespace ThuCommix.EntityFramework.Queries
         private static string GetSortingName(SortingMode sorting)
         {
             return sorting == SortingMode.Ascending ? "ASC" : "DESC";
-        }
-
-        private static string GetParameterName(ref int parameterIndex)
-        {
-            return $"@p{parameterIndex++}";
-        }
-
-        private static string GetAlias(ref int aliasIndex)
-        {
-            return $"a{aliasIndex++}";
-        }
-
-        private static string GetJoinType(FieldMetadata field)
-        {
-            return field.Mandatory ? "INNER" : "LEFT";
-        }
-
-        private string GetOperatorSymbol(QueryCondition condition)
-        {
-            switch(condition.ExpressionType)
-            {
-                case ExpressionType.Equal:
-                    return condition.EquationValue == null ? "IS" : "=";
-                case ExpressionType.NotEqual:
-                    return condition.EquationValue == null ? "IS NOT" : "!=";
-                case ExpressionType.GreaterThan:
-                    return ">";
-                case ExpressionType.GreaterThanOrEqual:
-                    return ">=";
-                case ExpressionType.LessThan:
-                    return "<";
-                case ExpressionType.LessThanOrEqual:
-                    return "<=";
-                default:
-                    throw new NotSupportedException($"The expression type '{condition.ExpressionType}' was not supported.");
-            }
         }
 
         /// <summary>

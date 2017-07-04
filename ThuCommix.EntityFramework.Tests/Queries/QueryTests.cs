@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 using ThuCommix.EntityFramework.Queries;
+using ThuCommix.EntityFramework.Queries.Tokens;
 using ThuCommix.EntityFramework.Tests.DataSources;
 
 namespace ThuCommix.EntityFramework.Tests.Queries
@@ -14,6 +16,8 @@ namespace ThuCommix.EntityFramework.Tests.Queries
             Query.RemoveQueryFilters<Artist>();
             Query.RemoveQueryFilters<ArtistStatisticValues>();
             TestHelper.SetupEntityMetadataServices();
+
+            DependencyResolver.Register<ISqlTokenComposerService>(new SqlTokenComposerService());
         }
 
         [Test]
@@ -432,6 +436,85 @@ namespace ThuCommix.EntityFramework.Tests.Queries
 
             // assert
             Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_No_Filter));
+        }
+
+        [Test]
+        public void Query_Supports_Complex_Expressions()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+            group.CreateQueryCondition<Artist>(x => x.Name == "Artist" && x.AnotherArtist.Note == "Test" || x.Alias == "Fresh Artist" && x.AnotherArtist.AnotherArtist.Note != "Test");
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_Complex_Expressions));
+        }
+
+        [Test]
+        public void Query_Supports_Complex_Expressions2()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+            group.CreateQueryCondition<Artist>(x => x.Name.StartsWith("Test") && x.AnotherArtist == null || x.AnotherArtist.AnotherArtist.Name == "Peter");
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_Complex_Expressions2));
+        }
+
+        [Test]
+        public void Query_Supports_String_StartsWith()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+            group.CreateQueryCondition<Artist>(x => x.Name.StartsWith("Artist") && x.Alias == "Alias");
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_String_StartsWith));
+            Assert.That(query.Parameters.First().Value.ToString().EndsWith("%"));
+        }
+
+        [Test]
+        public void Query_Supports_String_EndsWith()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+            group.CreateQueryCondition<Artist>(x => x.Name.EndsWith("Artist") && x.Alias == "Alias");
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_String_EndsWith));
+            Assert.That(query.Parameters.First().Value.ToString().StartsWith("%"));
+        }
+
+        [Test]
+        public void Query_Supports_String_Contains()
+        {
+            // arrange
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+            group.CreateQueryCondition<Artist>(x => x.Name.Contains("Artist") && x.Alias == "Alias");
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_String_Contains));
+            Assert.That(query.Parameters.First().Value.ToString().StartsWith("%"));
+            Assert.That(query.Parameters.First().Value.ToString().EndsWith("%"));
         }
     }
 }

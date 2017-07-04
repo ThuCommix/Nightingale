@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Moq;
 using ThuCommix.EntityFramework.Entities;
 using ThuCommix.EntityFramework.Metadata;
+using ThuCommix.EntityFramework.Queries;
+using ThuCommix.EntityFramework.Queries.Tokens;
 using ThuCommix.EntityFramework.Sessions;
 using ThuCommix.EntityFramework.Tests.DataSources;
 
@@ -97,6 +99,14 @@ namespace ThuCommix.EntityFramework.Tests
         {
             DependencyResolver.Register<IEntityMetadataService>(new EntityMetadataService());
             DependencyResolver.Register<IEntityMetadataResolver>(new EntityMetadataResolver());
+        }
+
+        public static Mock<ISqlTokenComposerService> SetupSqlTokenComposer()
+        {
+            var composerMock = SetupMock<ISqlTokenComposerService>();
+            composerMock.Setup(s => s.ComposeSql(It.IsAny<IEnumerable<SqlToken>>())).Returns(new TokenComposerResult(string.Empty, Enumerable.Empty<QueryParameter>()));
+
+            return composerMock;
         }
     }
 }

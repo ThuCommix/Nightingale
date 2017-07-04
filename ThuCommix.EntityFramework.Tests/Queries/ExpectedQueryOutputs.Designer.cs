@@ -61,7 +61,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0) AND (artist.Id = @p1)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0) AND (artist.Id = @p1) ähnelt.
         /// </summary>
         internal static string Query_Global_Filter {
             get {
@@ -70,7 +70,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0 AND artist.Note IS @p1) AND (artist.Id = @p2)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0 AND artist.Note IS @p1) AND (artist.Id = @p2) ähnelt.
         /// </summary>
         internal static string Query_Global_Filter_Multiple {
             get {
@@ -79,7 +79,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS NOT @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS NOT @p0) ähnelt.
         /// </summary>
         internal static string Query_Inner_Join_For_Mandatory_Fields_Works {
             get {
@@ -88,7 +88,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues LEFT JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_SecondArtist_ID WHERE (a0.Alias IS NOT @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues LEFT JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_SecondArtist_ID WHERE (a0.Alias IS NOT @p0) ähnelt.
         /// </summary>
         internal static string Query_Left_Join_For_Non_Mandatory_Fields_Works {
             get {
@@ -97,7 +97,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) ähnelt.
         /// </summary>
         internal static string Query_Max_Results_Are_Applied_When_Not_Null_False {
             get {
@@ -106,7 +106,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) LIMIT 1  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) LIMIT 1 ähnelt.
         /// </summary>
         internal static string Query_Max_Results_Are_Applied_When_Not_Null_True {
             get {
@@ -115,7 +115,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) AND (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) AND (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2) ähnelt.
         /// </summary>
         internal static string Query_Multiple_ConditionGroups_And_Works {
             get {
@@ -124,7 +124,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) OR (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) OR (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2) ähnelt.
         /// </summary>
         internal static string Query_Multiple_ConditionGroups_Or_Works {
             get {
@@ -133,7 +133,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Id = @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Id = @p0) ähnelt.
         /// </summary>
         internal static string Query_No_Filter {
             get {
@@ -142,7 +142,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ähnelt.
         /// </summary>
         internal static string Query_No_Sorting {
             get {
@@ -151,7 +151,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0) ähnelt.
         /// </summary>
         internal static string Query_Null_Checks_On_Foreign_Properties_Do_Not_Create_Joins {
             get {
@@ -160,7 +160,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS @p0) ähnelt.
         /// </summary>
         internal static string Query_Operator_Equals_For_Null_Works {
             get {
@@ -169,7 +169,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) ähnelt.
         /// </summary>
         internal static string Query_Operator_Equals_Works {
             get {
@@ -178,7 +178,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt; @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt; @p0) ähnelt.
         /// </summary>
         internal static string Query_Operator_GreaterThan_Works {
             get {
@@ -187,7 +187,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt;= @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt;= @p0) ähnelt.
         /// </summary>
         internal static string Query_Operator_GreaterThanOrEquals_Works {
             get {
@@ -196,7 +196,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt; @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt; @p0) ähnelt.
         /// </summary>
         internal static string Query_Operator_LessThan_Works {
             get {
@@ -205,7 +205,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt;= @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt;= @p0) ähnelt.
         /// </summary>
         internal static string Query_Operator_LessThanOrEquals_Works {
             get {
@@ -214,7 +214,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0) ähnelt.
         /// </summary>
         internal static string Query_Operator_NotEquals_For_Null_Works {
             get {
@@ -223,7 +223,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id != @p0)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id != @p0) ähnelt.
         /// </summary>
         internal static string Query_Operator_NotEquals_Works {
             get {
@@ -232,7 +232,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC, artist.Name ASC, a0.Biography DESC  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC, artist.Name ASC, a0.Biography DESC ähnelt.
         /// </summary>
         internal static string Query_Resolves_Multiple_Sorting_Expressions {
             get {
@@ -241,7 +241,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias ASC  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias ASC ähnelt.
         /// </summary>
         internal static string Query_Resolves_Sorting_Expression_Ascending {
             get {
@@ -250,7 +250,7 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC ähnelt.
         /// </summary>
         internal static string Query_Resolves_Sorting_Expression_Descending {
             get {
@@ -259,11 +259,56 @@ namespace ThuCommix.EntityFramework.Tests.Queries {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0 AND a0.Biography IS NOT @p1)  ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0 AND a0.Biography IS NOT @p1) ähnelt.
         /// </summary>
         internal static string Query_Same_FK_Access_Does_Not_Generate_Multiple_Joins {
             get {
                 return ResourceManager.GetString("Query_Same_FK_Access_Does_Not_Generate_Multiple_Joins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID LEFT JOIN Artist a1 ON a1.Id = a0.FK_AnotherArtist_ID WHERE (artist.Name = @p0 AND a0.Note = @p1 OR artist.Alias = @p2 AND a1.Note != @p3) ähnelt.
+        /// </summary>
+        internal static string Query_Supports_Complex_Expressions {
+            get {
+                return ResourceManager.GetString("Query_Supports_Complex_Expressions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID LEFT JOIN Artist a1 ON a1.Id = a0.FK_AnotherArtist_ID WHERE (artist.Name LIKE @p0 AND artist.FK_AnotherArtist_ID IS @p1 OR a1.Name = @p2) ähnelt.
+        /// </summary>
+        internal static string Query_Supports_Complex_Expressions2 {
+            get {
+                return ResourceManager.GetString("Query_Supports_Complex_Expressions2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1) ähnelt.
+        /// </summary>
+        internal static string Query_Supports_String_Contains {
+            get {
+                return ResourceManager.GetString("Query_Supports_String_Contains", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1) ähnelt.
+        /// </summary>
+        internal static string Query_Supports_String_EndsWith {
+            get {
+                return ResourceManager.GetString("Query_Supports_String_EndsWith", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1) ähnelt.
+        /// </summary>
+        internal static string Query_Supports_String_StartsWith {
+            get {
+                return ResourceManager.GetString("Query_Supports_String_StartsWith", resourceCulture);
             }
         }
     }

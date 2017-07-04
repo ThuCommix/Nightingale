@@ -1,8 +1,9 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 
 namespace ThuCommix.EntityFramework.Queries
 {
-    public static class QueryHelper
+    internal static class QueryHelper
     {
         /// <summary>
         /// Gets the property path.
@@ -32,6 +33,69 @@ namespace ThuCommix.EntityFramework.Queries
             }
 
             return propertyPath;
+        }
+
+        /// <summary>
+        /// Gets the operator symbol.
+        /// </summary>
+        /// <param name="op">The operator.</param>
+        /// <returns>Returns the operator sql symbol.</returns>
+        public static string GetOperatorSymbol(Operator op, bool isNullType = false)
+        {
+            if (isNullType && op == Operator.Equal)
+                return "IS";
+
+            if (isNullType && op == Operator.NotEqual)
+                return "IS NOT";
+
+            switch (op)
+            {
+                case Operator.Equal:
+                    return "=";
+                case Operator.NotEqual:
+                    return "!=";
+                case Operator.GreaterThan:
+                    return ">";
+                case Operator.GreaterThanOrEqual:
+                    return ">=";
+                case Operator.LessThan:
+                    return "<";
+                case Operator.LessThanOrEqual:
+                    return "<=";
+                case Operator.AndAlso:
+                    return "AND";
+                case Operator.OrElse:
+                    return "OR";
+                case Operator.Like:
+                    return "LIKE";
+                default:
+                    throw new NotSupportedException($"The operator '{op}' was not supported.");
+            }
+        }
+
+        public static Operator ConvertOperator(ExpressionType expressionType)
+        {
+            switch(expressionType)
+            {
+                case ExpressionType.Equal:
+                    return Operator.Equal;
+                case ExpressionType.NotEqual:
+                    return Operator.NotEqual;
+                case ExpressionType.GreaterThan:
+                    return Operator.GreaterThan;
+                case ExpressionType.GreaterThanOrEqual:
+                    return Operator.GreaterThanOrEqual;
+                case ExpressionType.LessThan:
+                    return Operator.LessThan;
+                case ExpressionType.LessThanOrEqual:
+                    return Operator.LessThanOrEqual;
+                case ExpressionType.AndAlso:
+                    return Operator.AndAlso;
+                case ExpressionType.OrElse:
+                    return Operator.OrElse;
+                default:
+                    throw new NotSupportedException($"The expression-type '{expressionType} was not supported.'");
+            }
         }
     }
 }

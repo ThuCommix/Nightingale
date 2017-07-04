@@ -164,8 +164,8 @@ namespace ThuCommix.EntityFramework.Sessions
         {
             var query = new Query {EntityType = entityType, MaxResults = 1};
             var group = query.CreateQueryConditionGroup();
-            group.CreateQueryCondition(x => x.Id == id);
-            group.CreateQueryCondition(x => x.Deleted == false);
+            group.CreateQueryCondition("Id", id, System.Linq.Expressions.ExpressionType.Equal);
+            group.CreateQueryCondition("Deleted", false, System.Linq.Expressions.ExpressionType.Equal);
 
             return ExecuteQuery(query).FirstOrDefault();
         }

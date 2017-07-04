@@ -180,7 +180,7 @@ namespace ThuCommix.EntityFramework
             var query = Query.CreateQuery<T>();
             var group = query.CreateQueryConditionGroup();
 
-            group.CreateQueryCondition(x => x.Deleted == false);
+            group.CreateQueryCondition("Deleted", false, ExpressionType.Equal);
 
             if(expression != null)
                 group.CreateQueryCondition(expression);
