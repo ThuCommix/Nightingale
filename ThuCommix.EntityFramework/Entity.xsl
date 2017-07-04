@@ -177,7 +177,7 @@ namespace <xsl:value-of select="@Namespace" />
         [EagerLoad]
         </xsl:if>
         [ReferenceField("FK_<xsl:value-of select="@ReferenceField" />_ID")]
-		public EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt; <xsl:value-of select="@Name" />
+		public IList&lt;<xsl:value-of select="@FieldType" />&gt; <xsl:value-of select="@Name" />
         {
             get
             {
@@ -193,7 +193,7 @@ namespace <xsl:value-of select="@Namespace" />
                     if(items != null)
                     {
                         items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = true);
-                        _<xsl:value-of select="@Name" />.AddRange(items);
+                        ((EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt;)_<xsl:value-of select="@Name" />).AddRange(items);
                         items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = false);
                         _<xsl:value-of select="@Name" />Queried = true;   
                     }
@@ -203,7 +203,7 @@ namespace <xsl:value-of select="@Namespace" />
             }
         }
         
-        private EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt; _<xsl:value-of select="@Name" />;
+        private IList&lt;<xsl:value-of select="@FieldType" />&gt; _<xsl:value-of select="@Name" />;
         private bool _<xsl:value-of select="@Name" />Queried;
 	</xsl:for-each>
 
@@ -276,7 +276,7 @@ namespace <xsl:value-of select="@Namespace" />
         <xsl:for-each select="ListFields/ListField">
         <xsl:if test="@EagerLoad = 'true'">
             var items<xsl:value-of select="@Name" /> = Session.ExecuteQuery(GetQuery&lt;<xsl:value-of select="@FieldType" />&gt;(x =&gt; x.FK_<xsl:value-of select="@ReferenceField" />_ID == Id)).OfType&lt;<xsl:value-of select="@FieldType" />&gt;();
-            _<xsl:value-of select="@Name" />.AddRange(items<xsl:value-of select="@Name" />);
+            ((EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt;)_<xsl:value-of select="@Name" />).AddRange(items<xsl:value-of select="@Name" />);
             _<xsl:value-of select="@Name" />Queried = true;
         </xsl:if>
         </xsl:for-each>
