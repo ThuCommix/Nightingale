@@ -69,6 +69,13 @@ namespace ThuCommix.EntityFramework
         List<T> GetList<T>(Expression<Func<T, bool>> expression) where T : Entity;
 
         /// <summary>
+        /// Gets a list of entities based on the expression.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <returns>Returns the result list of entities.</returns
+        List<T> GetList<T>() where T : Entity;
+
+        /// <summary>
         /// Executes the specified query.
         /// </summary>
         /// <param name="query">The query.</param>

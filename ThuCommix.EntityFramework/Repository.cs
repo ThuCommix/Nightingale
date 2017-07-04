@@ -188,6 +188,17 @@ namespace ThuCommix.EntityFramework
             return Session.ExecuteQuery(query).OfType<T>().ToList();
         }
 
+
+        /// <summary>
+        /// Gets a list of entities based on the expression.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <returns>Returns the result list of entities.</returns
+        public virtual List<T> GetList<T>() where T : Entity
+        {
+            return GetList<T>(null);
+        }
+
         /// <summary>
         /// Executes the specified query.
         /// </summary>
