@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using ThuCommix.EntityFramework;
-using ThuCommix.EntityFramework.Entities;
-using ThuCommix.EntityFramework.Extensions;
-using ThuCommix.EntityFramework.Queries;
+using Concordia.Framework;
+using Concordia.Framework.Entities;
+using Concordia.Framework.Extensions;
+using Concordia.Framework.Queries;
 
 // generated Address.cs
 		

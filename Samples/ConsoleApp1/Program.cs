@@ -1,8 +1,8 @@
 ﻿using System;
-using ThuCommix.EntityFramework;
-using ThuCommix.EntityFramework.Extensions;
-using ThuCommix.EntityFramework.Sessions;
-using ThuCommix.EntityFramework.SQLite;
+using Concordia.Framework;
+using Concordia.Framework.Extensions;
+using Concordia.Framework.Sessions;
+using Concordia.Framework.SQLite;
 
 namespace ConsoleApp1
 {

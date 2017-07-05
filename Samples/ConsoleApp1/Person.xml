@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Entity Name="Person" Namespace="ConsoleApp1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="../../ThuCommix.EntityFramework/Entity.xsd">
+<Entity Name="Person" Namespace="ConsoleApp1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="../../Concordia.Framework/Entity.xsd">
     <Fields>
         <Field Name="FirstName" FieldType="string" Mandatory="true" MaxLength="50" Cascade="None" />
         <Field Name="Name" FieldType="string" Mandatory="true" MaxLength="50" Cascade="None" />

@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 // Change them to the values specific to your project.
 
 [assembly: AssemblyTitle("EntityGenerator")]
-[assembly: AssemblyDescription("Generates entity classes for ThuCommix.EntityFramework from xml")]
+[assembly: AssemblyDescription("Generates entity classes for Concordia.Framework from xml")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("")]
