@@ -29,6 +29,7 @@ namespace ThuCommix.EntityFramework
         private readonly string _referenceField;
         private readonly Entity _owner;
         private readonly List<T> _collectionItems;
+        private readonly List<T> _removedCollectionItems;
 
         /// <summary>
         /// Initializes a new EntityCollection class.
@@ -40,6 +41,7 @@ namespace ThuCommix.EntityFramework
             _owner = owner;
             _referenceField = referenceField;
             _collectionItems = new List<T>();
+            _removedCollectionItems = new List<T>();
         }
 
         /// <summary>
@@ -48,6 +50,9 @@ namespace ThuCommix.EntityFramework
         /// <param name="item">The item.</param>
         private void SetReferenceField(T item)
         {
+            if (_removedCollectionItems.Contains(item))
+                _removedCollectionItems.Remove(item);
+
             ReflectionHelper.GetProperty(item.GetType(), _referenceField).SetValue(item, _owner);
         }
 
@@ -57,6 +62,8 @@ namespace ThuCommix.EntityFramework
         /// <param name="item">The item.</param>
         private void RemoveReferenceField(T item)
         {
+            _removedCollectionItems.Add(item);
+
             var fieldMetadata = DependencyResolver.GetInstance<IEntityMetadataResolver>().GetEntityMetadata(item).Fields.FirstOrDefault(x => x.Name == $"FK_{_referenceField}_ID");
             if (fieldMetadata?.Mandatory == true)
                 return;
@@ -81,6 +88,15 @@ namespace ThuCommix.EntityFramework
         public List<Entity> GetCollectionItems()
         {
             return _collectionItems.OfType<Entity>().ToList();
+        }
+
+        /// <summary>
+        /// Gets the removed collection items.
+        /// </summary>
+        /// <returns>Returns the removed collection items.</returns>
+        public List<Entity> GetRemovedCollectionItems()
+        {
+            return _removedCollectionItems.OfType<Entity>().ToList();
         }
 
         /// <summary>

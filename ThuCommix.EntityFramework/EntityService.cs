@@ -108,9 +108,19 @@ namespace ThuCommix.EntityFramework
 
             foreach (var listField in metadata.ListFields.Where(x => x.Cascade >= cascade))
             {
-                var subEntities = ((IEntityCollection)ReflectionHelper.GetProperty(entityType, listField.Name).GetValue(entity)).GetCollectionItems();
+                var entityCollection = (IEntityCollection)ReflectionHelper.GetProperty(entityType, listField.Name).GetValue(entity);
+                var subEntities = entityCollection.GetCollectionItems();
+                var removedEntities = entityCollection.GetRemovedCollectionItems();
 
                 foreach (var subEntity in subEntities)
+                {
+                    if (subEntity != null)
+                    {
+                        GetChildEntities(subEntity, cascade, entities);
+                    }
+                }
+
+                foreach (var subEntity in removedEntities)
                 {
                     if (subEntity != null)
                     {
