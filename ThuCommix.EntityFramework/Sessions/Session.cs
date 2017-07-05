@@ -314,6 +314,8 @@ namespace ThuCommix.EntityFramework.Sessions
             {
                 entity.PropertyChangeTracker.Clear();
             }
+
+            _flushList.Clear();
         }
 
         /// <summary>
