@@ -1,6 +1,6 @@
-# ThuCommix.EntityFramework [![Build Status](https://travis-ci.org/ThuCommix/ThuCommix.EntityFramework.svg?branch=master)](https://travis-ci.org/ThuCommix/ThuCommix.EntityFramework)
+# Concordia.Framework [![Build Status](https://travis-ci.org/ThuCommix/Concordia.Framework.svg?branch=master)](https://travis-ci.org/ThuCommix/Concordia.Framework)
 
-ThuCommix.EntityFramework is an object relational mapper (ORM) for .NET languages. It follows the model first pattern in which you declare your entity metadata via xml files. Through this metadata C# classes are generated which are annotated with attributes to fetch the right tables and columns during runtime.
+Concordia.Framework is an object relational mapper (ORM) for .NET languages. It follows the model first pattern in which you declare your entity metadata via xml files. Through this metadata C# classes are generated which are annotated with attributes to fetch the right tables and columns during runtime.
 
 ### Supported databases
 
@@ -16,10 +16,10 @@ ThuCommix.EntityFramework is an object relational mapper (ORM) for .NET language
 3. Create an entity via xml as described below
 
 ```
-PM> Install-Package ThuCommix.EntityFramework
+PM> Install-Package Concordia.Framework
 ```
 ```
-PM> Install-Package ThuCommix.EntityFramework.SQLite
+PM> Install-Package Concordia.Framework.SQLite
 ```
 
 (This also installs the dependencies of SQLite, you can delete all but "System.Data.SQLite")
