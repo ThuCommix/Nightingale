@@ -1,10 +1,10 @@
 language: csharp
-solution: ThuCommix.EntityFramework.sln
+solution: Concordia.Framework.sln
 mono:
   - latest
 before_install:
   - sudo apt-get install nunit-console
 before_script:
-  - nuget restore ThuCommix.EntityFramework.sln
+  - nuget restore Concordia.Framework.sln
 after_script:
-  - nunit-console ThuCommix.EntityFramework.Tests/bin/Release/ThuCommix.EntityFramework.Tests.dll
+  - nunit-console Concordia.Framework.Tests/bin/Release/Concordia.Framework.Tests.dll

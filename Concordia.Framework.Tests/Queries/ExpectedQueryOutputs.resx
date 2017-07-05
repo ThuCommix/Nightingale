@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<!-- 
+		Microsoft ResX Schema
+
+		Version 1.3
+
+		The primary goals of this format is to allow a simple XML format 
+		that is mostly human readable. The generation and parsing of the 
+		various data types are done through the TypeConverter classes 
+		associated with the data types.
+
+		Example:
+
+		... ado.net/XML headers & schema ...
+		<resheader name="resmimetype">text/microsoft-resx</resheader>
+		<resheader name="version">1.3</resheader>
+		<resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+		<resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+		<data name="Name1">this is my long string</data>
+		<data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+		<data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+			[base64 mime encoded serialized .NET Framework object]
+		</data>
+		<data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+			[base64 mime encoded string representing a byte array form of the .NET Framework object]
+		</data>
+
+		There are any number of "resheader" rows that contain simple 
+		name/value pairs.
+
+		Each data row contains a name, and value. The row also contains a 
+		type or mimetype. Type corresponds to a .NET class that support 
+		text/value conversion through the TypeConverter architecture. 
+		Classes that don't support this are serialized and stored with the 
+		mimetype set.
+
+		The mimetype is used for serialized objects, and tells the 
+		ResXResourceReader how to depersist the object. This is currently not 
+		extensible. For a given mimetype the value must be set accordingly:
+
+		Note - application/x-microsoft.net.object.binary.base64 is the format 
+		that the ResXResourceWriter will generate, however the reader can 
+		read any of the formats listed below.
+
+		mimetype: application/x-microsoft.net.object.binary.base64
+		value   : The object must be serialized with 
+			: System.Serialization.Formatters.Binary.BinaryFormatter
+			: and then encoded with base64 encoding.
+
+		mimetype: application/x-microsoft.net.object.soap.base64
+		value   : The object must be serialized with 
+			: System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+			: and then encoded with base64 encoding.
+
+		mimetype: application/x-microsoft.net.object.bytearray.base64
+		value   : The object must be serialized into a byte array 
+			: using a System.ComponentModel.TypeConverter
+			: and then encoded with base64 encoding.
+	-->
+	
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+    
+    <data name="Query_Left_Join_For_Non_Mandatory_Fields_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues LEFT JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_SecondArtist_ID WHERE (a0.Alias IS NOT @p0)</value>
+    </data>
+    <data name="Query_Inner_Join_For_Mandatory_Fields_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS NOT @p0)</value>
+    </data>
+    <data name="Query_Null_Checks_On_Foreign_Properties_Do_Not_Create_Joins" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0)</value>
+    </data>
+    <data name="Query_Operator_Equals_For_Null_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS @p0)</value>
+    </data>
+    <data name="Query_Operator_Equals_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0)</value>
+    </data>
+    <data name="Query_Operator_NotEquals_For_Null_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.FK_SecondArtist_ID IS NOT @p0)</value>
+    </data>
+    <data name="Query_Operator_NotEquals_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id != @p0)</value>
+    </data>
+    <data name="Query_Operator_GreaterThan_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt; @p0)</value>
+    </data>
+    <data name="Query_Operator_GreaterThanOrEquals_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &gt;= @p0)</value>
+    </data>
+    <data name="Query_Operator_LessThan_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt; @p0)</value>
+    </data>
+    <data name="Query_Operator_LessThanOrEquals_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id &lt;= @p0)</value>
+    </data>
+    <data name="Query_Same_FK_Access_Does_Not_Generate_Multiple_Joins" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0 AND a0.Biography IS NOT @p1)</value>
+    </data>
+    <data name="Query_Multiple_ConditionGroups_And_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) AND (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2)</value>
+    </data>
+    <data name="Query_Multiple_ConditionGroups_Or_Works" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues INNER JOIN Artist a0 ON a0.Id = artiststatisticvalues.FK_AnotherArtist_ID WHERE (a0.Alias IS @p0) OR (a0.Biography IS @p1 AND a0.BirthDate IS NOT @p2)</value>
+    </data>
+    <data name="Query_Max_Results_Are_Applied_When_Not_Null_True" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0) LIMIT 1</value>
+    </data>
+    <data name="Query_Max_Results_Are_Applied_When_Not_Null_False" xml:space="preserve">
+        <value>SELECT FK_AnotherArtist_ID, FK_SecondArtist_ID, StatusCode, Id, Deleted, Version FROM ArtistStatisticValues artiststatisticvalues WHERE (artiststatisticvalues.Id = @p0)</value>
+    </data>
+    <data name="Query_Resolves_Sorting_Expression_Ascending" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias ASC</value>
+    </data>
+    <data name="Query_Resolves_Sorting_Expression_Descending" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC</value>
+    </data>
+    <data name="Query_Resolves_Multiple_Sorting_Expressions" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0) ORDER BY a0.Alias DESC, artist.Name ASC, a0.Biography DESC</value>
+    </data>
+    <data name="Query_No_Sorting" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID WHERE (a0.Alias = @p0)</value>
+    </data>
+    <data name="Query_Global_Filter" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0) AND (artist.Id = @p1)</value>
+    </data>
+    <data name="Query_Global_Filter_Multiple" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Deleted = @p0 AND artist.Note IS @p1) AND (artist.Id = @p2)</value>
+    </data>
+    <data name="Query_No_Filter" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Id = @p0)</value>
+    </data>
+    <data name="Query_Supports_Complex_Expressions" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID LEFT JOIN Artist a1 ON a1.Id = a0.FK_AnotherArtist_ID WHERE (artist.Name = @p0 AND a0.Note = @p1 OR artist.Alias = @p2 AND a1.Note != @p3)</value>
+    </data>
+    <data name="Query_Supports_Complex_Expressions2" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist LEFT JOIN Artist a0 ON a0.Id = artist.FK_AnotherArtist_ID LEFT JOIN Artist a1 ON a1.Id = a0.FK_AnotherArtist_ID WHERE (artist.Name LIKE @p0 AND artist.FK_AnotherArtist_ID IS @p1 OR a1.Name = @p2)</value>
+    </data>
+    <data name="Query_Supports_String_StartsWith" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1)</value>
+    </data>
+    <data name="Query_Supports_String_EndsWith" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1)</value>
+    </data>
+    <data name="Query_Supports_String_Contains" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1)</value>
+    </data>
+</root>

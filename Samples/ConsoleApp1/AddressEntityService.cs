@@ -1,4 +1,4 @@
-﻿using ThuCommix.EntityFramework;
+﻿using Concordia.Framework;
 
 namespace ConsoleApp1
 {

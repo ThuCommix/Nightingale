@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using ThuCommix.EntityFramework.Metadata;
+using Concordia.Framework.Metadata;
 
 namespace EntityGenerator
 {
@@ -12,7 +12,7 @@ namespace EntityGenerator
 			if(args.Length < 2)
 				ExitWithMessage("Invalid arguments. Please specify 1.) Input folder, 2.) Output folder", 1);
 
-            Console.WriteLine($"ThuCommix.EntityFramework v{typeof(EntityMetadata).Assembly.GetName().Version}\r\n");
+            Console.WriteLine($"Concordia.Framework v{typeof(EntityMetadata).Assembly.GetName().Version}\r\n");
             Console.WriteLine($"InputPath: {args[0]}");
             Console.WriteLine($"OutputPath: {args[1]}");
 
