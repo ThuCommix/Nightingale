@@ -99,5 +99,14 @@ namespace ThuCommix.EntityFramework.Sessions
 
             return persistentResults;
         }
+
+        /// <summary>
+        /// Clears the session.
+        /// </summary>
+        public override void Clear()
+        {
+            base.Clear();
+            _persistenceCache.Clear();
+        }
     }
 }

@@ -62,6 +62,11 @@ namespace ThuCommix.EntityFramework.Caching
         /// </summary>
         public void Clear()
         {
+            foreach(var entity in _entityCache.SelectMany(x => x.Value))
+            {
+                entity.Evicted = true;
+            }
+
             _entityCache.Clear();
         }
 

@@ -367,6 +367,23 @@ namespace ThuCommix.EntityFramework.Sessions
         }
 
         /// <summary>
+        /// Clears the session.
+        /// </summary>
+        public virtual void Clear()
+        {
+            _flushList.Clear();
+        }
+
+        /// <summary>
+        /// Refreshs the entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public virtual void Refresh(Entity entity)
+        {
+            entity = Load(entity.Id, entity.GetType());
+        }
+
+        /// <summary>
         /// Inserts the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
