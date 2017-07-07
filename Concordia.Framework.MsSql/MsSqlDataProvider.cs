@@ -113,6 +113,8 @@ namespace Concordia.Framework.MsSql
                 var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
                 sqlParameter.IsNullable = parameter.IsNullable;
                 sqlParameter.Value = parameter.Value;
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
 
                 command.Parameters.Add(sqlParameter);
             }
@@ -138,6 +140,8 @@ namespace Concordia.Framework.MsSql
                 var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
                 sqlParameter.IsNullable = parameter.IsNullable;
                 sqlParameter.Value = parameter.Value;
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
 
                 command.Parameters.Add(sqlParameter);
             }
@@ -163,6 +167,8 @@ namespace Concordia.Framework.MsSql
                 var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
                 sqlParameter.IsNullable = parameter.IsNullable;
                 sqlParameter.Value = parameter.Value;
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
 
                 command.Parameters.Add(sqlParameter);
             }
@@ -188,6 +194,8 @@ namespace Concordia.Framework.MsSql
                 var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
                 sqlParameter.IsNullable = parameter.IsNullable;
                 sqlParameter.Value = parameter.Value;
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
 
                 command.Parameters.Add(sqlParameter);
             }
