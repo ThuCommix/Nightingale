@@ -10,6 +10,16 @@ namespace Concordia.Framework
     public interface IRepository : IDisposable
     {
         /// <summary>
+        /// Gets the entity listener collection.
+        /// </summary>
+        List<IEntityListener> EntityListeners { get; }
+
+        /// <summary>
+        /// Gets the commit listener collection.
+        /// </summary>
+        List<ICommitListener> CommitListeners { get; }
+
+        /// <summary>
         /// Begins a new transaction.
         /// </summary>
         /// <param name="isolationLevel">The isolation level.</param>
