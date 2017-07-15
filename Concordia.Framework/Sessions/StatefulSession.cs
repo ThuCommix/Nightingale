@@ -13,8 +13,8 @@ namespace Concordia.Framework.Sessions
         /// <summary>
         /// Initializes a new StatefulSession class.
         /// </summary>
-        /// <param name="dataProvider">The data provider.</param>
-        public StatefulSession(IDataProvider dataProvider) : base(dataProvider)
+        /// <param name="connection">The connection.</param>
+        public StatefulSession(IConnection connection) : base(connection)
         {
             _persistenceCache = new PersistenceCache();
         }

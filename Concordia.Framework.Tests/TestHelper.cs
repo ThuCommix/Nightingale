@@ -62,20 +62,20 @@ namespace Concordia.Framework.Tests
 
         public static Mock<Session> CreateSessionMock()
         {
-            var dataProviderMock = SetupMock<IDataProvider>();
-            dataProviderMock.Setup(s => s.Open());
+            var connectionMock = SetupMock<IConnection>();
+            connectionMock.Setup(s => s.Open());
 
-            var session = SetupMock<Session>(dataProviderMock.Object);
+            var session = SetupMock<Session>(connectionMock.Object);
 
             return session;
         }
 
-        public static Mock<IDataProvider> SetupDataProvider()
+        public static Mock<IConnection> SetupConnection()
         {
-            var dataProviderMock = SetupMock<IDataProvider>();
-            dataProviderMock.Setup(s => s.Open());
+            var connectionMock = SetupMock<IConnection>();
+            connectionMock.Setup(s => s.Open());
 
-            return dataProviderMock;
+            return connectionMock;
         }
 
         public static bool CheckEvicted(Entity entity)

@@ -47,6 +47,7 @@
     <Compile Include="Caching\PersistenceCache.cs" />
     <Compile Include="Column.cs" />
     <Compile Include="ColumnType.cs" />
+    <Compile Include="ConnectionFactory.cs" />
     <Compile Include="DbServices\DbServiceFactory.cs" />
     <Compile Include="DbServices\DbServiceProxy.cs" />
     <Compile Include="DbServices\ParameterAttribute.cs" />
@@ -68,11 +69,12 @@
     <Compile Include="Extensions\TableExtensions.cs" />
     <Compile Include="ICommitListener.cs" />
     <Compile Include="DbServices\IDbService.cs" />
+    <Compile Include="IConnection.cs" />
+    <Compile Include="IConnectionFactory.cs" />
     <Compile Include="IEntityCollection.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="Metadata\IEntityMetadataResolver.cs" />
     <Compile Include="PropertyChangeTracker.cs" />
-    <Compile Include="IDataProvider.cs" />
     <Compile Include="EntityService.cs" />
     <Compile Include="IEntityService.cs" />
     <Compile Include="Queries\GlobalQueryFilter.cs" />
@@ -109,7 +111,12 @@
     <Compile Include="Registry.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="Sessions\DeletionMode.cs" />
+    <Compile Include="Sessions\ISession.cs" />
+    <Compile Include="Sessions\ISessionContext.cs" />
+    <Compile Include="Sessions\ISessionFactory.cs" />
     <Compile Include="Sessions\Session.cs" />
+    <Compile Include="Sessions\SessionContext.cs" />
+    <Compile Include="Sessions\SessionContextMode.cs" />
     <Compile Include="Sessions\SessionDeleteException.cs" />
     <Compile Include="Sessions\SessionException.cs" />
     <Compile Include="Sessions\SessionFactory.cs" />

@@ -7,8 +7,8 @@ namespace Concordia.Framework.Sessions
         /// <summary>
         /// Initializes a new StatelessSession class.
         /// </summary>
-        /// <param name="dataProvider">The data provider.</param>
-        public StatelessSession(IDataProvider dataProvider) : base(dataProvider)
+        /// <param name="connection">The connection.</param>
+        public StatelessSession(IConnection connection) : base(connection)
         {
         }
 

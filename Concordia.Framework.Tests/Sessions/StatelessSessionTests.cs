@@ -21,8 +21,8 @@ namespace Concordia.Framework.Tests.Sessions
         public void Evict_Does_Nothing()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new StatelessSession(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new StatelessSession(connectionMock.Object);
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             // act
@@ -31,7 +31,7 @@ namespace Concordia.Framework.Tests.Sessions
             // assert
             Assert.That(TestHelper.CheckEvicted(entity), Is.False);
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [TestCase(SessionFlushMode.Manual)]
@@ -41,8 +41,8 @@ namespace Concordia.Framework.Tests.Sessions
         public void SaveOrUpdate_Flushes_On_Whichever_FlushMode(SessionFlushMode flushMode)
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new StatelessSession(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new StatelessSession(connectionMock.Object);
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             entity.Name = "Test";
 
@@ -52,7 +52,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
             entityServiceMock.Setup(s => s.UpdateForeignFields(entity));
 
-            dataProviderMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(1);
+            connectionMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(1);
 
             TestHelper.SetupEntityMetadataServices();
 
@@ -60,7 +60,7 @@ namespace Concordia.Framework.Tests.Sessions
             session.SaveOrUpdate(entity);
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
             entityServiceMock.VerifyAll();
         }
     }

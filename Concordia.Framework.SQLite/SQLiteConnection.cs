@@ -1,26 +1,32 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Linq;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
 
-namespace Concordia.Framework.MsSql
+namespace Concordia.Framework.SQLite
 {
-    [DisplayName("MSSQL")]
-    public class MsSqlDataProvider : IDataProvider
+    [DisplayName("SQLite")]
+    public class SQLiteConnection : IConnection
     {
-        private readonly SqlConnection _connection;
-        private SqlTransaction _currentTransaction;
+        /// <summary>
+        /// A value indicating whether the connection is open.
+        /// </summary>
+        public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
+
+        private readonly System.Data.SQLite.SQLiteConnection _connection;
+        private SQLiteTransaction _currentTransaction;
+        private bool _isDisposed;
 
         /// <summary>
-        /// Initializes a new MsSqlDataProvider class.
+        /// Initializes a new SQLiteConnection class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public MsSqlDataProvider(string connectionString)
+        public SQLiteConnection(string connectionString)
         {
-            _connection = new SqlConnection(connectionString);
+            _connection = new System.Data.SQLite.SQLiteConnection(connectionString);
         }
 
         /// <summary>
@@ -46,7 +52,9 @@ namespace Concordia.Framework.MsSql
         /// <returns>Returns an IDisposeable instance.</returns>
         public IDisposable BeginTransaction(IsolationLevel isolationLevel)
         {
-            _currentTransaction = _connection.BeginTransaction(isolationLevel);
+            _currentTransaction = _connection.BeginTransaction(isolationLevel == IsolationLevel.Serializable 
+                || isolationLevel == IsolationLevel.ReadCommitted
+                ? isolationLevel : IsolationLevel.ReadCommitted);
 
             return _currentTransaction;
         }
@@ -67,7 +75,11 @@ namespace Concordia.Framework.MsSql
         /// <param name="savePoint">The save point.</param>
         public void RollbackTo(string savePoint)
         {
-            _currentTransaction.Rollback(savePoint);
+            var command = _connection.CreateCommand();
+            command.Transaction = _currentTransaction;
+            command.CommandText = $"ROLLBACK TRANSACTION TO SAVEPOINT {savePoint}";
+
+            command.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -76,6 +88,11 @@ namespace Concordia.Framework.MsSql
         /// <param name="savePoint">The save point.</param>
         public void Release(string savePoint)
         {
+            var command = _connection.CreateCommand();
+            command.Transaction = _currentTransaction;
+            command.CommandText = $"RELEASE SAVEPOINT {savePoint}";
+
+            command.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -94,7 +111,11 @@ namespace Concordia.Framework.MsSql
         /// <param name="savePoint">The save point.</param>
         public void Save(string savePoint)
         {
-            _currentTransaction.Save(savePoint);
+            var command = _connection.CreateCommand();
+            command.Transaction = _currentTransaction;
+            command.CommandText = $"SAVEPOINT {savePoint}";
+
+            command.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -107,18 +128,7 @@ namespace Concordia.Framework.MsSql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-
-            foreach(var parameter in query.Parameters)
-            {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
-                sqlParameter.IsNullable = parameter.IsNullable;
-                sqlParameter.Value = parameter.Value;
-                if (sqlParameter.Value == null)
-                    sqlParameter.Value = DBNull.Value;
-
-                command.Parameters.Add(sqlParameter);
-            }
-
+            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteNonQuery();
@@ -134,18 +144,7 @@ namespace Concordia.Framework.MsSql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-
-            foreach (var parameter in query.Parameters)
-            {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
-                sqlParameter.IsNullable = parameter.IsNullable;
-                sqlParameter.Value = parameter.Value;
-                if (sqlParameter.Value == null)
-                    sqlParameter.Value = DBNull.Value;
-
-                command.Parameters.Add(sqlParameter);
-            }
-
+            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteScalar();
@@ -159,20 +158,9 @@ namespace Concordia.Framework.MsSql
         public IDataReader ExecuteReader(IQuery query)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = QueryConverter.GetQueryCommand(query);
+            command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-
-            foreach (var parameter in query.Parameters)
-            {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
-                sqlParameter.IsNullable = parameter.IsNullable;
-                sqlParameter.Value = parameter.Value;
-                if (sqlParameter.Value == null)
-                    sqlParameter.Value = DBNull.Value;
-
-                command.Parameters.Add(sqlParameter);
-            }
-
+            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteReader();
@@ -186,20 +174,9 @@ namespace Concordia.Framework.MsSql
         public int ExecuteInsert(IQuery query)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = query.Command + " SELECT CAST(scope_identity() AS int)";
+            command.CommandText = query.Command + " SELECT last_insert_rowid()";
             command.Transaction = _currentTransaction;
-
-            foreach (var parameter in query.Parameters)
-            {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
-                sqlParameter.IsNullable = parameter.IsNullable;
-                sqlParameter.Value = parameter.Value;
-                if (sqlParameter.Value == null)
-                    sqlParameter.Value = DBNull.Value;
-
-                command.Parameters.Add(sqlParameter);
-            }
-
+            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
 
             return Convert.ToInt32(command.ExecuteScalar());
@@ -220,10 +197,11 @@ namespace Concordia.Framework.MsSql
         /// <param name="disposing">The disposing state.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if(disposing)
             {
                 _connection.Close();
                 _connection.Dispose();
+                _isDisposed = true;
             }
         }
 
@@ -234,7 +212,7 @@ namespace Concordia.Framework.MsSql
         /// <returns>Returns the table object.</returns>
         public Table<T> GetTable<T>() where T : Entity
         {
-            return new MsSqlTable<T>(this);
+            return new SQLiteTable<T>(this);
         }
     }
 }

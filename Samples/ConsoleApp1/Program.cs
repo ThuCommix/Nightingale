@@ -10,19 +10,23 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            var dataProvider = new SQLiteDataProvider("Data Source=persons.s3db;Version=3");
-            var repository = new Repository(SessionFactory.OpenSession(dataProvider));
+            var connectionFactory = new SQLiteConnectionFactory();
+            connectionFactory.DataSource = "persons.s3db";
 
-            // create tables if not available
-            dataProvider.GetTable<Person>().Recreate();
-            dataProvider.GetTable<Address>().Recreate();
+            var sessionFactory = new SessionFactory(connectionFactory);
 
             // register entity listeners
-            repository.EntityListeners.Add(new PersonEntityService());
-            repository.EntityListeners.Add(new AddressEntityService());
+            sessionFactory.EntityListeners.Add(new PersonEntityService());
+            sessionFactory.EntityListeners.Add(new AddressEntityService());
+
+            var session = sessionFactory.GetCurrentSession();
+            var repository = new Repository(session);
+
+            // create tables if not available
+            session.GetTable<Person>().Recreate();
+            session.GetTable<Address>().Recreate();
 
             // create entities
-
             var person = new Person();
             person.FirstName = "Max";
             person.Name = "Mustermann";
@@ -46,12 +50,7 @@ namespace ConsoleApp1
             repository.Dispose();
 
             // creating a new session so that the entities aren't cached anymore
-            dataProvider = new SQLiteDataProvider("Data Source=persons.s3db;Version=3");
-            repository = new Repository(SessionFactory.OpenSession(dataProvider));
-
-            // register entity listeners
-            repository.EntityListeners.Add(new PersonEntityService());
-            repository.EntityListeners.Add(new AddressEntityService());
+            repository = new Repository(sessionFactory.GetCurrentSession());
 
             var loadedPerson = repository.GetById<Person>(1);
 

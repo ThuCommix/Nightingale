@@ -1,12 +1,17 @@
-﻿using System;
-using System.Data;
-using Concordia.Framework.Entities;
+﻿using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
+using System;
+using System.Data;
 
 namespace Concordia.Framework
 {
-    public interface IDataProvider : IDisposable
+    public interface IConnection : IDisposable
     {
+        /// <summary>
+        /// A value indicating whether the connection is open.
+        /// </summary>
+        bool IsOpen { get; }
+
         /// <summary>
         /// Opens the database connection.
         /// </summary>

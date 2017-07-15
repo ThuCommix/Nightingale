@@ -21,8 +21,8 @@ namespace Concordia.Framework.MySql
         /// <summary>
         /// Initializes a new MySqlTable class.
         /// </summary>
-        /// <param name="dataProvider">The data provider.</param>
-        public MySqlTable(IDataProvider dataProvider) : base(dataProvider)
+        /// <param name="dataProvider">The connection.</param>
+        public MySqlTable(IConnection connection) : base(connection)
         {
         }
 
@@ -45,7 +45,7 @@ namespace Concordia.Framework.MySql
             commandBuilder.AppendLine(");");
 
             var query = new Query(commandBuilder.ToString(), Type);
-            DataProvider.ExecuteNonQuery(query);
+            Connection.ExecuteNonQuery(query);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Concordia.Framework.MySql
         public override void Delete()
         {
             var query = new Query($"DROP TABLE IF EXISTS {Metadata.Table}", Type);
-            DataProvider.ExecuteNonQuery(query);
+            Connection.ExecuteNonQuery(query);
         }
 
 

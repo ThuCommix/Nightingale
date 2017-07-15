@@ -20,9 +20,9 @@ namespace Concordia.Framework
         protected EntityMetadata Metadata => DependencyResolver.GetInstance<IEntityMetadataResolver>().GetEntityMetadata(Type);
 
         /// <summary>
-        /// Gets thje data provider.
+        /// Gets the connection.
         /// </summary>
-        protected IDataProvider DataProvider { get; }
+        protected IConnection Connection { get; }
 
         private static Dictionary<string, ColumnType> _columnTypeMapping = new Dictionary<string, ColumnType>
         {
@@ -36,13 +36,13 @@ namespace Concordia.Framework
         /// <summary>
         /// Initializes a new Table class.
         /// </summary>
-        /// <param name="dataProvider">The data provider.</param>
-        protected Table(IDataProvider dataProvider)
+        /// <param name="connection">The connection.</param>
+        protected Table(IConnection connection)
         {
-            if (dataProvider == null)
-                throw new ArgumentNullException(nameof(dataProvider));
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
 
-            DataProvider = dataProvider;
+            Connection = connection;
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Concordia.Framework
         /// <returns>Returns the count of affected rows.</returns>
         public virtual int ExecuteNonQuery(IQuery query)
         {
-            return DataProvider.ExecuteNonQuery(query);
+            return Connection.ExecuteNonQuery(query);
         }
 
         /// <summary>

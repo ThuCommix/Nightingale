@@ -19,8 +19,8 @@ namespace Concordia.Framework.Tests.Sessions
         public void SaveOrUpdate_Prevent_Saving_Of_Evicted_Entity()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new StatefulSession(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new StatefulSession(connectionMock.Object);
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             TestHelper.SetEntityEvict(entity, true);
@@ -29,15 +29,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.Throws<SessionException>(() => session.SaveOrUpdate(entity));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Flush_Check_For_Evicted_Entities_In_FlushList()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new StatefulSession(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new StatefulSession(connectionMock.Object);
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -50,7 +50,7 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.Throws<SessionException>(() => session.Flush());
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
             entityServiceMock.VerifyAll();
         }
 
@@ -58,8 +58,8 @@ namespace Concordia.Framework.Tests.Sessions
         public void Load_Query_PersistenceCache_First()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new StatefulSession(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new StatefulSession(connectionMock.Object);
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -74,7 +74,7 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(result, Is.EqualTo(entity));
 
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
     }
 }

@@ -1,26 +1,31 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
-using System.Linq;
-using Npgsql;
+using System.Data.SqlClient;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
 
-namespace Concordia.Framework.PostgreSql
+namespace Concordia.Framework.MsSql
 {
-    [DisplayName("PostgreSQL")]
-    public class NpgsqlDataProvider : IDataProvider
+    [DisplayName("MSSQL")]
+    public class MsSqlConnection : IConnection
     {
-        private readonly NpgsqlConnection _connection;
-        private NpgsqlTransaction _currentTransaction;
+        /// <summary>
+        /// A value indicating whether the connection is open.
+        /// </summary>
+        public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
+
+        private readonly SqlConnection _connection;
+        private SqlTransaction _currentTransaction;
+        private bool _isDisposed;
 
         /// <summary>
-        /// Initializes a new NpgsqlDataProvider class.
+        /// Initializes a new MsSqlConnection class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public NpgsqlDataProvider(string connectionString)
+        public MsSqlConnection(string connectionString)
         {
-            _connection = new NpgsqlConnection(connectionString);
+            _connection = new SqlConnection(connectionString);
         }
 
         /// <summary>
@@ -76,7 +81,6 @@ namespace Concordia.Framework.PostgreSql
         /// <param name="savePoint">The save point.</param>
         public void Release(string savePoint)
         {
-            _currentTransaction.Release(savePoint);
         }
 
         /// <summary>
@@ -108,7 +112,18 @@ namespace Concordia.Framework.PostgreSql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new NpgsqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach(var parameter in query.Parameters)
+            {
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
+                sqlParameter.IsNullable = parameter.IsNullable;
+                sqlParameter.Value = parameter.Value;
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
+
+                command.Parameters.Add(sqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteNonQuery();
@@ -124,7 +139,18 @@ namespace Concordia.Framework.PostgreSql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new NpgsqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
+                sqlParameter.IsNullable = parameter.IsNullable;
+                sqlParameter.Value = parameter.Value;
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
+
+                command.Parameters.Add(sqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteScalar();
@@ -138,9 +164,20 @@ namespace Concordia.Framework.PostgreSql
         public IDataReader ExecuteReader(IQuery query)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = query.Command;
+            command.CommandText = QueryConverter.GetQueryCommand(query);
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new NpgsqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
+                sqlParameter.IsNullable = parameter.IsNullable;
+                sqlParameter.Value = parameter.Value;
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
+
+                command.Parameters.Add(sqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteReader();
@@ -154,10 +191,20 @@ namespace Concordia.Framework.PostgreSql
         public int ExecuteInsert(IQuery query)
         {
             var command = _connection.CreateCommand();
-            // Remove ';' at the end of the query.
-            command.CommandText = query.Command.Substring(0, query.Command.Length - 1) + " RETURNING Id";
+            command.CommandText = query.Command + " SELECT CAST(scope_identity() AS int)";
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new NpgsqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
+                sqlParameter.IsNullable = parameter.IsNullable;
+                sqlParameter.Value = parameter.Value;
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
+
+                command.Parameters.Add(sqlParameter);
+            }
+
             command.Prepare();
 
             return Convert.ToInt32(command.ExecuteScalar());
@@ -183,6 +230,8 @@ namespace Concordia.Framework.PostgreSql
                 _connection.Close();
                 _connection.Dispose();
             }
+
+            _isDisposed = true;
         }
 
         /// <summary>
@@ -192,7 +241,7 @@ namespace Concordia.Framework.PostgreSql
         /// <returns>Returns the table object.</returns>
         public Table<T> GetTable<T>() where T : Entity
         {
-            return new NpgsqlTable<T>(this);
+            return new MsSqlTable<T>(this);
         }
     }
 }

@@ -1,15 +1,13 @@
-﻿using System;
+﻿using Concordia.Framework.Entities;
+using Concordia.Framework.Queries;
+using Concordia.Framework.Sessions;
+using Concordia.Framework.Tests.DataSources;
+using Moq;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Moq;
-using NUnit.Framework;
-using Concordia.Framework.Entities;
-using Concordia.Framework.Metadata;
-using Concordia.Framework.Queries;
-using Concordia.Framework.Queries.Tokens;
-using Concordia.Framework.Sessions;
-using Concordia.Framework.Tests.DataSources;
 
 namespace Concordia.Framework.Tests.Sessions
 {
@@ -26,31 +24,31 @@ namespace Concordia.Framework.Tests.Sessions
         public void Session_Constructor_Opens_Connection()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
-            dataProviderMock.Setup(s => s.Open());
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.Open());
 
             // act
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Session_Constructor_Verify_Default_Config()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
+            var connectionMock = TestHelper.SetupConnection();
 
             // act
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // assert
             Assert.That(session.DeletionMode, Is.EqualTo(DeletionMode.Soft));
             Assert.That(session.DebugMode, Is.True);
             Assert.That(session.FlushMode, Is.EqualTo(SessionFlushMode.Commit));
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
@@ -59,13 +57,13 @@ namespace Concordia.Framework.Tests.Sessions
             // arrange
             const IsolationLevel isolationlevel = IsolationLevel.Serializable;
 
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
             var disposeableMock = TestHelper.SetupMock<IDisposable>();
 
-            dataProviderMock.Setup(s => s.Open());
-            dataProviderMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
+            connectionMock.Setup(s => s.Open());
+            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             var result = session.BeginTransaction(isolationlevel);
@@ -73,7 +71,7 @@ namespace Concordia.Framework.Tests.Sessions
             // assert
             Assert.That(result, Is.TypeOf<TransactionProxy>());
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
             disposeableMock.VerifyAll();
         }
 
@@ -83,16 +81,16 @@ namespace Concordia.Framework.Tests.Sessions
             // arrange
             const IsolationLevel isolationlevel = IsolationLevel.Serializable;
 
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
             var disposeableMock = TestHelper.SetupMock<IDisposable>();
 
             disposeableMock.Setup(s => s.Dispose());
 
-            dataProviderMock.Setup(s => s.Open());
-            dataProviderMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
-            dataProviderMock.Setup(s => s.Rollback());
+            connectionMock.Setup(s => s.Open());
+            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
+            connectionMock.Setup(s => s.Rollback());
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             using (session.BeginTransaction(isolationlevel))
@@ -100,7 +98,7 @@ namespace Concordia.Framework.Tests.Sessions
             }
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
             disposeableMock.VerifyAll();
         }
 
@@ -110,20 +108,20 @@ namespace Concordia.Framework.Tests.Sessions
             // arrange
             const IsolationLevel isolationlevel = IsolationLevel.Serializable;
 
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
             var disposeableMock = TestHelper.SetupMock<IDisposable>();
 
-            dataProviderMock.Setup(s => s.Open());
-            dataProviderMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
+            connectionMock.Setup(s => s.Open());
+            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             session.BeginTransaction(isolationlevel);
             Assert.Throws<SessionException>(() => session.BeginTransaction(isolationlevel));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
             disposeableMock.VerifyAll();
         }
 
@@ -131,192 +129,192 @@ namespace Concordia.Framework.Tests.Sessions
         public void Rollback_Calls_DataProvider_Rollback()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
             var disposeableMock = TestHelper.SetupMock<IDisposable>();
 
-            dataProviderMock.Setup(s => s.Rollback());
-            dataProviderMock.Setup(s => s.Open());
-            dataProviderMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposeableMock.Object);
+            connectionMock.Setup(s => s.Rollback());
+            connectionMock.Setup(s => s.Open());
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposeableMock.Object);
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             session.BeginTransaction(IsolationLevel.Serializable);
             session.Rollback();
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Rollback_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
-            dataProviderMock.Setup(s => s.Open());
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.Open());
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             Assert.Throws<SessionException>(() => session.Rollback());
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void RollbackTo_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
-            dataProviderMock.Setup(s => s.Open());
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.Open());
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             Assert.Throws<SessionException>(() => session.RollbackTo(string.Empty));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         public void RollbackTo_Calls_DataProvider_RollbackTo()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
             var disposableMock = TestHelper.SetupMock<IDisposable>();
 
-            dataProviderMock.Setup(s => s.Open());
-            dataProviderMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
-            dataProviderMock.Setup(s => s.RollbackTo(string.Empty));
+            connectionMock.Setup(s => s.Open());
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
+            connectionMock.Setup(s => s.RollbackTo(string.Empty));
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             session.BeginTransaction(IsolationLevel.Serializable);
             session.RollbackTo(string.Empty);
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Release_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
-            dataProviderMock.Setup(s => s.Open());
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.Open());
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             Assert.Throws<SessionException>(() => session.Release(string.Empty));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Release_Calls_DataProvider_Release()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
             var disposableMock = TestHelper.SetupMock<IDisposable>();
 
-            dataProviderMock.Setup(s => s.Open());
-            dataProviderMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
-            dataProviderMock.Setup(s => s.Release(string.Empty));
+            connectionMock.Setup(s => s.Open());
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
+            connectionMock.Setup(s => s.Release(string.Empty));
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             session.BeginTransaction(IsolationLevel.Serializable);
             session.Release(string.Empty);
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Commit_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
-            dataProviderMock.Setup(s => s.Open());
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.Open());
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             Assert.Throws<SessionException>(() => session.Commit());
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Commit_Calls_DataProvider_Commit()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
             var disposableMock = TestHelper.SetupMock<IDisposable>();
 
-            dataProviderMock.Setup(s => s.Open());
-            dataProviderMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
-            dataProviderMock.Setup(s => s.Commit());
+            connectionMock.Setup(s => s.Open());
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
+            connectionMock.Setup(s => s.Commit());
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             session.BeginTransaction(IsolationLevel.Serializable);
             session.Commit();
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Save_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
-            dataProviderMock.Setup(s => s.Open());
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.Open());
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             Assert.Throws<SessionException>(() => session.Save(string.Empty));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Save_Calls_DataProvider_Save()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupMock<IDataProvider>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
             var disposableMock = TestHelper.SetupMock<IDisposable>();
 
-            dataProviderMock.Setup(s => s.Open());
-            dataProviderMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
-            dataProviderMock.Setup(s => s.Save(string.Empty));
+            connectionMock.Setup(s => s.Open());
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
+            connectionMock.Setup(s => s.Save(string.Empty));
 
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             session.BeginTransaction(IsolationLevel.Serializable);
             session.Save(string.Empty);
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Evict_Set_Flag_On_Entity_And_Remove_From_Flushlist()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
 
             var entity = new Artist();
@@ -334,15 +332,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(TestHelper.CheckEvicted(entity), Is.True);
             Assert.That(session.CallGetFlushList(), Is.Empty);
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void SaveOrUpdate_Prevent_Saving_Of_Deleted_Entity()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var artist = new Artist();
             TestHelper.MarkEntityDeleted(artist);
@@ -354,15 +352,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.Throws<SessionException>(() => session.SaveOrUpdate(artist));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void SaveOrUpdate_Resolved_Child_Entities()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             entity.AnotherArtist = new Artist();
@@ -378,29 +376,29 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(session.CallGetFlushList()[0], Is.EqualTo(entity));
             Assert.That(session.CallGetFlushList()[1], Is.EqualTo(entity.AnotherArtist));
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void ExecuteQuery_Throws_When_Query_Is_Null()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             // act
             Assert.Throws<ArgumentNullException>(() => session.ExecuteQuery(null));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void ExecuteQuery_Creates_Entity_Result_List()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
             var canRead = true;
@@ -408,7 +406,7 @@ namespace Concordia.Framework.Tests.Sessions
             var query = Query.CreateQuery<Artist>();
 
             dataReaderMock.Setup(s => s.Read()).Returns(() => { if (canRead) { canRead = false; return true; } return false; });
-            dataProviderMock.Setup(s => s.ExecuteReader(query)).Returns(dataReaderMock.Object);
+            connectionMock.Setup(s => s.ExecuteReader(query)).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Dispose());
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -420,7 +418,7 @@ namespace Concordia.Framework.Tests.Sessions
             // assert
             Assert.That(result.Count, Is.EqualTo(1));
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
             dataReaderMock.VerifyAll();
         }
 
@@ -428,9 +426,9 @@ namespace Concordia.Framework.Tests.Sessions
         public void Load_Creates_Expected_Query_And_Calls_ExecuteQuery()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
+            var connectionMock = TestHelper.SetupConnection();
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var session = new SessionProxy(connectionMock.Object);
 
             TestHelper.SetupEntityMetadataServices();
             TestHelper.SetupSqlTokenComposer();
@@ -439,7 +437,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             Query query = null;
 
-            dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object).Callback<IQuery>((q) => query = q as Query);
+            connectionMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object).Callback<IQuery>((q) => query = q as Query);
             dataReaderMock.Setup(s => s.Read()).Returns(false);
             dataReaderMock.Setup(s => s.Dispose());
 
@@ -454,15 +452,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(query.EntityType, Is.EqualTo(typeof(Artist)));
 
             dataReaderMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Flush_Throws_Exception_When_Entity_Is_Not_Valid()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = new Artist();
 
@@ -477,15 +475,15 @@ namespace Concordia.Framework.Tests.Sessions
 
             // assert
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Flush_Insert_Entity_If_Not_Saved()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = new Artist { Name = "Test" };
 
@@ -503,15 +501,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(entity.Id, Is.EqualTo(1));
 
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Flush_Throws_Exception_When_Entity_Is_Not_Saved_After_Insert()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = new Artist { Name = "Test" };
 
@@ -531,15 +529,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(entity.Id, Is.EqualTo(0));
 
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Flush_Throws_Exception_When_Insert_Fails()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = new Artist { Name = "Test" };
 
@@ -559,7 +557,7 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(entity.Id, Is.EqualTo(0));
 
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [TestCase(true)]
@@ -567,8 +565,8 @@ namespace Concordia.Framework.Tests.Sessions
         public void Flush_Update_Only_When_Entity_Has_Changes(bool hasChanges)
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             entity.Name = string.Empty;
@@ -592,15 +590,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(session.PerformUpdateCalled, Is.EqualTo(hasChanges));
 
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Flush_Update_Increases_Version()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             entity.Name = string.Empty;
@@ -624,15 +622,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(oldVersion + 1, Is.EqualTo(entity.Version));
 
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Flush_Update_On_Error_Restore_Version()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             entity.Name = string.Empty;
@@ -658,15 +656,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(oldVersion, Is.EqualTo(entity.Version));
 
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Flush_Update_Clear_PropertyChangeTracker()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             entity.Name = string.Empty;
@@ -687,15 +685,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(entity.PropertyChangeTracker.HasChanges, Is.False);
 
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Delete_Does_Nothing_On_DeletionMode_None()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
@@ -705,15 +703,15 @@ namespace Concordia.Framework.Tests.Sessions
             session.Delete(entity);
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Delete_Set_Entity_Deleted_And_Call_SaveOrUpdate_In_SoftMode()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
             TestHelper.SetupSqlTokenComposer();
@@ -724,7 +722,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(new List<Entity> { entity });
             entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
 
-            dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
+            connectionMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Read()).Returns(false);
             dataReaderMock.Setup(s => s.Dispose());
 
@@ -741,15 +739,15 @@ namespace Concordia.Framework.Tests.Sessions
 
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Delete_Set_Entity_Deleted_And_Call_PerformDelete_In_HardMode()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
             TestHelper.SetupSqlTokenComposer();
@@ -759,7 +757,7 @@ namespace Concordia.Framework.Tests.Sessions
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
             entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(new List<Entity> { entity });
 
-            dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
+            connectionMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Read()).Returns(false);
             dataReaderMock.Setup(s => s.Dispose());
 
@@ -776,7 +774,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [TestCase(true)]
@@ -784,8 +782,8 @@ namespace Concordia.Framework.Tests.Sessions
         public void Delete_Set_Hard_Delete_Is_Only_Called_For_Saved_Entities(bool saved)
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
             TestHelper.SetupSqlTokenComposer();
@@ -795,7 +793,7 @@ namespace Concordia.Framework.Tests.Sessions
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
             entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(new List<Entity> { entity });
 
-            dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
+            connectionMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Read()).Returns(false);
             dataReaderMock.Setup(s => s.Dispose());
 
@@ -812,15 +810,15 @@ namespace Concordia.Framework.Tests.Sessions
 
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void Delete_Throws_If_Entity_Is_Referenced_Somewhere()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
             var tokenServiceMock = TestHelper.SetupSqlTokenComposer();
@@ -831,7 +829,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             var canRead = true;
 
-            dataProviderMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
+            connectionMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object);
             dataReaderMock.Setup(s => s.Read()).Returns(() => { if (canRead) { canRead = false; return true; } return false; });
             dataReaderMock.Setup(s => s.Dispose());
 
@@ -850,7 +848,7 @@ namespace Concordia.Framework.Tests.Sessions
             // assert
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
             tokenServiceMock.VerifyAll();
         }
 
@@ -858,12 +856,12 @@ namespace Concordia.Framework.Tests.Sessions
         public void PerformDelete_Throws_Exception_If_Entity_Could_Not_Be_Deleted()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
-            dataProviderMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(0);
+            connectionMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(0);
 
             TestHelper.SetupEntityMetadataServices();
 
@@ -871,21 +869,21 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.Throws<SessionDeleteException>(() => session.CallPerformDelete(entity));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void PerformDelete_Expected_Query_Command()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             IQuery query = null;
 
-            dataProviderMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(1).Callback<IQuery>((q) => query = q);
+            connectionMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(1).Callback<IQuery>((q) => query = q);
 
             TestHelper.SetupEntityMetadataServices();
 
@@ -897,19 +895,19 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(query.Command, Is.EqualTo("DELETE Artist WHERE Id = 1 AND Version = 1"));
             Assert.That(query.EntityType, Is.EqualTo(typeof(Artist)));
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void PerformUpdate_Throws_Exception_When_No_Rows_Changed()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
-            dataProviderMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(0);
+            connectionMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(0);
 
             entity.PropertyChangeTracker.AddPropertyChangedItem("Name", null, string.Empty);
 
@@ -919,15 +917,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.Throws<SessionUpdateException>(() => session.CallPerformUpdate(entity));
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void PerformUpdate_Returns_When_Entity_Has_No_Changes()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
@@ -937,21 +935,21 @@ namespace Concordia.Framework.Tests.Sessions
             session.CallPerformUpdate(entity);
 
             // assert
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void PerformUpdate_Expected_Query_Command()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             IQuery query = null;
 
-            dataProviderMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(1).Callback<IQuery>((q) => query = q);
+            connectionMock.Setup(s => s.ExecuteNonQuery(It.IsAny<IQuery>())).Returns(1).Callback<IQuery>((q) => query = q);
 
             entity.PropertyChangeTracker.AddPropertyChangedItem("Name", null, "Name");
             entity.PropertyChangeTracker.AddPropertyChangedItem("Alias", null, "Alias");
@@ -971,15 +969,15 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(query.Parameters.First().Value, Is.EqualTo("Name"));
             Assert.That(query.Parameters.Last().Value, Is.EqualTo("Alias"));
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void PerformInsert_Expected_Query_Command()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             var entity = new Artist();
             entity.Name = "TestName";
@@ -987,7 +985,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             IQuery query = null;
 
-            dataProviderMock.Setup(s => s.ExecuteInsert(It.IsAny<IQuery>())).Returns(1).Callback<IQuery>((q) => query = q);
+            connectionMock.Setup(s => s.ExecuteInsert(It.IsAny<IQuery>())).Returns(1).Callback<IQuery>((q) => query = q);
 
             TestHelper.SetupEntityMetadataServices();
 
@@ -1002,18 +1000,18 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(query.Parameters.Any(x => x.Name == "@Name" && (string)x.Value == entity.Name), Is.True);
             Assert.That(query.Parameters.Any(x => x.Name == "@Alias" && (string)x.Value == entity.Alias), Is.True);
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         [Test]
         public void ExecuteFunc_Builds_Expected_Query()
         {
             // arrange
-            var dataProviderMock = TestHelper.SetupDataProvider();
-            var session = new SessionProxy(dataProviderMock.Object);
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
 
             IQuery query = null;
-            dataProviderMock.Setup(s => s.ExecuteScalar(It.IsAny<IQuery>())).Returns(0).Callback<IQuery>((q) => query = q);
+            connectionMock.Setup(s => s.ExecuteScalar(It.IsAny<IQuery>())).Returns(0).Callback<IQuery>((q) => query = q);
 
             // act
             var result = session.ExecuteFunc<int>("dbo.test");
@@ -1022,7 +1020,194 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.That(result, Is.EqualTo(0));
             Assert.That(query.Command, Is.EqualTo("SELECT dbo.test()"));
 
-            dataProviderMock.VerifyAll();
+            connectionMock.VerifyAll();
+        }
+
+        [Test]
+        public void Session_EntityListeners_Initialized()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+
+            // act
+            var session = new SessionProxy(connectionMock.Object);
+
+            // assert
+            Assert.That(session.EntityListeners, Is.Not.Null);
+
+            connectionMock.VerifyAll();
+        }
+
+        [Test]
+        public void Save_Calls_EntityListeners()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
+            var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+            entityListener.Setup(s => s.Save(entity)).Returns(true);
+            session.EntityListeners.Add(entityListener.Object);
+
+            // act
+            session.SaveOrUpdate(entity);
+
+            // assert
+            connectionMock.VerifyAll();
+            entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
+        }
+
+        [Test]
+        public void Save_Throws_Exception_If_EntityListener_Returns_False()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
+            var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+            entityListener.Setup(s => s.Save(entity)).Returns(false);
+            session.EntityListeners.Add(entityListener.Object);
+
+            // act
+            Assert.Throws<SessionException>(delegate { session.SaveOrUpdate(entity); });
+
+            // assert
+            connectionMock.VerifyAll();
+            entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
+        }
+
+        [Test]
+        public void Delete_Calls_EntityListeners()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
+            var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(new List<Entity> { entity });
+            entityListener.Setup(s => s.Delete(entity)).Returns(false);
+            session.EntityListeners.Add(entityListener.Object);
+
+            // act
+            Assert.Throws<SessionException>(delegate { session.Delete(entity); });
+
+            // assert
+            connectionMock.VerifyAll();
+            entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
+        }
+
+        [Test]
+        public void Delete_Throws_Exception_If_EntityListener_Returns_False()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
+            var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(new List<Entity> { entity });
+            entityListener.Setup(s => s.Delete(entity)).Returns(false);
+            session.EntityListeners.Add(entityListener.Object);
+
+            // act
+            Assert.Throws<SessionException>(delegate { session.Delete(entity); });
+
+            // assert
+            connectionMock.VerifyAll();
+            entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
+        }
+
+        [Test]
+        public void Save_Calls_EntityListeners_For_Cascaded_Entities()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
+            var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            var cascadedEntities = new List<Entity> { new Artist(), new Artist() };
+
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(cascadedEntities);
+            entityListener.Setup(s => s.Save(It.Is<Artist>(x => x == cascadedEntities[0] || x == cascadedEntities[1]))).Returns(true);
+            session.EntityListeners.Add(entityListener.Object);
+
+            // act
+            session.SaveOrUpdate(entity);
+
+            // assert
+            connectionMock.VerifyAll();
+            entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
+        }
+
+        [Test]
+        public void Delete_Calls_EntityListeners_For_Cascaded_Entities()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
+            var entityListener = TestHelper.SetupMock<IEntityListener>();
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            var cascadedEntities = new List<Entity> { new Artist(), new Artist() };
+
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(cascadedEntities);
+            entityListener.Setup(s => s.Delete(It.Is<Artist>(x => x == cascadedEntities[0] || x == cascadedEntities[1]))).Returns(false);
+            session.EntityListeners.Add(entityListener.Object);
+
+            // act
+            Assert.Throws<SessionException>(() => session.Delete(entity));
+
+            // assert
+            connectionMock.VerifyAll();
+            entityListener.VerifyAll();
+            entityServiceMock.VerifyAll();
+        }
+
+        [Test]
+        public void Commit_Calls_CommitListeners()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
+
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns((IDisposable)null);
+            connectionMock.Setup(s => s.Commit());
+
+            var commitListener = TestHelper.SetupMock<ICommitListener>();
+            bool result = false;
+            commitListener.Setup(s => s.Commit()).Callback(() => result = true);
+            session.CommitListeners.Add(commitListener.Object);
+
+            // act
+            session.BeginTransaction();
+            session.Commit();
+
+            // assert
+            Assert.That(result, Is.True);
+
+            commitListener.VerifyAll();
+            connectionMock.VerifyAll();
         }
 
         private class SessionProxy : Session
@@ -1039,7 +1224,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             public bool PerformDeleteCalled { get; set; }
 
-            public SessionProxy(IDataProvider dataProvider) : base(dataProvider)
+            public SessionProxy(IConnection connection) : base(connection)
             {
             }
 

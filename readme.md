@@ -30,8 +30,13 @@ PM> Install-Package Concordia.Framework.SQLite
 4. Create a data provider with the appropriate connection string and initialize a new repository class with a session created by the SessionFactory.
 
 ```csharp
-    var dataProvider = new SQLiteDataProvider("Data Source=persons.s3db;Version=3");
-    var repository = new Repository(SessionFactory.OpenSession(dataProvider));
+    var connectionFactory = new SQLiteConnectionFactory();
+    connectionFactory.DataSource = "persons.s3db";
+
+    var sessionFactory = new SessionFactory(connectionFactory);
+
+    var session = sessionFactory.GetCurrentSession();
+    var repository = new Repository(session);
 ```
 
 5. Run the EntityGenerator.exe with a) InputFolder and b) OutputFolder as command line arguments, this will create the C# classes for you (It's located in the Tools folder of the repository and also in the release zip)
@@ -39,8 +44,8 @@ PM> Install-Package Concordia.Framework.SQLite
 6. Create the table in the database (Recreate is an extension method and actually calls Delete and then Create)
 
 ```csharp
-    dataProvider.GetTable<Person>().Recreate();
-    dataProvider.GetTable<Address>().Recreate();
+    session.GetTable<Person>().Recreate();
+    session.GetTable<Address>().Recreate();
 ```
 
 7. Fill your newly created entities with data

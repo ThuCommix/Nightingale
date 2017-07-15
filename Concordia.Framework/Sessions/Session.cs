@@ -9,8 +9,13 @@ using Concordia.Framework.Queries;
 
 namespace Concordia.Framework.Sessions
 {
-    public abstract class Session
+    public abstract class Session : ISession
     {
+        /// <summary>
+        /// A value indicating whether the session has a open connection.
+        /// </summary>
+        public bool IsOpen => Connection.IsOpen;
+
         /// <summary>
         /// A value indicating whether calling Flush would cause database io.
         /// </summary>
@@ -32,6 +37,16 @@ namespace Concordia.Framework.Sessions
         public DeletionMode DeletionMode { get; set; }
 
         /// <summary>
+        /// Gets the list of entity listeners.
+        /// </summary>
+        public List<IEntityListener> EntityListeners { get; }
+
+        /// <summary>
+        /// Gets the list of commit listeners
+        /// </summary>
+        public List<ICommitListener> CommitListeners { get; }
+
+        /// <summary>
         /// Gets the entity service.
         /// </summary>
         protected IEntityService EntityService => DependencyResolver.GetInstance<IEntityService>();
@@ -42,34 +57,37 @@ namespace Concordia.Framework.Sessions
         protected IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
 
         /// <summary>
-        /// Gets the data provider.
+        /// Gets the connection.
         /// </summary>
-        protected IDataProvider DataProvider { get; }
+        protected IConnection Connection { get; }
 
         private readonly List<Entity> _flushList;
-        private readonly string _dataProviderName;
+        private readonly string _connectionName;
         private bool _isInTransaction;
 
         /// <summary>
-        /// Initializes the Session class.
+        /// Initializes a new Session class.
         /// </summary>
-        /// <param name="dataProvider">The data provider</param>
-        protected Session(IDataProvider dataProvider)
+        /// <param name="connection">The connection.</param>
+        protected Session(IConnection connection)
         {
-            if (dataProvider == null)
-                throw new ArgumentNullException(nameof(dataProvider));
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
 
-            DataProvider = dataProvider;
+            EntityListeners = new List<IEntityListener>();
+            CommitListeners = new List<ICommitListener>();
+
+            Connection = connection;
             FlushMode = SessionFlushMode.Commit;
             DeletionMode = DeletionMode.Soft;
             DebugMode = true;
 
             _flushList = new List<Entity>();
 
-            var dataProviderType = dataProvider.GetType();
-            _dataProviderName = ReflectionHelper.GetDisplayName(dataProviderType) ?? dataProviderType.Name;
+            var dataProviderType = Connection.GetType();
+            _connectionName = ReflectionHelper.GetDisplayName(dataProviderType) ?? dataProviderType.Name;
 
-            DataProvider.Open();
+            Connection.Open();
         }
 
         /// <summary>
@@ -113,6 +131,8 @@ namespace Concordia.Framework.Sessions
 
             foreach(var entityToSave in entities)
             {
+                EnsureEntityListenerSave(entityToSave);
+
                 if (!_flushList.Contains(entityToSave))
                 {
                     _flushList.Add(entityToSave);
@@ -135,6 +155,8 @@ namespace Concordia.Framework.Sessions
             var entities = EntityService.GetChildEntities(entity, Cascade.SaveDelete);
             foreach(var entityToDelete in entities)
             {
+                EnsureEntityListenerDelete(entityToDelete);
+
                 var constraints = ResolveDependencyConstraints(entity, entities);
                 if (constraints.Count > 0)
                     throw new SessionDeleteException($"The entity '{entityToDelete.GetType().Name}' and Id = '{entityToDelete.Id}' could not be marked as deleted.", constraints);
@@ -182,7 +204,7 @@ namespace Concordia.Framework.Sessions
 
             _isInTransaction = true;
 
-            return new TransactionProxy(DataProvider.BeginTransaction(isolationLevel),
+            return new TransactionProxy(Connection.BeginTransaction(isolationLevel),
                 x =>
                 {
                     if (!_isInTransaction)
@@ -204,7 +226,7 @@ namespace Concordia.Framework.Sessions
 
             _isInTransaction = false;
 
-            DataProvider.Rollback();
+            Connection.Rollback();
         }
 
         /// <summary>
@@ -216,7 +238,7 @@ namespace Concordia.Framework.Sessions
             if (!_isInTransaction)
                 throw new SessionException("The session is not in a transaction.");
 
-            DataProvider.RollbackTo(savePoint);
+            Connection.RollbackTo(savePoint);
         }
 
         /// <summary>
@@ -228,7 +250,7 @@ namespace Concordia.Framework.Sessions
             if (!_isInTransaction)
                 throw new SessionException("The session is not in a transaction.");
 
-            DataProvider.Release(savePoint);
+            Connection.Release(savePoint);
         }
 
         /// <summary>
@@ -244,7 +266,8 @@ namespace Concordia.Framework.Sessions
             if (FlushMode == SessionFlushMode.Commit)
                 Flush();
 
-            DataProvider.Commit();
+            CommitListeners.ForEach(x => x.Commit());
+            Connection.Commit();
         }
 
         /// <summary>
@@ -256,7 +279,7 @@ namespace Concordia.Framework.Sessions
             if (!_isInTransaction)
                 throw new SessionException("The session is not in a transaction.");
 
-            DataProvider.Save(savePoint);
+            Connection.Save(savePoint);
         }
 
         /// <summary>
@@ -335,7 +358,7 @@ namespace Concordia.Framework.Sessions
 
             var entityList = new List<Entity>();
 
-            using (var dataReader = DataProvider.ExecuteReader(query))
+            using (var dataReader = Connection.ExecuteReader(query))
             {
                 while (dataReader.Read())
                 {
@@ -363,7 +386,7 @@ namespace Concordia.Framework.Sessions
         {
             var query = new Query($"SELECT {name}({string.Join(",", parameters.Select(x => x.Name))})", null, parameters);
 
-            return (T)DataProvider.ExecuteScalar(query);
+            return (T)Connection.ExecuteScalar(query);
         }
 
         /// <summary>
@@ -381,6 +404,16 @@ namespace Concordia.Framework.Sessions
         public virtual void Refresh(Entity entity)
         {
             entity = Load(entity.Id, entity.GetType());
+        }
+
+        /// <summary>
+        /// Gets the table.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <returns>Returns a table instance.</returns>
+        public Table<T> GetTable<T>() where T : Entity
+        {
+            return Connection.GetTable<T>();
         }
 
         /// <summary>
@@ -413,7 +446,7 @@ namespace Concordia.Framework.Sessions
 
             DebugQueryResult(query);
 
-            return DataProvider.ExecuteInsert(query);
+            return Connection.ExecuteInsert(query);
         }
 
         /// <summary>
@@ -445,7 +478,7 @@ namespace Concordia.Framework.Sessions
 
             DebugQueryResult(query);
 
-            if (DataProvider.ExecuteNonQuery(query) == 0)
+            if (Connection.ExecuteNonQuery(query) == 0)
                 throw new SessionUpdateException("The entity was not updated.");
         }
 
@@ -460,7 +493,7 @@ namespace Concordia.Framework.Sessions
 
             var query = new Query($"DELETE {metadata.Table} WHERE Id = {entity.Id} AND Version = {entity.Version}", entityType);
 
-            if (DataProvider.ExecuteNonQuery(query) == 0)
+            if (Connection.ExecuteNonQuery(query) == 0)
                 throw new SessionDeleteException($"The entity with type '{entityType.Name}' and Id = '{entity.Id}' could not be deleted from database.");
         }
 
@@ -498,6 +531,32 @@ namespace Concordia.Framework.Sessions
         }
 
         /// <summary>
+        /// Ensures that all entity listeners return true.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        private void EnsureEntityListenerSave(Entity entity)
+        {
+            foreach (var entityListener in EntityListeners)
+            {
+                if (!entityListener.Save(entity))
+                    throw new SessionException($"The entity could not be saved because of entity listener {entityListener.GetType().Name}.");
+            }
+        }
+
+        /// <summary>
+        /// Ensures that all entity listeners return true.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        private void EnsureEntityListenerDelete(Entity entity)
+        {
+            foreach (var entityListener in EntityListeners)
+            {
+                if (!entityListener.Delete(entity))
+                    throw new SessionException($"The entity could not be deleted because of entity listener {entityListener.GetType().Name}.");
+            }
+        }
+
+        /// <summary>
         /// Emits the query command to the standard output stream.
         /// </summary>
         /// <param name="query"></param>
@@ -509,7 +568,7 @@ namespace Concordia.Framework.Sessions
             var command = query.Command;
             var parameterDebugString = string.Join(", ", query.Parameters.Select(x => x.Name + " = " + x.Value?.ToString() ?? "NULL"));
 
-            System.Diagnostics.Debug.WriteLine($"{_dataProviderName}: {command}\nParameters: {parameterDebugString}");
+            System.Diagnostics.Debug.WriteLine($"{_connectionName}: {command}\nParameters: {parameterDebugString}");
         }
 
         /// <summary>
@@ -530,8 +589,8 @@ namespace Concordia.Framework.Sessions
             if (disposing)
             {
                 Flush();
-                DataProvider.Close();
-                DataProvider.Dispose();
+                Connection.Close();
+                Connection.Dispose();
             }
         }
     }

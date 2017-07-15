@@ -9,18 +9,24 @@ using Concordia.Framework.Queries;
 namespace Concordia.Framework.MySql
 {
     [DisplayName("MySQL")]
-    public class MySqlDataProvider : IDataProvider
+    public class MySqlConnection : IConnection
     {
-        private readonly MySqlConnection _connection;
+        /// <summary>
+        /// A value indicating whether the connection is open.
+        /// </summary>
+        public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
+
+        private readonly global::MySql.Data.MySqlClient.MySqlConnection _connection;
         private MySqlTransaction _currentTransaction;
+        private bool _isDisposed;
 
         /// <summary>
-        /// Initializes a new MySqlDataProvider class.
+        /// Initializes a new MySqlConnection class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public MySqlDataProvider(string connectionString)
+        public MySqlConnection(string connectionString)
         {
-            _connection = new MySqlConnection(connectionString);
+            _connection = new global::MySql.Data.MySqlClient.MySqlConnection(connectionString);
         }
 
         /// <summary>
@@ -194,6 +200,8 @@ namespace Concordia.Framework.MySql
                 _connection.Close();
                 _connection.Dispose();
             }
+
+            _isDisposed = true;
         }
 
         /// <summary>

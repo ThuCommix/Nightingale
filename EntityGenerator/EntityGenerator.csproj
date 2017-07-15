@@ -27,8 +27,8 @@
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Concordia.Framework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Concordia.Framework.1.0.0\lib\net45\Concordia.Framework.dll</HintPath>
+    <Reference Include="Concordia.Framework, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Concordia.Framework.1.1.0\lib\net45\Concordia.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>

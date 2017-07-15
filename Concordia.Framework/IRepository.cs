@@ -10,16 +10,6 @@ namespace Concordia.Framework
     public interface IRepository : IDisposable
     {
         /// <summary>
-        /// Gets the entity listener collection.
-        /// </summary>
-        List<IEntityListener> EntityListeners { get; }
-
-        /// <summary>
-        /// Gets the commit listener collection.
-        /// </summary>
-        List<ICommitListener> CommitListeners { get; }
-
-        /// <summary>
         /// Begins a new transaction.
         /// </summary>
         /// <param name="isolationLevel">The isolation level.</param>
@@ -117,5 +107,16 @@ namespace Concordia.Framework
         /// Flushs the repository.
         /// </summary>
         void Flush();
+
+        /// <summary>
+        /// Clears the session.
+        /// </summary>
+        void Clear();
+
+        /// <summary>
+        /// Refreshs the entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        void Refresh(Entity entity);
     }
 }

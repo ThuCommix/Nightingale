@@ -1,26 +1,32 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SQLite;
 using System.Linq;
+using Npgsql;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
 
-namespace Concordia.Framework.SQLite
+namespace Concordia.Framework.PostgreSql
 {
-    [DisplayName("SQLite")]
-    public class SQLiteDataProvider : IDataProvider
+    [DisplayName("PostgreSQL")]
+    public class NpgsqlConnection : IConnection
     {
-        private readonly SQLiteConnection _connection;
-        private SQLiteTransaction _currentTransaction;
+        /// <summary>
+        /// A value indicating whether the connection is open.
+        /// </summary>
+        public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
+
+        private readonly Npgsql.NpgsqlConnection _connection;
+        private NpgsqlTransaction _currentTransaction;
+        private bool _isDisposed;
 
         /// <summary>
-        /// Initializes a new SQLiteDataProvider class.
+        /// Initializes a new NpgsqlConnection class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public SQLiteDataProvider(string connectionString)
+        public NpgsqlConnection(string connectionString)
         {
-            _connection = new SQLiteConnection(connectionString);
+            _connection = new Npgsql.NpgsqlConnection(connectionString);
         }
 
         /// <summary>
@@ -46,9 +52,7 @@ namespace Concordia.Framework.SQLite
         /// <returns>Returns an IDisposeable instance.</returns>
         public IDisposable BeginTransaction(IsolationLevel isolationLevel)
         {
-            _currentTransaction = _connection.BeginTransaction(isolationLevel == IsolationLevel.Serializable 
-                || isolationLevel == IsolationLevel.ReadCommitted
-                ? isolationLevel : IsolationLevel.ReadCommitted);
+            _currentTransaction = _connection.BeginTransaction(isolationLevel);
 
             return _currentTransaction;
         }
@@ -69,11 +73,7 @@ namespace Concordia.Framework.SQLite
         /// <param name="savePoint">The save point.</param>
         public void RollbackTo(string savePoint)
         {
-            var command = _connection.CreateCommand();
-            command.Transaction = _currentTransaction;
-            command.CommandText = $"ROLLBACK TRANSACTION TO SAVEPOINT {savePoint}";
-
-            command.ExecuteNonQuery();
+            _currentTransaction.Rollback(savePoint);
         }
 
         /// <summary>
@@ -82,11 +82,7 @@ namespace Concordia.Framework.SQLite
         /// <param name="savePoint">The save point.</param>
         public void Release(string savePoint)
         {
-            var command = _connection.CreateCommand();
-            command.Transaction = _currentTransaction;
-            command.CommandText = $"RELEASE SAVEPOINT {savePoint}";
-
-            command.ExecuteNonQuery();
+            _currentTransaction.Release(savePoint);
         }
 
         /// <summary>
@@ -105,11 +101,7 @@ namespace Concordia.Framework.SQLite
         /// <param name="savePoint">The save point.</param>
         public void Save(string savePoint)
         {
-            var command = _connection.CreateCommand();
-            command.Transaction = _currentTransaction;
-            command.CommandText = $"SAVEPOINT {savePoint}";
-
-            command.ExecuteNonQuery();
+            _currentTransaction.Save(savePoint);
         }
 
         /// <summary>
@@ -122,7 +114,7 @@ namespace Concordia.Framework.SQLite
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(query.Parameters.Select(x => new NpgsqlParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteNonQuery();
@@ -138,7 +130,7 @@ namespace Concordia.Framework.SQLite
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(query.Parameters.Select(x => new NpgsqlParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteScalar();
@@ -154,7 +146,7 @@ namespace Concordia.Framework.SQLite
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(query.Parameters.Select(x => new NpgsqlParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteReader();
@@ -168,9 +160,10 @@ namespace Concordia.Framework.SQLite
         public int ExecuteInsert(IQuery query)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = query.Command + " SELECT last_insert_rowid()";
+            // Remove ';' at the end of the query.
+            command.CommandText = query.Command.Substring(0, query.Command.Length - 1) + " RETURNING Id";
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(query.Parameters.Select(x => new NpgsqlParameter(x.Name, x.Value)).ToArray());
             command.Prepare();
 
             return Convert.ToInt32(command.ExecuteScalar());
@@ -191,11 +184,13 @@ namespace Concordia.Framework.SQLite
         /// <param name="disposing">The disposing state.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if(disposing)
+            if (disposing)
             {
                 _connection.Close();
                 _connection.Dispose();
             }
+
+            _isDisposed = true;
         }
 
         /// <summary>
@@ -205,7 +200,7 @@ namespace Concordia.Framework.SQLite
         /// <returns>Returns the table object.</returns>
         public Table<T> GetTable<T>() where T : Entity
         {
-            return new SQLiteTable<T>(this);
+            return new NpgsqlTable<T>(this);
         }
     }
 }

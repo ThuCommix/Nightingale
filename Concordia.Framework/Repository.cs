@@ -12,19 +12,9 @@ namespace Concordia.Framework
     public class Repository : IRepository
     {
         /// <summary>
-        /// Gets the entity listeners.
-        /// </summary>
-        public List<IEntityListener> EntityListeners { get; }
-
-        /// <summary>
-        /// Gets the commit listeners.
-        /// </summary>
-        public List<ICommitListener> CommitListeners { get; }
-
-        /// <summary>
         /// Gets the session.
         /// </summary>
-        protected Session Session { get; }
+        protected ISession Session { get; }
 
         /// <summary>
         /// Gets the entity service.
@@ -35,14 +25,12 @@ namespace Concordia.Framework
         /// Initializes a new RepositoryBase class.
         /// </summary>
         /// <param name="session">The session.</param>
-        public Repository(Session session)
+        public Repository(ISession session)
         {
             if (session == null)
                 throw new ArgumentNullException(nameof(session));
 
             Session = session;
-            EntityListeners = new List<IEntityListener>();
-            CommitListeners = new List<ICommitListener>();
         }
 
         /// <summary>
@@ -103,7 +91,6 @@ namespace Concordia.Framework
         /// </summary>
         public virtual void Commit()
         {
-            CommitListeners.ForEach(x => x.Commit());
             Session.Commit();
         }
 
@@ -121,13 +108,6 @@ namespace Concordia.Framework
         /// <param name="entity">The entity.</param>
         public virtual void Save(Entity entity)
         {
-            var entities = EntityService.GetChildEntities(entity, Cascade.Save);
-            foreach(var cascadedEntity in entities)
-            {
-                if (!EntityListeners.All(x => x.Save(cascadedEntity)))
-                    throw new InvalidOperationException("The entity could not be marked for save or update because an entity listener returned false.");
-            }
-
             Session.SaveOrUpdate(entity);
         }
 
@@ -137,13 +117,6 @@ namespace Concordia.Framework
         /// <param name="entity">The entity.</param>
         public virtual void Delete(Entity entity)
         {
-            var entities = EntityService.GetChildEntities(entity, Cascade.SaveDelete);
-            foreach (var cascadedEntity in entities)
-            {
-                if (!EntityListeners.All(x => x.Delete(cascadedEntity)))
-                    throw new InvalidOperationException("The entity could not be marked for deletion because an entity listener returned false.");
-            }
-
             Session.Delete(entity);
         }
 
@@ -219,6 +192,23 @@ namespace Concordia.Framework
         public T ExecuteFunc<T>(string name, params QueryParameter[] parameters)
         {
             return Session.ExecuteFunc<T>(name, parameters);
+        }
+
+        /// <summary>
+        /// Clears the session.
+        /// </summary>
+        public void Clear()
+        {
+            Session.Clear();
+        }
+
+        /// <summary>
+        /// Refreshs the entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public void Refresh(Entity entity)
+        {
+            Session.Refresh(entity);
         }
 
         /// <summary>

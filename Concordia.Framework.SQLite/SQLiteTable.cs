@@ -22,8 +22,8 @@ namespace Concordia.Framework.SQLite
         /// <summary>
         /// Initializes a new SQLiteTable class.
         /// </summary>
-        /// <param name="dataProvider">The data provider.</param>
-        public SQLiteTable(IDataProvider dataProvider) : base(dataProvider)
+        /// <param name="connection">The connection.</param>
+        public SQLiteTable(IConnection connection) : base(connection)
         {
         }
 
@@ -49,7 +49,7 @@ namespace Concordia.Framework.SQLite
             commandBuilder.AppendLine(");");
 
             var query = new Query(commandBuilder.ToString(), Type);
-            DataProvider.ExecuteNonQuery(query);
+            Connection.ExecuteNonQuery(query);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Concordia.Framework.SQLite
         public override void Delete()
         {
             var query = new Query($"DROP TABLE IF EXISTS {Metadata.Table}", Type);
-            DataProvider.ExecuteNonQuery(query);
+            Connection.ExecuteNonQuery(query);
         }
 
         /// <summary>

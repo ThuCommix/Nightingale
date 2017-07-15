@@ -27,17 +27,18 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Concordia.Framework, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Concordia.Framework.1.1.0\lib\net45\Concordia.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="MySql.Data">
       <HintPath>..\packages\MySql.Data.6.9.9\lib\net45\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="Concordia.Framework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Concordia.Framework.1.0.0\lib\net45\Concordia.Framework.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MySqlDataProvider.cs" />
+    <Compile Include="MySqlConnection.cs" />
+    <Compile Include="MySqlConnectionFactory.cs" />
     <Compile Include="MySqlTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
