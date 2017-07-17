@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using Concordia.Framework.Entities;
+using Concordia.Framework.Extensions;
 using Concordia.Framework.Metadata;
 using Concordia.Framework.Queries;
 
@@ -291,6 +292,15 @@ namespace Concordia.Framework.Sessions
             {
                 if (!entity.Validate())
                     throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'");
+
+                var entityType = entity.GetType();
+                var metadata = EntityMetadataResolver.GetEntityMetadata(entity);
+                foreach(var field in metadata.Fields.Where(x => x.Cascade == Cascade.None && x.IsComplexFieldType && !x.Enum))
+                {
+                    var referencedEntity = (Entity)entityType.GetProperty(field.GetComplexFieldName()).GetValue(entity);
+                    if (referencedEntity != null && referencedEntity.IsNotSaved && !_flushList.Contains(referencedEntity))
+                        throw new TransientEntityException($"Entity with type '{metadata.Name}' references an unsaved transient value in field {field.Name}. Consider saving the transient entity before flushing.");
+                }
             }
 
             foreach (var unsavedEntity in _flushList.Where(x => x.IsNotSaved))

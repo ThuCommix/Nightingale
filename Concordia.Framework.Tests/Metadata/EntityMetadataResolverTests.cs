@@ -21,7 +21,7 @@ namespace Concordia.Framework.Tests.Metadata
             var result = new EntityMetadataResolver().EntityMetadata;
 
             // assert
-            Assert.That(result.Count(), Is.EqualTo(2));
+            Assert.That(result.Count(), Is.EqualTo(3));
             Assert.That(result.Any(x => x.Name == "Artist"), Is.True);
             Assert.That(result.Any(x => x.Name == "ArtistStatisticValues"), Is.True);
         }

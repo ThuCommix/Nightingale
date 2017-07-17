@@ -1210,6 +1210,45 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Flush_Detect_Transient_Entity(bool isTransient)
+        {
+            // arrange
+            TestHelper.SetupEntityMetadataServices();
+
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new SessionProxy(connectionMock.Object);
+            session.FlushMode = SessionFlushMode.Always;
+
+            var song = new Song();
+            song.Artist = new Artist { Name = "Artist" };
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(song, Cascade.Save)).Returns(new List<Entity> { song });
+
+            if (!isTransient)
+            {
+                entityServiceMock.Setup(s => s.GetChildEntities(song.Artist, Cascade.Save)).Returns(new List<Entity> { song.Artist });
+                session.SaveOrUpdate(song.Artist);
+            }
+
+            // act
+            if (isTransient)
+            {
+                Assert.Throws<TransientEntityException>(() => session.SaveOrUpdate(song));
+            }
+            else
+            {
+                session.SaveOrUpdate(song);
+            }
+
+            // assert
+
+            entityServiceMock.VerifyAll();
+            connectionMock.VerifyAll();
+        }
+
         private class SessionProxy : Session
         {
             public bool PerformInsertCalled { get; private set; }

@@ -28,5 +28,18 @@ namespace Concordia.Framework.Extensions
 
             return SqlDbType.Int;
         }
+
+        /// <summary>
+        /// Gets the complex field name.
+        /// </summary>
+        /// <param name="fieldMetadata">The field metadata.</param>
+        /// <returns>Returns the name of the field.</returns>
+        public static string GetComplexFieldName(this FieldMetadata fieldMetadata)
+        {
+            if (!fieldMetadata.IsComplexFieldType)
+                return fieldMetadata.Name;
+
+            return fieldMetadata.Name.Substring(3, fieldMetadata.Name.Length - 6);
+        }
     }
 }

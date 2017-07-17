@@ -148,6 +148,7 @@
     <Compile Include="Extensions\EnumerableExtension.cs" />
     <Compile Include="Sessions\StatelessSession.cs" />
     <Compile Include="Sessions\TransactionProxy.cs" />
+    <Compile Include="Sessions\TransientEntityException.cs" />
     <Compile Include="Table.cs" />
   </ItemGroup>
   <ItemGroup>
