@@ -108,9 +108,18 @@ namespace Concordia.Framework.Queries
                     break;
                 case ExpressionType.Constant:
                     var constantExpression = expression as ConstantExpression;
-                    if(!string.IsNullOrWhiteSpace(_memberPath))
+                    if (!string.IsNullOrWhiteSpace(_memberPath))
                     {
-                        Tokens.Add(new ConstantToken(constantExpression.Value.GetType().GetProperty(_memberPath).GetValue(constantExpression.Value)));
+                        var type = constantExpression.Value.GetType();
+                        var property = type.GetProperty(_memberPath);
+                        if(property != null)
+                        {
+                            Tokens.Add(new ConstantToken(property.GetValue(constantExpression.Value)));
+                        }
+                        else
+                        {
+                            Tokens.Add(new ConstantToken(type.GetField(_memberPath).GetValue(constantExpression.Value)));
+                        }
                     }
                     else
                     {
