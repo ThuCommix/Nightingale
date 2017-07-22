@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Concordia.Framework.Logging;
 
 namespace Concordia.Framework.Sessions
 {
@@ -30,6 +31,18 @@ namespace Concordia.Framework.Sessions
         /// Gets the list of commit listeners
         /// </summary>
         public List<ICommitListener> CommitListeners { get; }
+
+        /// <summary>
+        /// Gets or sets the logger.
+        /// </summary>
+        public ILogger Logger
+        {
+            get { return DependencyResolver.GetInstance<ILogger>(); }
+            set
+            {
+                DependencyResolver.Register(value);
+            }
+        }
 
         private readonly List<ISession> _sessions;
 

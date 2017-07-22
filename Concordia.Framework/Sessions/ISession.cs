@@ -3,6 +3,7 @@ using Concordia.Framework.Queries;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Concordia.Framework.Logging;
 
 namespace Concordia.Framework.Sessions
 {
@@ -32,11 +33,6 @@ namespace Concordia.Framework.Sessions
         /// Gets or sets the flush mode.
         /// </summary>
         SessionFlushMode FlushMode { get; set; }
-
-        /// <summary>
-        /// A value indicating whether the debug mode is enabled.
-        /// </summary>
-        bool DebugMode { get; set; }
 
         /// <summary>
         /// Gets or sets the deletion mode.

@@ -45,7 +45,6 @@ namespace Concordia.Framework.Tests.Sessions
 
             // assert
             Assert.That(session.DeletionMode, Is.EqualTo(DeletionMode.Soft));
-            Assert.That(session.DebugMode, Is.True);
             Assert.That(session.FlushMode, Is.EqualTo(SessionFlushMode.Commit));
 
             connectionMock.VerifyAll();
