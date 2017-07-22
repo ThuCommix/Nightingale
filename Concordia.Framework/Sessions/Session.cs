@@ -26,7 +26,7 @@ namespace Concordia.Framework.Sessions
         /// <summary>
         /// Gets or sets the flush mode.
         /// </summary>
-        public SessionFlushMode FlushMode { get; set; }
+        public FlushMode FlushMode { get; set; }
 
         /// <summary>
         /// Gets or sets the deletion mode.
@@ -77,8 +77,6 @@ namespace Concordia.Framework.Sessions
             CommitListeners = new List<ICommitListener>();
 
             Connection = connection;
-            FlushMode = SessionFlushMode.Commit;
-            DeletionMode = DeletionMode.Soft;
 
             _flushList = new List<Entity>();
 
@@ -137,7 +135,7 @@ namespace Concordia.Framework.Sessions
                 }
             }
 
-            if (FlushMode == SessionFlushMode.Always)
+            if (FlushMode == FlushMode.Always)
                 Flush();
         }
 
@@ -162,10 +160,10 @@ namespace Concordia.Framework.Sessions
                 entityToDelete.Deleted = true;
             }
 
-            if(DeletionMode == DeletionMode.Soft)
+            if(DeletionMode == DeletionMode.Recoverable)
                 SaveOrUpdate(entity);
 
-            if (DeletionMode == DeletionMode.Hard)
+            if (DeletionMode == DeletionMode.Irrecoverable)
             {
                 foreach(var entityToDelete in entities.Where(x => x.IsSaved))
                 {
@@ -261,7 +259,7 @@ namespace Concordia.Framework.Sessions
 
             _isInTransaction = false;
 
-            if (FlushMode == SessionFlushMode.Commit)
+            if (FlushMode == FlushMode.Commit)
                 Flush();
 
             CommitListeners.ForEach(x => x.Commit());
@@ -358,7 +356,7 @@ namespace Concordia.Framework.Sessions
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            if (FlushMode == SessionFlushMode.Intelligent || FlushMode == SessionFlushMode.Always)
+            if (FlushMode == FlushMode.Intelligent || FlushMode == FlushMode.Always)
                 Flush();
 
             DebugQueryResult(query);

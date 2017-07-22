@@ -21,7 +21,7 @@ namespace Concordia.Framework.Sessions
             base.SaveOrUpdate(entity);
 
             // flush if it was not flushed by SaveOrUpdate to prevent reference caching in flushlist.
-            if (FlushMode != SessionFlushMode.Always)
+            if (FlushMode != FlushMode.Always)
                 Flush();
         }
     }

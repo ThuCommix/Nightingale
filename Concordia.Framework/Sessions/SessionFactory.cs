@@ -44,6 +44,16 @@ namespace Concordia.Framework.Sessions
             }
         }
 
+        /// <summary>
+        /// Gets or sets the flush mode.
+        /// </summary>
+        public FlushMode FlushMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the deletion mode.
+        /// </summary>
+        public DeletionMode DeletionMode { get; set; }
+
         private readonly List<ISession> _sessions;
 
         /// <summary>
@@ -68,6 +78,9 @@ namespace Concordia.Framework.Sessions
             EntityListeners = new List<IEntityListener>();
             CommitListeners = new List<ICommitListener>();
             _sessions = new List<ISession>();
+
+            FlushMode = FlushMode.Commit;
+            DeletionMode = DeletionMode.Recoverable;
         }
 
         /// <summary>
@@ -85,6 +98,9 @@ namespace Concordia.Framework.Sessions
                 session.EntityListeners.AddRange(EntityListeners);
                 session.CommitListeners.AddRange(CommitListeners);
             }
+
+            session.FlushMode = FlushMode;
+            session.DeletionMode = DeletionMode;
 
             return session;
         }

@@ -34,11 +34,11 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [TestCase(SessionFlushMode.Manual)]
-        [TestCase(SessionFlushMode.Always)]
-        [TestCase(SessionFlushMode.Commit)]
-        [TestCase(SessionFlushMode.Intelligent)]
-        public void SaveOrUpdate_Flushes_On_Whichever_FlushMode(SessionFlushMode flushMode)
+        [TestCase(FlushMode.Manual)]
+        [TestCase(FlushMode.Always)]
+        [TestCase(FlushMode.Commit)]
+        [TestCase(FlushMode.Intelligent)]
+        public void SaveOrUpdate_Flushes_On_Whichever_FlushMode(FlushMode flushMode)
         {
             // arrange
             var connectionMock = TestHelper.SetupConnection();

@@ -44,8 +44,8 @@ namespace Concordia.Framework.Tests.Sessions
             var session = new SessionProxy(connectionMock.Object);
 
             // assert
-            Assert.That(session.DeletionMode, Is.EqualTo(DeletionMode.Soft));
-            Assert.That(session.FlushMode, Is.EqualTo(SessionFlushMode.Commit));
+            Assert.That(session.DeletionMode, Is.EqualTo(DeletionMode.Recoverable));
+            Assert.That(session.FlushMode, Is.EqualTo(FlushMode.Commit));
 
             connectionMock.VerifyAll();
         }
@@ -727,7 +727,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             TestHelper.SetupEntityMetadataServices();
 
-            session.DeletionMode = DeletionMode.Soft;
+            session.DeletionMode = DeletionMode.Recoverable;
 
             // act
             session.Delete(entity);
@@ -762,7 +762,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             TestHelper.SetupEntityMetadataServices();
 
-            session.DeletionMode = DeletionMode.Hard;
+            session.DeletionMode = DeletionMode.Irrecoverable;
 
             // act
             session.Delete(entity);
@@ -798,7 +798,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             TestHelper.SetupEntityMetadataServices();
 
-            session.DeletionMode = DeletionMode.Hard;
+            session.DeletionMode = DeletionMode.Irrecoverable;
 
             // act
             session.Delete(entity);
@@ -836,7 +836,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             TestHelper.SetupEntityMetadataServices();
 
-            session.DeletionMode = DeletionMode.Hard;
+            session.DeletionMode = DeletionMode.Irrecoverable;
 
             // act
             var result = Assert.Throws<SessionDeleteException>(() => session.Delete(entity));
@@ -1218,7 +1218,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             var connectionMock = TestHelper.SetupConnection();
             var session = new SessionProxy(connectionMock.Object);
-            session.FlushMode = SessionFlushMode.Always;
+            session.FlushMode = FlushMode.Always;
 
             var song = new Song();
             song.Artist = new Artist { Name = "Artist" };
@@ -1264,6 +1264,8 @@ namespace Concordia.Framework.Tests.Sessions
 
             public SessionProxy(IConnection connection) : base(connection)
             {
+                FlushMode = FlushMode.Commit;
+                DeletionMode = DeletionMode.Recoverable;
             }
 
             public List<Entity> CallGetFlushList()

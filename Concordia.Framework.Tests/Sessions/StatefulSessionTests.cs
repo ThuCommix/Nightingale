@@ -37,7 +37,7 @@ namespace Concordia.Framework.Tests.Sessions
         {
             // arrange
             var connectionMock = TestHelper.SetupConnection();
-            var session = new StatefulSession(connectionMock.Object);
+            var session = new StatefulSession(connectionMock.Object) { FlushMode = FlushMode.Commit, DeletionMode = DeletionMode.Recoverable };
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -59,7 +59,7 @@ namespace Concordia.Framework.Tests.Sessions
         {
             // arrange
             var connectionMock = TestHelper.SetupConnection();
-            var session = new StatefulSession(connectionMock.Object);
+            var session = new StatefulSession(connectionMock.Object) { FlushMode = FlushMode.Commit, DeletionMode = DeletionMode.Recoverable };
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();

@@ -1,6 +1,6 @@
 ﻿namespace Concordia.Framework.Sessions
 {
-    public enum SessionFlushMode
+    public enum FlushMode
     {
         /// <summary>
         /// The session is immediately flushed.
