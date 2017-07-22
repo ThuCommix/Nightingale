@@ -1,6 +1,7 @@
 ﻿using System;
 using Concordia.Framework;
 using Concordia.Framework.Extensions;
+using Concordia.Framework.Logging;
 using Concordia.Framework.Sessions;
 using Concordia.Framework.SQLite;
 
@@ -14,6 +15,7 @@ namespace ConsoleApp1
             connectionFactory.DataSource = "persons.s3db";
 
             var sessionFactory = new SessionFactory(connectionFactory);
+            sessionFactory.Logger = new TraceLogger(LogLevel.Debug);
 
             // register entity listeners
             sessionFactory.EntityListeners.Add(new PersonEntityService());

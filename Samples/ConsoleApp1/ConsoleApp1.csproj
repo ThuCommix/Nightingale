@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Concordia.Framework, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Concordia.Framework.1.1.0\lib\net45\Concordia.Framework.dll</HintPath>
+      <HintPath>..\..\packages\Concordia.Framework.1.2.0\lib\net45\Concordia.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Concordia.Framework.SQLite, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Concordia.Framework.SQLite.1.1.0\lib\net45\Concordia.Framework.SQLite.dll</HintPath>
