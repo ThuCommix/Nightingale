@@ -32,6 +32,14 @@ namespace Concordia.Framework
             return (T)_dependencies[typeof(T)];
         }
 
+        public static T TryGetInstance<T>() where T : class
+        {
+            if (!_dependencies.ContainsKey(typeof(T)))
+                return default(T);
+
+            return (T)_dependencies[typeof(T)];
+        }
+
         public static void Clear()
         {
             _dependencies.Clear();

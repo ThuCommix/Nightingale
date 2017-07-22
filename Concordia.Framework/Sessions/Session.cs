@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Extensions;
+using Concordia.Framework.Logging;
 using Concordia.Framework.Metadata;
 using Concordia.Framework.Queries;
 
@@ -26,11 +27,6 @@ namespace Concordia.Framework.Sessions
         /// Gets or sets the flush mode.
         /// </summary>
         public SessionFlushMode FlushMode { get; set; }
-
-        /// <summary>
-        /// A value indicating whether the debug mode is enabled.
-        /// </summary>
-        public bool DebugMode { get; set; }
 
         /// <summary>
         /// Gets or sets the deletion mode.
@@ -63,7 +59,7 @@ namespace Concordia.Framework.Sessions
         protected IConnection Connection { get; }
 
         private readonly List<Entity> _flushList;
-        private readonly string _connectionName;
+        private readonly ILogger _logger;
         private bool _isInTransaction;
 
         /// <summary>
@@ -75,18 +71,19 @@ namespace Concordia.Framework.Sessions
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
+            _logger = DependencyResolver.TryGetInstance<ILogger>();
+
             EntityListeners = new List<IEntityListener>();
             CommitListeners = new List<ICommitListener>();
 
             Connection = connection;
             FlushMode = SessionFlushMode.Commit;
             DeletionMode = DeletionMode.Soft;
-            DebugMode = true;
 
             _flushList = new List<Entity>();
 
-            var dataProviderType = Connection.GetType();
-            _connectionName = ReflectionHelper.GetDisplayName(dataProviderType) ?? dataProviderType.Name;
+            var connectionType = Connection.GetType();
+            _logger?.Info($"Underlying database: {ReflectionHelper.GetDisplayName(connectionType) ?? connectionType.Name}");
 
             Connection.Open();
         }
@@ -128,7 +125,7 @@ namespace Concordia.Framework.Sessions
             var entities = EntityService.GetChildEntities(entity, Cascade.Save);
 
             if (entities.Any(x => x.Deleted && x.IsNotSaved))
-                throw new SessionException("Insertion of a deleted entity is not allowed.");
+                throw new SessionException("Insertion of a deleted entity is not allowed.").Log(_logger);
 
             foreach(var entityToSave in entities)
             {
@@ -160,7 +157,7 @@ namespace Concordia.Framework.Sessions
 
                 var constraints = ResolveDependencyConstraints(entity, entities);
                 if (constraints.Count > 0)
-                    throw new SessionDeleteException($"The entity '{entityToDelete.GetType().Name}' and Id = '{entityToDelete.Id}' could not be marked as deleted.", constraints);
+                    throw new SessionDeleteException($"The entity '{entityToDelete.GetType().Name}' and Id = '{entityToDelete.Id}' could not be marked as deleted.", constraints).Log(_logger);
 
                 entityToDelete.Deleted = true;
             }
@@ -201,7 +198,7 @@ namespace Concordia.Framework.Sessions
         public virtual IDisposable BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable)
         {
             if (_isInTransaction)
-                throw new SessionException("The session is already in a transaction.");
+                throw new SessionException("The session is already in a transaction.").Log(_logger);
 
             _isInTransaction = true;
 
@@ -223,7 +220,7 @@ namespace Concordia.Framework.Sessions
         public virtual void Rollback()
         {
             if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.");
+                throw new SessionException("The session is not in a transaction.").Log(_logger);
 
             _isInTransaction = false;
 
@@ -237,7 +234,7 @@ namespace Concordia.Framework.Sessions
         public virtual void RollbackTo(string savePoint)
         {
             if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.");
+                throw new SessionException("The session is not in a transaction.").Log(_logger);
 
             Connection.RollbackTo(savePoint);
         }
@@ -249,7 +246,7 @@ namespace Concordia.Framework.Sessions
         public virtual void Release(string savePoint)
         {
             if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.");
+                throw new SessionException("The session is not in a transaction.").Log(_logger);
 
             Connection.Release(savePoint);
         }
@@ -260,7 +257,7 @@ namespace Concordia.Framework.Sessions
         public virtual void Commit()
         {
             if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.");
+                throw new SessionException("The session is not in a transaction.").Log(_logger);
 
             _isInTransaction = false;
 
@@ -278,7 +275,7 @@ namespace Concordia.Framework.Sessions
         public virtual void Save(string savePoint)
         {
             if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.");
+                throw new SessionException("The session is not in a transaction.").Log(_logger);
 
             Connection.Save(savePoint);
         }
@@ -291,7 +288,7 @@ namespace Concordia.Framework.Sessions
             foreach(var entity in _flushList)
             {
                 if (!entity.Validate())
-                    throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'");
+                    throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
 
                 var entityType = entity.GetType();
                 var metadata = EntityMetadataResolver.GetEntityMetadata(entity);
@@ -299,7 +296,7 @@ namespace Concordia.Framework.Sessions
                 {
                     var referencedEntity = (Entity)entityType.GetProperty(field.GetComplexFieldName()).GetValue(entity);
                     if (referencedEntity != null && referencedEntity.IsNotSaved && !_flushList.Contains(referencedEntity))
-                        throw new TransientEntityException($"Entity with type '{metadata.Name}' references an unsaved transient value in field {field.Name}. Consider saving the transient entity before flushing.");
+                        throw new TransientEntityException($"Entity with type '{metadata.Name}' references an unsaved transient value in field {field.Name}. Consider saving the transient entity before flushing.").Log(_logger);
                 }
             }
 
@@ -312,13 +309,13 @@ namespace Concordia.Framework.Sessions
                 catch (Exception ex)
                 {
                     throw new SessionInsertException(
-                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'", ex);
+                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'", ex).Log(_logger);
                 }
 
                 if (unsavedEntity.IsNotSaved)
                 {
                     throw new SessionInsertException(
-                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'");
+                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'").Log(_logger);
                 }
             }
 
@@ -339,7 +336,7 @@ namespace Concordia.Framework.Sessions
                     entity.Version--;
 
                     throw new SessionUpdateException(
-                        $"Could not update entity '{entity.GetType().Name}' and Id = '{entity.Id}'.", ex);
+                        $"Could not update entity '{entity.GetType().Name}' and Id = '{entity.Id}'.", ex).Log(_logger);
                 }
             }
 
@@ -489,7 +486,7 @@ namespace Concordia.Framework.Sessions
             DebugQueryResult(query);
 
             if (Connection.ExecuteNonQuery(query) == 0)
-                throw new SessionUpdateException("The entity was not updated.");
+                throw new SessionUpdateException("The entity was not updated.").Log(_logger);
         }
 
         /// <summary>
@@ -504,7 +501,7 @@ namespace Concordia.Framework.Sessions
             var query = new Query($"DELETE {metadata.Table} WHERE Id = {entity.Id} AND Version = {entity.Version}", entityType);
 
             if (Connection.ExecuteNonQuery(query) == 0)
-                throw new SessionDeleteException($"The entity with type '{entityType.Name}' and Id = '{entity.Id}' could not be deleted from database.");
+                throw new SessionDeleteException($"The entity with type '{entityType.Name}' and Id = '{entity.Id}' could not be deleted from database.").Log(_logger);
         }
 
         /// <summary>
@@ -549,7 +546,7 @@ namespace Concordia.Framework.Sessions
             foreach (var entityListener in EntityListeners)
             {
                 if (!entityListener.Save(entity))
-                    throw new SessionException($"The entity could not be saved because of entity listener {entityListener.GetType().Name}.");
+                    throw new SessionException($"The entity could not be saved because of entity listener {entityListener.GetType().Name}.").Log(_logger);
             }
         }
 
@@ -562,7 +559,7 @@ namespace Concordia.Framework.Sessions
             foreach (var entityListener in EntityListeners)
             {
                 if (!entityListener.Delete(entity))
-                    throw new SessionException($"The entity could not be deleted because of entity listener {entityListener.GetType().Name}.");
+                    throw new SessionException($"The entity could not be deleted because of entity listener {entityListener.GetType().Name}.").Log(_logger);
             }
         }
 
@@ -572,13 +569,10 @@ namespace Concordia.Framework.Sessions
         /// <param name="query"></param>
         private void DebugQueryResult(IQuery query)
         {
-            if (!DebugMode)
-                return;
-
             var command = query.Command;
             var parameterDebugString = string.Join(", ", query.Parameters.Select(x => x.Name + " = " + x.Value?.ToString() ?? "NULL"));
 
-            System.Diagnostics.Debug.WriteLine($"{_connectionName}: {command}\nParameters: {parameterDebugString}");
+            _logger?.Debug($"{command}\nParameters: {parameterDebugString}");
         }
 
         /// <summary>

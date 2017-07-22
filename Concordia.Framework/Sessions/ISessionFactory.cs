@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Concordia.Framework.Logging;
 
 namespace Concordia.Framework.Sessions
 {
@@ -29,6 +30,11 @@ namespace Concordia.Framework.Sessions
         /// Gets the list of commit listeners
         /// </summary>
         List<ICommitListener> CommitListeners { get; }
+
+        /// <summary>
+        /// Gets or sets the logger.
+        /// </summary>
+        ILogger Logger { get; set; }
 
         /// <summary>
         /// Gets the current session.
