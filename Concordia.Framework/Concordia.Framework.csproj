@@ -123,7 +123,7 @@
     <Compile Include="Sessions\SessionDeleteException.cs" />
     <Compile Include="Sessions\SessionException.cs" />
     <Compile Include="Sessions\SessionFactory.cs" />
-    <Compile Include="Sessions\SessionFlushMode.cs" />
+    <Compile Include="Sessions\FlushMode.cs" />
     <Compile Include="Sessions\SessionInsertException.cs" />
     <Compile Include="Sessions\SessionUpdateException.cs" />
     <Compile Include="Sessions\StatefulSession.cs" />

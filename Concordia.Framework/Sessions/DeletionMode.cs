@@ -10,11 +10,11 @@
         /// <summary>
         /// Sets the deleted flag on entities. Entities which are marked are not loaded any more but still exists in database.
         /// </summary>
-        Soft,
+        Recoverable,
 
         /// <summary>
         /// Removes the entities from the database.
         /// </summary>
-        Hard
+        Irrecoverable
     }
 }

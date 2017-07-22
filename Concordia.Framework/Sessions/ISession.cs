@@ -32,7 +32,7 @@ namespace Concordia.Framework.Sessions
         /// <summary>
         /// Gets or sets the flush mode.
         /// </summary>
-        SessionFlushMode FlushMode { get; set; }
+        FlushMode FlushMode { get; set; }
 
         /// <summary>
         /// Gets or sets the deletion mode.

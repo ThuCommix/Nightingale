@@ -37,6 +37,16 @@ namespace Concordia.Framework.Sessions
         ILogger Logger { get; set; }
 
         /// <summary>
+        /// Gets or sets the flush mode.
+        /// </summary>
+        FlushMode FlushMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the deletion mode.
+        /// </summary>
+        DeletionMode DeletionMode { get; set; }
+
+        /// <summary>
         /// Gets the current session.
         /// </summary>
         /// <returns>Returns a session instance.</returns>
