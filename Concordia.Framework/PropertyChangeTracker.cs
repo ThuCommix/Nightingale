@@ -28,6 +28,7 @@ namespace Concordia.Framework
 
         private IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
 
+        private readonly List<CollectionChangedItem> _collectionChangedItems;
         private readonly List<PropertyChangedItem> _propertyChangedItems;
         private readonly Entity _entity;
 
@@ -42,6 +43,7 @@ namespace Concordia.Framework
 
             _entity = entity;
             _propertyChangedItems = new List<PropertyChangedItem>();
+            _collectionChangedItems = new List<CollectionChangedItem>();
         }
         
         /// <summary>
@@ -50,6 +52,7 @@ namespace Concordia.Framework
         public void Clear()
         {
             _propertyChangedItems.Clear();
+            _collectionChangedItems.Clear();
         }
 
         /// <summary>
@@ -88,6 +91,54 @@ namespace Concordia.Framework
         }
 
         /// <summary>
+        /// Adds a new collection changed item.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="propertyExpression">The expression representing the local property.</param>
+        /// <param name="entityItem">The added or removed entity.</param>
+        /// <param name="changeType">The collection change type.</param>
+        public void AddCollectionChangedItem<T>(Expression<Func<T, object>> propertyExpression, Entity entityItem, CollectionChangeType changeType) where T : Entity
+        {
+            AddCollectionChangedItem(GetPropertyName(propertyExpression), entityItem, changeType);
+        }
+
+        /// <summary>
+        /// Adds a new collection changed item.
+        /// </summary>
+        /// <param name="property">The property.</param>
+        /// <param name="entityItem">The added or removed entity.</param>
+        /// <param name="changeType">The collection change type.</param>
+        public void AddCollectionChangedItem(string property, Entity entityItem, CollectionChangeType changeType)
+        {
+            AddCollectionChangedItem(new CollectionChangedItem(property, entityItem, changeType));
+        }
+
+        /// <summary>
+        /// Adds a new collection changed item.
+        /// </summary>
+        /// <param name="collectionChangedItem">The collection changed item.</param>
+        public void AddCollectionChangedItem(CollectionChangedItem collectionChangedItem)
+        {
+            if (DisableChangeTracking)
+                return;
+
+            var oppositeChangeType = collectionChangedItem.CollectionChangeType == CollectionChangeType.Added ? CollectionChangeType.Removed : CollectionChangeType.Added;
+
+            // check if the item was removed previously
+            var changedItem = _collectionChangedItems.FirstOrDefault(
+                x => x.Item == collectionChangedItem.Item && x.PropertyName == collectionChangedItem.PropertyName && x.CollectionChangeType == oppositeChangeType);
+
+            if (changedItem != null)
+            {
+                // delete the changed item and cancel, because it would result in no real change (Item removed, same Item added; Item added, same item removed)
+                _collectionChangedItems.Remove(changedItem);
+                return;
+            }
+
+            _collectionChangedItems.Add(collectionChangedItem);
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the property was changed.
         /// </summary>
         /// <param name="expression">The property expression.</param>
@@ -110,6 +161,12 @@ namespace Concordia.Framework
             if (_entity.IsNotSaved)
                 return true;
 
+            var entityMetadata = EntityMetadataResolver.GetEntityMetadata(_entity);
+            if(entityMetadata.ListFields.Any(x => x.Name == propertyName))
+            {
+                return _collectionChangedItems.Any(x => x.PropertyName == propertyName);
+            }
+
             var propertyChanges = _propertyChangedItems.Where(x => x.PropertyName == propertyName);
             if (!propertyChanges.Any())
                 return false;
@@ -123,7 +180,7 @@ namespace Concordia.Framework
             if (originalValue == null)
                 return true;
 
-            var field = EntityMetadataResolver.GetEntityMetadata(_entity).Fields.FirstOrDefault(x => x.Name == propertyName);
+            var field = entityMetadata.Fields.FirstOrDefault(x => x.Name == propertyName);
             if(field?.IsForeignKey ?? false)
             {
                 //The new value is a new instance and thats why the id is 0
@@ -158,6 +215,32 @@ namespace Concordia.Framework
         }
 
         /// <summary>
+        /// Tries to get the added collection items.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <typeparam name="TEntityItem">The collection item type.</typeparam>
+        /// <param name="expression">The expression.</param>
+        /// <param name="items">The added items.</param>
+        /// <returns>Returns true if the changed values could be recovered.</returns>
+        public bool TryGetAddedCollectionItems<T, TEntityItem>(Expression<Func<T, object>> expression, out List<TEntityItem> items) where T : Entity
+        {
+            return TryGetChangedCollectionItems(expression, CollectionChangeType.Added, out items);
+        }
+
+        /// <summary>
+        /// Tries to get the removed collection items.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <typeparam name="TEntityItem">The collection item type.</typeparam>
+        /// <param name="expression">The expression.</param>
+        /// <param name="items">The removed items.</param>
+        /// <returns>Returns true if the changed values could be recovered.</returns>
+        public bool TryGetRemovedCollectionItems<T, TEntityItem>(Expression<Func<T, object>> expression, out List<TEntityItem> items) where T : Entity
+        {
+            return TryGetChangedCollectionItems(expression, CollectionChangeType.Removed, out items);
+        }
+
+        /// <summary>
         /// Gets the changed properties.
         /// </summary>
         /// <returns>Returns a list of changed properties.</returns>
@@ -165,9 +248,29 @@ namespace Concordia.Framework
         {
             var metadata = EntityMetadataResolver.GetEntityMetadata(_entity);
             var fields = metadata.Fields.OfType<FieldBaseMetadata>().ToList();
-            fields.AddRange(metadata.ListFields.OfType<FieldBaseMetadata>());
 
             return fields.Where(x => HasChanged(x.Name)).Select(property => property.Name).ToList();
+        }
+
+        /// <summary>
+        /// Tries to get the changed collection items.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <typeparam name="TEntityItem">The collection item type.</typeparam>
+        /// <param name="expression">The expression.</param>
+        /// <param name="changeType">The collection change type.</param>
+        /// <param name="items">The changed items.</param>
+        /// <returns>Returns true if the changed values could be recovered.</returns>
+        private bool TryGetChangedCollectionItems<T, TEntityItem>(Expression<Func<T, object>> expression, CollectionChangeType changeType, out List<TEntityItem> items) where T : Entity
+        {
+            items = new List<TEntityItem>();
+
+            var collectionChanges = _collectionChangedItems.Where(x => x.PropertyName == GetPropertyName(expression) && x.CollectionChangeType == changeType);
+            if (!collectionChanges.Any())
+                return false;
+
+            items = collectionChanges.Select(x => x.Item).OfType<TEntityItem>().ToList();
+            return true;
         }
 
         /// <summary>

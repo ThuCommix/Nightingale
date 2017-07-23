@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Concordia.Framework.Metadata;
 using Concordia.Framework.Tests.DataSources;
+using System.Collections.Generic;
 
 namespace Concordia.Framework.Tests
 {
@@ -142,6 +143,104 @@ namespace Concordia.Framework.Tests
 
             // asset
             Assert.That(result.First(), Is.EqualTo("Name"));
+        }
+
+        [TestCase(CollectionChangeType.Added)]
+        [TestCase(CollectionChangeType.Removed)]
+        public void AddCollectionChangedItem_Adds_ChangedItem(CollectionChangeType changeType)
+        {
+            // arrange
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            var propertyChangeTracker = new PropertyChangeTracker(entity);
+
+            // act
+            propertyChangeTracker.AddCollectionChangedItem(new CollectionChangedItem("StatisticValues", null, changeType));
+
+            // assert
+            Assert.That(propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues), Is.True);
+        }
+
+        [TestCase(CollectionChangeType.Added)]
+        [TestCase(CollectionChangeType.Removed)]
+        public void AddCollectionChangedItem_Prevents_Unneccessary_Changes(CollectionChangeType changeType)
+        {
+            // arrange
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            var propertyChangeTracker = new PropertyChangeTracker(entity);
+            var oppositeChangeType = changeType == CollectionChangeType.Added ? CollectionChangeType.Removed : CollectionChangeType.Added;
+            var statisticValue = new ArtistStatisticValues();
+
+            // act
+            propertyChangeTracker.AddCollectionChangedItem(new CollectionChangedItem("StatisticValues", statisticValue, changeType));
+            propertyChangeTracker.AddCollectionChangedItem(new CollectionChangedItem("StatisticValues", statisticValue, oppositeChangeType));
+
+            // assert
+            Assert.That(propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues), Is.False);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void AddCollectionChangedItem_Does_Nothing_When_Tracking_Is_Disabled(bool disableChangeTracking)
+        {
+            // arrange
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            var propertyChangeTracker = new PropertyChangeTracker(entity) { DisableChangeTracking = disableChangeTracking };
+
+            // act
+            propertyChangeTracker.AddCollectionChangedItem(new CollectionChangedItem("StatisticValues", null, CollectionChangeType.Added));
+
+            // assert
+            Assert.That(propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues), Is.EqualTo(!disableChangeTracking));
+        }
+
+        [Test]
+        public void TryGetAddedCollectionItems_Can_Get_Added_Items()
+        {
+            // arrange
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "AnotherArtist", "StatisticValues");
+
+            entityCollection.Add(new ArtistStatisticValues());
+            entityCollection.Add(new ArtistStatisticValues());
+
+            List<ArtistStatisticValues> listAddedItems;
+
+            // act
+            var result = entity.PropertyChangeTracker.TryGetAddedCollectionItems<Artist, ArtistStatisticValues>(x => x.StatisticValues, out listAddedItems);
+
+            // assert
+            Assert.That(result, Is.True);
+            Assert.That(listAddedItems, Is.Not.Null);
+            Assert.That(listAddedItems.Count, Is.EqualTo(2));
+            Assert.That(listAddedItems[0], Is.EqualTo(entityCollection[0]));
+            Assert.That(listAddedItems[1], Is.EqualTo(entityCollection[1]));
+        }
+
+        [Test]
+        public void TryGetRemovedCollectionItems_Can_Get_Removed_Items()
+        {
+            // arrange
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "AnotherArtist", "StatisticValues");
+
+            var statisticValues = new ArtistStatisticValues();
+
+            entity.PropertyChangeTracker.DisableChangeTracking = true;
+            entityCollection.Add(statisticValues);
+            entity.PropertyChangeTracker.DisableChangeTracking = false;
+
+            entityCollection.Remove(statisticValues);
+
+            List<ArtistStatisticValues> listRemovedItems;
+
+            // act
+            var result = entity.PropertyChangeTracker.TryGetRemovedCollectionItems<Artist, ArtistStatisticValues>(x => x.StatisticValues, out listRemovedItems);
+
+            // assert
+            Assert.That(result, Is.True);
+            Assert.That(listRemovedItems, Is.Not.Null);
+            Assert.That(listRemovedItems.Count, Is.EqualTo(1));
+            Assert.That(listRemovedItems[0], Is.EqualTo(statisticValues));
         }
     }
 }

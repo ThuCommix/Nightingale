@@ -235,7 +235,7 @@ namespace <xsl:value-of select="@Namespace" />
 		public <xsl:value-of select="@Name" />()
         {
         <xsl:for-each select="ListFields/ListField">
-        <xsl:text xml:space="preserve">    </xsl:text>_<xsl:value-of select="@Name" /> = new EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt;(this, "<xsl:value-of select="@ReferenceField" />");
+        <xsl:text xml:space="preserve">    </xsl:text>_<xsl:value-of select="@Name" /> = new EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt;(this, "<xsl:value-of select="@ReferenceField" />", "<xsl:value-of select="@Name" />");
 		</xsl:for-each>
         }
 
