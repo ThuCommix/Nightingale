@@ -137,7 +137,7 @@ namespace Concordia.Framework.Tests.DataSources
 
         public Artist()
         {
-            StatisticValues = new EntityCollection<ArtistStatisticValues>(this, "AnotherArtist");
+            StatisticValues = new EntityCollection<ArtistStatisticValues>(this, "AnotherArtist", "StatisticValues");
         }
 
         protected override void EagerLoadProperties()

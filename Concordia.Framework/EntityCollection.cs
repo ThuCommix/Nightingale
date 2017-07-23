@@ -27,6 +27,7 @@ namespace Concordia.Framework
         public bool IsReadOnly => false;
 
         private readonly string _referenceField;
+        private readonly string _propertyName;
         private readonly Entity _owner;
         private readonly List<T> _collectionItems;
         private readonly List<T> _removedCollectionItems;
@@ -36,9 +37,11 @@ namespace Concordia.Framework
         /// </summary>
         /// <param name="owner">The owner.</param>
         /// <param name="referenceField">The reference field.</param>
-        public EntityCollection(Entity owner, string referenceField)
+        /// <param name="propertyName">The propertyName.</param>
+        public EntityCollection(Entity owner, string referenceField, string propertyName)
         {
             _owner = owner;
+            _propertyName = propertyName;
             _referenceField = referenceField;
             _collectionItems = new List<T>();
             _removedCollectionItems = new List<T>();
@@ -53,6 +56,7 @@ namespace Concordia.Framework
             if (_removedCollectionItems.Contains(item))
                 _removedCollectionItems.Remove(item);
 
+            _owner.PropertyChangeTracker.AddCollectionChangedItem(_propertyName, item, CollectionChangeType.Added);
             ReflectionHelper.GetProperty(item.GetType(), _referenceField).SetValue(item, _owner);
         }
 
@@ -63,6 +67,8 @@ namespace Concordia.Framework
         private void RemoveReferenceField(T item)
         {
             _removedCollectionItems.Add(item);
+
+            _owner.PropertyChangeTracker.AddCollectionChangedItem(_propertyName, item, CollectionChangeType.Removed);
 
             var fieldMetadata = DependencyResolver.GetInstance<IEntityMetadataResolver>().GetEntityMetadata(item).Fields.FirstOrDefault(x => x.Name == $"FK_{_referenceField}_ID");
             if (fieldMetadata?.Mandatory == true)

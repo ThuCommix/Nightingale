@@ -45,6 +45,8 @@
     <Compile Include="Caching\CacheExtensions.cs" />
     <Compile Include="Caching\ICache.cs" />
     <Compile Include="Caching\PersistenceCache.cs" />
+    <Compile Include="CollectionChangedItem.cs" />
+    <Compile Include="CollectionChangeType.cs" />
     <Compile Include="Column.cs" />
     <Compile Include="ColumnType.cs" />
     <Compile Include="ConnectionFactory.cs" />
