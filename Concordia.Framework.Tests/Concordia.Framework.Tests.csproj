@@ -63,7 +63,6 @@
     <Compile Include="DataSources\ArtistStatisticValues.cs" />
     <Compile Include="DataSources\Song.cs" />
     <Compile Include="DataSources\StatusCode.cs" />
-    <Compile Include="DbServices\DbServiceProxyTest.cs" />
     <Compile Include="DependencyResolverTests.cs" />
     <Compile Include="EntityCollectionTests.cs" />
     <Compile Include="EntityServiceTests.cs" />

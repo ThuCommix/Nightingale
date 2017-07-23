@@ -48,10 +48,6 @@
     <Compile Include="Column.cs" />
     <Compile Include="ColumnType.cs" />
     <Compile Include="ConnectionFactory.cs" />
-    <Compile Include="DbServices\DbServiceFactory.cs" />
-    <Compile Include="DbServices\DbServiceProxy.cs" />
-    <Compile Include="DbServices\ParameterAttribute.cs" />
-    <Compile Include="DbServices\ProcedureAttribute.cs" />
     <Compile Include="DependencyResolver.cs" />
     <Compile Include="Entities\EagerLoadAttribute.cs" />
     <Compile Include="Entities\Entity.cs" />
@@ -69,7 +65,6 @@
     <Compile Include="Extensions\FieldMetadataExtensions.cs" />
     <Compile Include="Extensions\TableExtensions.cs" />
     <Compile Include="ICommitListener.cs" />
-    <Compile Include="DbServices\IDbService.cs" />
     <Compile Include="IConnection.cs" />
     <Compile Include="IConnectionFactory.cs" />
     <Compile Include="IEntityCollection.cs" />
