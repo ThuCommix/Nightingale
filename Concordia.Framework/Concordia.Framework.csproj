@@ -123,7 +123,6 @@
     <Compile Include="Sessions\FlushMode.cs" />
     <Compile Include="Sessions\SessionInsertException.cs" />
     <Compile Include="Sessions\SessionUpdateException.cs" />
-    <Compile Include="Sessions\StatefulSession.cs" />
     <Compile Include="IEntityListener.cs" />
     <Compile Include="Metadata\EntityMetadata.cs" />
     <Compile Include="Metadata\EntityMetadataService.cs" />

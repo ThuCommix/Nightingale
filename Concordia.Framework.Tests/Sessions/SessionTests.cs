@@ -321,7 +321,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
 
             session.SaveOrUpdate(entity);
-            var flushListCountBeforeEvict = session.CallGetFlushList().Count;
+            var flushListCountBeforeEvict = session.CallGetDirtyEntities().Count;
 
             // act
             session.Evict(entity);
@@ -329,7 +329,7 @@ namespace Concordia.Framework.Tests.Sessions
             // assert
             Assert.That(flushListCountBeforeEvict, Is.EqualTo(1));
             Assert.That(TestHelper.CheckEvicted(entity), Is.True);
-            Assert.That(session.CallGetFlushList(), Is.Empty);
+            Assert.That(session.CallGetDirtyEntities(), Is.Empty);
 
             connectionMock.VerifyAll();
         }
@@ -371,9 +371,9 @@ namespace Concordia.Framework.Tests.Sessions
             session.SaveOrUpdate(entity);
 
             // assert
-            Assert.That(session.CallGetFlushList().Count, Is.EqualTo(2));
-            Assert.That(session.CallGetFlushList()[0], Is.EqualTo(entity));
-            Assert.That(session.CallGetFlushList()[1], Is.EqualTo(entity.AnotherArtist));
+            Assert.That(session.CallGetDirtyEntities().Count, Is.EqualTo(2));
+            Assert.That(session.CallGetDirtyEntities()[0], Is.EqualTo(entity));
+            Assert.That(session.CallGetDirtyEntities()[1], Is.EqualTo(entity.AnotherArtist));
 
             connectionMock.VerifyAll();
         }
@@ -734,7 +734,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             // assert
             Assert.That(entity.Deleted, Is.True);
-            Assert.That(session.CallGetFlushList()[0], Is.EqualTo(entity));
+            Assert.That(session.CallGetDirtyEntities()[0], Is.EqualTo(entity));
 
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
@@ -1248,6 +1248,73 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
+        [Test]
+        public void SaveOrUpdate_Prevent_Saving_Of_Evicted_Entity()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new Session(connectionMock.Object);
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+
+            TestHelper.SetEntityEvict(entity, true);
+
+            // act
+            Assert.Throws<SessionException>(() => session.SaveOrUpdate(entity));
+
+            // assert
+            connectionMock.VerifyAll();
+        }
+
+        [Test]
+        public void Flush_Check_For_Evicted_Entities_In_FlushList()
+        {
+            // arrange
+            TestHelper.SetupEntityMetadataServices();
+
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new Session(connectionMock.Object) { FlushMode = FlushMode.Manual };
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            entity.Name = "Artist";
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+
+            session.SaveOrUpdate(entity);
+            TestHelper.SetEntityEvict(entity, true);
+
+            // act
+            Assert.Throws<SessionException>(() => session.Flush());
+
+            // assert
+            connectionMock.VerifyAll();
+            entityServiceMock.VerifyAll();
+        }
+
+        [Test]
+        public void Load_Query_PersistenceCache_First()
+        {
+            // arrange
+            TestHelper.SetupEntityMetadataServices();
+
+            var connectionMock = TestHelper.SetupConnection();
+            var session = new Session(connectionMock.Object) { FlushMode = FlushMode.Manual };
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+
+            session.SaveOrUpdate(entity);
+
+            // act
+            var result = session.Load(1, typeof(Artist));
+
+            // assert
+            Assert.That(result, Is.EqualTo(entity));
+
+            entityServiceMock.VerifyAll();
+            connectionMock.VerifyAll();
+        }
+
         private class SessionProxy : Session
         {
             public bool PerformInsertCalled { get; private set; }
@@ -1268,9 +1335,9 @@ namespace Concordia.Framework.Tests.Sessions
                 DeletionMode = DeletionMode.Recoverable;
             }
 
-            public List<Entity> CallGetFlushList()
+            public IList<Entity> CallGetDirtyEntities()
             {
-                return GetFlushList();
+                return GetDirtyEntities();
             }
 
             protected override int PerformInsert(Entity entity)

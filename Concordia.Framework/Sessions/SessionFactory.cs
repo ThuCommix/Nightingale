@@ -61,7 +61,7 @@ namespace Concordia.Framework.Sessions
         /// </summary>
         /// <param name="factory">The connection factory.</param>
         public SessionFactory(IConnectionFactory factory) 
-            : this(factory, new SessionContext<StatefulSession> { ContextMode = SessionContextMode.SessionPerThread })
+            : this(factory, new SessionContext<Session> { ContextMode = SessionContextMode.SessionPerThread })
         {
         }
 

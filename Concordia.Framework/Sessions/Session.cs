@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Concordia.Framework.Caching;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Extensions;
 using Concordia.Framework.Logging;
@@ -11,7 +12,7 @@ using Concordia.Framework.Queries;
 
 namespace Concordia.Framework.Sessions
 {
-    public abstract class Session : ISession
+    public class Session : ISession
     {
         /// <summary>
         /// A value indicating whether the session has a open connection.
@@ -60,18 +61,20 @@ namespace Concordia.Framework.Sessions
 
         private readonly List<Entity> _flushList;
         private readonly ILogger _logger;
+        private readonly ICache _persistenceCache;
         private bool _isInTransaction;
 
         /// <summary>
         /// Initializes a new Session class.
         /// </summary>
         /// <param name="connection">The connection.</param>
-        protected Session(IConnection connection)
+        public Session(IConnection connection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
 
             _logger = DependencyResolver.TryGetInstance<ILogger>();
+            _persistenceCache = GetSessionCache();
 
             EntityListeners = new List<IEntityListener>();
             CommitListeners = new List<ICommitListener>();
@@ -95,23 +98,14 @@ namespace Concordia.Framework.Sessions
         }
 
         /// <summary>
-        /// Gets the flush list.
-        /// </summary>
-        /// <returns>Returns a list of entities which are going to be saved or updated on flush.</returns>
-        protected List<Entity> GetFlushList()
-        {
-            return _flushList;
-        }
-
-        /// <summary>
         /// Evicts an entity from the persistence cache.
         /// </summary>
         /// <param name="entity">The entity.</param>
         public virtual void Evict(Entity entity)
         {
             entity.Evicted = true;
-            if (_flushList.Contains(entity))
-                _flushList.Remove(entity);
+            _flushList.Remove(entity);
+            _persistenceCache?.Remove(entity);
         }
 
         /// <summary>
@@ -120,6 +114,9 @@ namespace Concordia.Framework.Sessions
         /// <param name="entity">The entity.</param>
         public virtual void SaveOrUpdate(Entity entity)
         {
+            if (entity.Evicted)
+                throw new SessionException("The entity was evicted and can not be saved.");
+
             var entities = EntityService.GetChildEntities(entity, Cascade.Save);
 
             if (entities.Any(x => x.Deleted && x.IsNotSaved))
@@ -137,6 +134,8 @@ namespace Concordia.Framework.Sessions
 
             if (FlushMode == FlushMode.Always)
                 Flush();
+
+            _persistenceCache?.Insert(entity);
         }
 
         /// <summary>
@@ -180,6 +179,10 @@ namespace Concordia.Framework.Sessions
         /// <returns>Returns the entity or null.</returns>
         public virtual Entity Load(int id, Type entityType)
         {
+            var entity = _persistenceCache?.Get(id, entityType);
+            if (entity != null)
+                return entity;
+
             var query = new Query {EntityType = entityType, MaxResults = 1};
             var group = query.CreateQueryConditionGroup();
             group.CreateQueryCondition("Id", id, System.Linq.Expressions.ExpressionType.Equal);
@@ -285,6 +288,9 @@ namespace Concordia.Framework.Sessions
         {
             foreach(var entity in _flushList)
             {
+                if (entity.Evicted)
+                    throw new SessionException("The entity was evicted and can not be saved.");
+
                 if (!entity.Validate())
                     throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
 
@@ -377,7 +383,26 @@ namespace Concordia.Framework.Sessions
                 }
             }
 
-            return entityList;
+            if (_persistenceCache == null)
+                return entityList;
+
+            var persistentResults = new List<Entity>();
+
+            foreach (var entity in entityList)
+            {
+                var persistentEntity = _persistenceCache.Get(entity.Id, query.EntityType);
+                if (persistentEntity != null)
+                {
+                    persistentResults.Add(persistentEntity);
+                }
+                else
+                {
+                    persistentResults.Add(entity);
+                    _persistenceCache.Insert(entity);
+                }
+            }
+
+            return persistentResults;;
         }
 
         /// <summary>
@@ -400,6 +425,7 @@ namespace Concordia.Framework.Sessions
         public virtual void Clear()
         {
             _flushList.Clear();
+            _persistenceCache?.Clear();
         }
 
         /// <summary>
@@ -408,7 +434,12 @@ namespace Concordia.Framework.Sessions
         /// <param name="entity">The entity.</param>
         public virtual void Refresh(Entity entity)
         {
-            entity = Load(entity.Id, entity.GetType());
+            var query = new Query { EntityType = entity.GetType(), MaxResults = 1 };
+            var group = query.CreateQueryConditionGroup();
+            group.CreateQueryCondition("Id", entity.Id, System.Linq.Expressions.ExpressionType.Equal);
+            group.CreateQueryCondition("Deleted", false, System.Linq.Expressions.ExpressionType.Equal);
+
+            entity = ExecuteQuery(query).FirstOrDefault();
         }
 
         /// <summary>
@@ -419,6 +450,15 @@ namespace Concordia.Framework.Sessions
         public Table<T> GetTable<T>() where T : Entity
         {
             return Connection.GetTable<T>();
+        }
+
+        /// <summary>
+        /// Gets a list of entities marked to be saved or updated.
+        /// </summary>
+        /// <returns>Returns a list of entities.</returns>
+        protected IList<Entity> GetDirtyEntities()
+        {
+            return _flushList;
         }
 
         /// <summary>
@@ -533,6 +573,15 @@ namespace Concordia.Framework.Sessions
             }
 
             return constraints;
+        }
+
+        /// <summary>
+        /// Gets the session cache.
+        /// </summary>
+        /// <returns>Returns the cache.</returns>
+        protected virtual ICache GetSessionCache()
+        {
+            return new PersistenceCache();
         }
 
         /// <summary>

@@ -60,16 +60,6 @@ namespace Concordia.Framework.Tests
             return entity;
         }
 
-        public static Mock<Session> CreateSessionMock()
-        {
-            var connectionMock = SetupMock<IConnection>();
-            connectionMock.Setup(s => s.Open());
-
-            var session = SetupMock<Session>(connectionMock.Object);
-
-            return session;
-        }
-
         public static Mock<IConnection> SetupConnection()
         {
             var connectionMock = SetupMock<IConnection>();

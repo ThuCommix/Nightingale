@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
 using Concordia.Framework.Tests.DataSources;
+using Concordia.Framework.Sessions;
 
 namespace Concordia.Framework.Tests
 {
@@ -23,7 +24,7 @@ namespace Concordia.Framework.Tests
         public void GetById_Calls_Session_Load()
         {
             // arrange
-            var sessionMock = TestHelper.CreateSessionMock();
+            var sessionMock = TestHelper.SetupMock<ISession>();
             sessionMock.Setup(s => s.Load(1, typeof(Entity))).Returns((Entity)null);
 
             var repository = new Repository(sessionMock.Object);
@@ -41,7 +42,7 @@ namespace Concordia.Framework.Tests
         public void GetByIdAndType_Calls_Session_Load()
         {
             // arrange
-            var sessionMock = TestHelper.CreateSessionMock();
+            var sessionMock = TestHelper.SetupMock<ISession>();
             sessionMock.Setup(s => s.Load(1, typeof(Entity))).Returns((Entity)null);
 
             var repository = new Repository(sessionMock.Object);
@@ -61,7 +62,7 @@ namespace Concordia.Framework.Tests
         public void GetList_Adds_Deleted_Check_To_Query(bool withExpression)
         {
             // arrange
-            var sessionMock = TestHelper.CreateSessionMock();
+            var sessionMock = TestHelper.SetupMock<ISession>();
 
             IQuery queryCallback = null;
 
@@ -70,7 +71,7 @@ namespace Concordia.Framework.Tests
             var repository = new Repository(sessionMock.Object);
 
             // act
-            var result = repository.GetList<Entity>(withExpression ? x => x.Id == 1 : (Expression<Func<Entity, bool>>)null);
+            var result = repository.GetList(withExpression ? x => x.Id == 1 : (Expression<Func<Entity, bool>>)null);
 
             // assert
             var query = queryCallback as Query;
@@ -87,7 +88,7 @@ namespace Concordia.Framework.Tests
         public void ExecuteFunc_Calls_Session()
         {
             // arrange
-            var sessionMock = TestHelper.CreateSessionMock();
+            var sessionMock = TestHelper.SetupMock<ISession>();
             var repository = new Repository(sessionMock.Object);
 
             sessionMock.Setup(s => s.ExecuteFunc<int>("dbo.test", null)).Returns(0);
