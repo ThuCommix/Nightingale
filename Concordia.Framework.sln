@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Concordia.Framework", "Concordia.Framework\Concordia.Framework.csproj", "{500734C8-D477-4AED-9225-A7E1142109A7}"
 EndProject
@@ -26,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "Samples\ConsoleApp1\ConsoleApp1.csproj", "{A6211BE8-7E0C-4A98-BEEE-0D323BBBE27D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Concordia.Framework.log4net", "Concordia.Framework.log4net\Concordia.Framework.log4net.csproj", "{4B752C3C-D1F8-4342-8D0F-9428D3C4059E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Concordia.Framework.Web", "Concordia.Framework.Web\Concordia.Framework.Web.csproj", "{03202724-3256-4FFA-9211-2142E76CF0A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{4B752C3C-D1F8-4342-8D0F-9428D3C4059E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B752C3C-D1F8-4342-8D0F-9428D3C4059E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B752C3C-D1F8-4342-8D0F-9428D3C4059E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03202724-3256-4FFA-9211-2142E76CF0A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03202724-3256-4FFA-9211-2142E76CF0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03202724-3256-4FFA-9211-2142E76CF0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03202724-3256-4FFA-9211-2142E76CF0A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
