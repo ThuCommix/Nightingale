@@ -317,9 +317,9 @@ namespace Concordia.Framework.Metadata
 			var xmlReader = XmlReader.Create(entityStream);
 
 			transform.Load(xslReader);
-			transform.Transform(xmlReader, argsList, destinationStream);
+            transform.Transform(xmlReader, argsList, destinationStream);
 
-			xmlReader.Dispose();
+            xmlReader.Dispose();
 			xslReader.Dispose();
 		}
 

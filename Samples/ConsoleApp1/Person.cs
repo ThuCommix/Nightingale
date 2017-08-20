@@ -128,7 +128,7 @@ namespace ConsoleApp1
         [FieldType("Address")]
         
         [ReferenceField("FK_Person_ID")]
-		public EntityCollection<Address> Addresses
+		public IList<Address> Addresses
         {
             get
             {
@@ -144,7 +144,7 @@ namespace ConsoleApp1
                     if(items != null)
                     {
                         items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = true);
-                        _Addresses.AddRange(items);
+                        ((EntityCollection<Address>)_Addresses).AddRange(items);
                         items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = false);
                         _AddressesQueried = true;   
                     }
@@ -154,7 +154,7 @@ namespace ConsoleApp1
             }
         }
         
-        private EntityCollection<Address> _Addresses;
+        private IList<Address> _Addresses;
         private bool _AddressesQueried;
 	
 		/// <summary>
@@ -181,7 +181,7 @@ namespace ConsoleApp1
 		/// </summary>
 		public Person()
         {
-            _Addresses = new EntityCollection<Address>(this, "Person");
+            _Addresses = new EntityCollection<Address>(this, "Person", "Addresses");
 		
         }
 

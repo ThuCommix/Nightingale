@@ -2,25 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Moq;
-using NUnit.Framework;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
-using Concordia.Framework.Tests.DataSources;
 using Concordia.Framework.Sessions;
+using Moq;
+using Xunit;
 
 namespace Concordia.Framework.Tests
 {
-    [TestFixture]
     public class RepositoryTests
     {
-        [SetUp]
-        public void Setup()
+        public RepositoryTests()
         {
             DependencyResolver.Clear();
         }
 
-        [Test]
+        [Fact]
         public void GetById_Calls_Session_Load()
         {
             // arrange
@@ -33,12 +30,12 @@ namespace Concordia.Framework.Tests
             var result = repository.GetById<Entity>(1);
 
             // assert
-            Assert.That(result, Is.Null);
+            Assert.Null(result);
 
             sessionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void GetByIdAndType_Calls_Session_Load()
         {
             // arrange
@@ -51,14 +48,14 @@ namespace Concordia.Framework.Tests
             var result = repository.GetByIdAndType(1, typeof(Entity));
 
             // assert
-            Assert.That(result, Is.Null);
+            Assert.Null(result);
 
             sessionMock.VerifyAll();
         }
 
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void GetList_Adds_Deleted_Check_To_Query(bool withExpression)
         {
             // arrange
@@ -76,15 +73,15 @@ namespace Concordia.Framework.Tests
             // assert
             var query = queryCallback as Query;
             var conditionItem = query.ConditionGroups.First().Conditions.FirstOrDefault(x => x.PropertyPath == "Deleted");
-            Assert.That(conditionItem, Is.Not.Null);
-            Assert.That(result, Is.Not.Null);
-            Assert.That(conditionItem.PropertyPath, Is.EqualTo("Deleted"));
-            Assert.That(conditionItem.EquationValue, Is.False);
+            Assert.NotNull(conditionItem);
+            Assert.NotNull(result);
+            Assert.Equal("Deleted", conditionItem.PropertyPath);
+            Assert.False((bool)conditionItem.EquationValue);
 
             sessionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void ExecuteFunc_Calls_Session()
         {
             // arrange
@@ -97,7 +94,8 @@ namespace Concordia.Framework.Tests
             var result = repository.ExecuteFunc<int>("dbo.test", null);
 
             // assert
-            Assert.That(result, Is.EqualTo(0));
+            Assert.Equal(0, result);
+
             sessionMock.VerifyAll();
         }
     }

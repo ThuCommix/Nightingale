@@ -1,29 +1,27 @@
-﻿using NUnit.Framework;
-using Concordia.Framework.Metadata;
+﻿using Concordia.Framework.Metadata;
 using Concordia.Framework.Tests.DataSources;
+using Xunit;
 
 namespace Concordia.Framework.Tests.Metadata
 {
-    [TestFixture]
     public class EntityMetadataServiceTests
     {
-        [SetUp]
-        public void Setup()
+        public EntityMetadataServiceTests()
         {
             DependencyResolver.Clear();
         }
 
-        [Test]
+        [Fact]
         public void GetEntityMetadata_Works()
         {
             // act
             var metadata = new EntityMetadataService().GetEntityMetadata(typeof(Artist));
 
             // assert
-            Assert.That(metadata.Fields.Count, Is.EqualTo(12));
-            Assert.That(metadata.ListFields.Count, Is.EqualTo(1));
-            Assert.That(metadata.VirtualFields.Count, Is.EqualTo(1));
-            Assert.That(metadata.VirtualListFields.Count, Is.EqualTo(1));
+            Assert.Equal(12, metadata.Fields.Count);
+            Assert.Single(metadata.ListFields);
+            Assert.Single(metadata.VirtualFields);
+            Assert.Single(metadata.VirtualListFields);
         }
     }
 }

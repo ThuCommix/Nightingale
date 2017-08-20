@@ -1,10 +1,12 @@
 language: csharp
+dist: trusty
 solution: Concordia.Framework.sln
-mono:
-  - latest
-before_install:
-  - sudo apt-get install nunit-console
-before_script:
-  - nuget restore Concordia.Framework.sln
-after_script:
-  - nunit-console Concordia.Framework.Tests/bin/Release/Concordia.Framework.Tests.dll
+mono: none
+dotnet: 2.0.0
+
+install:
+- dotnet restore
+
+script:
+  - dotnet build
+  - dotnet test Concordia.Framework.Tests\Concordia.Framework.Tests.csproj

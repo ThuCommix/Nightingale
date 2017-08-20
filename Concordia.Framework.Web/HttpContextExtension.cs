@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Concordia.Framework.Web
 {
-    internal static class HttpContextExtension
+    public static class HttpContextExtension
     {
         private static readonly Dictionary<Guid, HttpContext> _httpContexts = new Dictionary<Guid, HttpContext>();
         private static readonly object _locker = new object();
@@ -18,7 +19,7 @@ namespace Concordia.Framework.Web
         {
             lock (_locker)
             {
-                ClearHttpRequests();
+                httpContext.Response.OnCompleted(() => RemoveHttpContext(httpContext));
 
                 _httpContexts.Add(Guid.NewGuid(), httpContext);
             }
@@ -33,8 +34,6 @@ namespace Concordia.Framework.Web
         {
             lock (_locker)
             {
-                ClearHttpRequests();
-
                 if (!_httpContexts.ContainsValue(httpContext))
                     return Guid.Empty;
 
@@ -42,18 +41,16 @@ namespace Concordia.Framework.Web
             }
         }
 
-        /// <summary>
-        /// Clears http requests which are not valid anymore.
-        /// </summary>
-        private static void ClearHttpRequests()
+        private static Task RemoveHttpContext(HttpContext httpContext)
         {
-            foreach(var httpRequestEntry in _httpContexts.ToList())
+            return Task.Run(() =>
             {
-                if(!httpRequestEntry.Value?.Response?.IsClientConnected ?? false)
+                var guid = _httpContexts.FirstOrDefault(x => x.Value == httpContext).Key;
+                if (guid != null)
                 {
-                    _httpContexts.Remove(httpRequestEntry.Key);
+                    _httpContexts.Remove(guid);
                 }
-            }
+            });
         }
     }
 }

@@ -2,23 +2,21 @@
 using System.Data;
 using System.Linq;
 using Moq;
-using NUnit.Framework;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Tests.DataSources;
+using Xunit;
 
 namespace Concordia.Framework.Tests
 {
-    [TestFixture]
     public class EntityServiceTests
     {
-        [SetUp]
-        public void Setup()
+        public EntityServiceTests()
         {
             DependencyResolver.Clear();
             TestHelper.SetupEntityMetadataServices();
         }
 
-        [Test]
+        [Fact]
         public void GetChildEntities_Returns_Expected_Entities_With_Cascade_Save()
         {
             // arrange
@@ -33,13 +31,13 @@ namespace Concordia.Framework.Tests
             var result = new EntityService().GetChildEntities(artist, Cascade.Save);
 
             // assert
-            Assert.That(result.Count, Is.EqualTo(3));
-            Assert.That(result.Any(x => x == artist), Is.True);
-            Assert.That(result.Any(x => x == statisticValue), Is.True);
-            Assert.That(result.Any(x => x == anotherArtist), Is.True);
+            Assert.Equal(3, result.Count);
+            Assert.Contains(result, x => x == artist);
+            Assert.Contains(result, x => x == statisticValue);
+            Assert.Contains(result, x => x == anotherArtist);
         }
 
-        [Test]
+        [Fact]
         public void GetChildEntities_Returns_Expected_Entities_With_Cascade_SaveDelete()
         {
             // arrange
@@ -54,11 +52,11 @@ namespace Concordia.Framework.Tests
             var result = new EntityService().GetChildEntities(artist, Cascade.SaveDelete);
 
             // assert
-            Assert.That(result.Count, Is.EqualTo(1));
-            Assert.That(result.Any(x => x == artist), Is.True);
+            Assert.Equal(1, result.Count);
+            Assert.Contains(result, x => x == artist);
         }
 
-        [Test]
+        [Fact]
         public void UpdateForeignFields_Synchronizes_Int_Field_With_Id_Of_FK()
         {
             // arrange
@@ -69,10 +67,10 @@ namespace Concordia.Framework.Tests
             new EntityService().UpdateForeignFields(entity);
 
             // assert
-            Assert.That(entity.FK_AnotherArtist_ID, Is.EqualTo(entity.AnotherArtist.Id));
+            Assert.Equal(entity.AnotherArtist.Id, entity.FK_AnotherArtist_ID);
         }
 
-        [Test]
+        [Fact]
         public void UpdateForeignFields_Synchronizes_Id_With_The_ReferenceField_Of_A_List_Item()
         {
             // arrange
@@ -83,17 +81,17 @@ namespace Concordia.Framework.Tests
             new EntityService().UpdateForeignFields(entity);
 
             // assert
-            Assert.That(entity.StatisticValues[0].FK_AnotherArtist_ID, Is.EqualTo(entity.Id));
+            Assert.Equal(entity.Id, entity.StatisticValues[0].FK_AnotherArtist_ID);
         }
 
-        [Test]
+        [Fact]
         public void CreateEntity_Throw_When_Reader_Null()
         {
             // act
             Assert.Throws<ArgumentNullException>(() => new EntityService().CreateEntity(null, typeof(Artist)));
         }
 
-        [Test]
+        [Fact]
         public void CreateEntity_Throw_When_EntityType_Null()
         {
             // arrange
@@ -106,7 +104,7 @@ namespace Concordia.Framework.Tests
             dataReaderMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void CreateEntity_PropertyChangeTracker_Is_Enabled_After_Creation()
         {
             // arrange
@@ -119,15 +117,16 @@ namespace Concordia.Framework.Tests
             var result = new EntityService().CreateEntity(dataReaderMock.Object, typeof(Artist));
 
             // assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetType(), Is.EqualTo(typeof(Artist)));
-            Assert.That(result.PropertyChangeTracker.DisableChangeTracking, Is.False);
+            Assert.NotNull(result);
+            Assert.Equal(typeof(Artist), result.GetType());
+            Assert.False(result.PropertyChangeTracker.DisableChangeTracking);
 
             dataReaderMock.VerifyAll();
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void CreateEntity_Continue_When_DBNull_Or_Null(bool dbNullOrNull)
         {
             // arrange
@@ -140,21 +139,21 @@ namespace Concordia.Framework.Tests
             var result = new EntityService().CreateEntity(dataReaderMock.Object, typeof(Artist)) as Artist;
 
             // assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Id, Is.EqualTo(0));
-            Assert.That(result.Alias, Is.Null);
-            Assert.That(result.Name, Is.Null);
-            Assert.That(result.Note, Is.Null);
-            Assert.That(result.Label, Is.Null);
-            Assert.That(result.Biography, Is.Null);
-            Assert.That(result.BirthDate, Is.Null);
-            Assert.That(result.DeathDate, Is.Null);
-            Assert.That(result.AnotherArtist, Is.Null);
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Id);
+            Assert.Null(result.Alias);
+            Assert.Null(result.Name);
+            Assert.Null(result.Note);
+            Assert.Null(result.Label);
+            Assert.Null(result.Biography);
+            Assert.Null(result.BirthDate);
+            Assert.Null(result.DeathDate);
+            Assert.Null(result.AnotherArtist);
 
             dataReaderMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void CreateEntity_Fill_Expected_Fields()
         {
             // arrange
@@ -172,13 +171,13 @@ namespace Concordia.Framework.Tests
             var result = new EntityService().CreateEntity(dataReaderMock.Object, typeof(ArtistStatisticValues)) as ArtistStatisticValues;
 
             // assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Id, Is.EqualTo(1));
-            Assert.That(result.Version, Is.EqualTo(1));
-            Assert.That(result.Deleted, Is.EqualTo(false));
-            Assert.That(result.FK_AnotherArtist_ID, Is.EqualTo(1));
-            Assert.That(result.FK_SecondArtist_ID, Is.Null);
-            Assert.That(result.StatusCode, Is.EqualTo(StatusCode.None));
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Id);
+            Assert.Equal(1, result.Version);
+            Assert.False(result.Deleted);
+            Assert.Equal(1, result.FK_AnotherArtist_ID);
+            Assert.Null(result.FK_SecondArtist_ID);
+            Assert.Equal(StatusCode.None, result.StatusCode);
         }
     }
 }

@@ -1,16 +1,14 @@
 ﻿using System.Linq;
-using NUnit.Framework;
 using Concordia.Framework.Queries;
 using Concordia.Framework.Queries.Tokens;
 using Concordia.Framework.Tests.DataSources;
+using Xunit;
 
 namespace Concordia.Framework.Tests.Queries
 {
-    [TestFixture]
     public class QueryTests
     {
-        [SetUp]
-        public void Setup()
+        public QueryTests()
         {
             DependencyResolver.Clear();
             Query.RemoveQueryFilters<Artist>();
@@ -20,7 +18,7 @@ namespace Concordia.Framework.Tests.Queries
             DependencyResolver.Register<ISqlTokenComposerService>(new SqlTokenComposerService());
         }
 
-        [Test]
+        [Fact]
         public void Query_Left_Join_For_Non_Mandatory_Fields_Works()
         {
             // arrange
@@ -33,10 +31,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Left_Join_For_Non_Mandatory_Fields_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Left_Join_For_Non_Mandatory_Fields_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Inner_Join_For_Mandatory_Fields_Works()
         {
             // arrange
@@ -49,10 +47,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Inner_Join_For_Mandatory_Fields_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Inner_Join_For_Mandatory_Fields_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Null_Checks_On_Foreign_Properties_Do_Not_Create_Joins()
         {
             // arrange
@@ -65,10 +63,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Null_Checks_On_Foreign_Properties_Do_Not_Create_Joins));
+            Assert.Equal(ExpectedQueryOutputs.Query_Null_Checks_On_Foreign_Properties_Do_Not_Create_Joins, command);
         }
         
-        [Test]
+        [Fact]
         public void Query_Operator_Equals_For_Null_Works()
         {
             // arrange
@@ -81,10 +79,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Operator_Equals_For_Null_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Operator_Equals_For_Null_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Operator_Equals_Works()
         {
             // arrange
@@ -97,10 +95,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Operator_Equals_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Operator_Equals_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Operator_NotEquals_For_Null_Works()
         {
             // arrange
@@ -113,10 +111,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Operator_NotEquals_For_Null_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Operator_NotEquals_For_Null_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Operator_NotEquals_Works()
         {
             // arrange
@@ -129,10 +127,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Operator_NotEquals_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Operator_NotEquals_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Operator_GreaterThan_Works()
         {
             // arrange
@@ -145,10 +143,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Operator_GreaterThan_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Operator_GreaterThan_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Operator_GreaterThanOrEquals_Works()
         {
             // arrange
@@ -161,10 +159,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Operator_GreaterThanOrEquals_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Operator_GreaterThanOrEquals_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Operator_LessThan_Works()
         {
             // arrange
@@ -177,10 +175,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Operator_LessThan_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Operator_LessThan_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Operator_LessThanOrEquals_Works()
         {
             // arrange
@@ -193,10 +191,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Operator_LessThanOrEquals_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Operator_LessThanOrEquals_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Same_FK_Access_Does_Not_Generate_Multiple_Joins()
         {
             // arrange
@@ -210,10 +208,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Same_FK_Access_Does_Not_Generate_Multiple_Joins));
+            Assert.Equal(ExpectedQueryOutputs.Query_Same_FK_Access_Does_Not_Generate_Multiple_Joins, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Multiple_ConditionGroups_And_Works()
         {
             // arrange
@@ -229,10 +227,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Multiple_ConditionGroups_And_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Multiple_ConditionGroups_And_Works, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Multiple_ConditionGroups_Or_Works()
         {
             // arrange
@@ -248,11 +246,12 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Multiple_ConditionGroups_Or_Works));
+            Assert.Equal(ExpectedQueryOutputs.Query_Multiple_ConditionGroups_Or_Works, command);
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void Query_Max_Results_Are_Applied_When_Not_Null(bool withMaxResults)
         {
             // arrange
@@ -267,12 +266,12 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(withMaxResults 
-                ? ExpectedQueryOutputs.Query_Max_Results_Are_Applied_When_Not_Null_True 
-                : ExpectedQueryOutputs.Query_Max_Results_Are_Applied_When_Not_Null_False));
+            Assert.Equal(withMaxResults
+                ? ExpectedQueryOutputs.Query_Max_Results_Are_Applied_When_Not_Null_True
+                : ExpectedQueryOutputs.Query_Max_Results_Are_Applied_When_Not_Null_False, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Resolves_Sorting_Expression_Ascending()
         {
             // arrange
@@ -287,10 +286,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Resolves_Sorting_Expression_Ascending));
+            Assert.Equal(ExpectedQueryOutputs.Query_Resolves_Sorting_Expression_Ascending, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Resolves_Sorting_Expression_Descending()
         {
             // arrange
@@ -305,10 +304,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Resolves_Sorting_Expression_Descending));
+            Assert.Equal(ExpectedQueryOutputs.Query_Resolves_Sorting_Expression_Descending, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Resolves_Multiple_Sorting_Expressions()
         {
             // arrange
@@ -325,10 +324,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Resolves_Multiple_Sorting_Expressions));
+            Assert.Equal(ExpectedQueryOutputs.Query_Resolves_Multiple_Sorting_Expressions, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_No_Sorting_Because_No_Sorting_Expressions()
         {
             // arrange
@@ -341,10 +340,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_No_Sorting));
+            Assert.Equal(ExpectedQueryOutputs.Query_No_Sorting, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Throws_Exception_When_Sort_Expression_Can_Not_Be_Resolved()
         {
             // arrange
@@ -360,10 +359,10 @@ namespace Concordia.Framework.Tests.Queries
             Assert.Throws<QueryException>(() => result = query.Command);
 
             // assert
-            Assert.That(result, Is.Null);
+            Assert.Null(result);
         }
 
-        [Test]
+        [Fact]
         public void Query_Apply_Global_Filters()
         {
             // arrange
@@ -378,10 +377,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Global_Filter));
+            Assert.Equal(ExpectedQueryOutputs.Query_Global_Filter, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Apply_Global_Filters_Mutiple()
         {
             // arrange
@@ -397,10 +396,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Global_Filter_Multiple));
+            Assert.Equal(ExpectedQueryOutputs.Query_Global_Filter_Multiple, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Apply_Global_Filters_For_Correct_Entity()
         {
             // arrange
@@ -416,10 +415,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Global_Filter));
+            Assert.Equal(ExpectedQueryOutputs.Query_Global_Filter, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Can_Clear_Filters()
         {
             // arrange
@@ -435,10 +434,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_No_Filter));
+            Assert.Equal(ExpectedQueryOutputs.Query_No_Filter, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Supports_Complex_Expressions()
         {
             // arrange
@@ -450,10 +449,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_Complex_Expressions));
+            Assert.Equal(ExpectedQueryOutputs.Query_Supports_Complex_Expressions, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Supports_Complex_Expressions2()
         {
             // arrange
@@ -465,10 +464,10 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_Complex_Expressions2));
+            Assert.Equal(ExpectedQueryOutputs.Query_Supports_Complex_Expressions2, command);
         }
 
-        [Test]
+        [Fact]
         public void Query_Supports_String_StartsWith()
         {
             // arrange
@@ -480,11 +479,11 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_String_StartsWith));
-            Assert.That(query.Parameters.First().Value.ToString().EndsWith("%"));
+            Assert.Equal(ExpectedQueryOutputs.Query_Supports_String_StartsWith, command);
+            Assert.EndsWith("%", query.Parameters.First().Value.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Query_Supports_String_EndsWith()
         {
             // arrange
@@ -496,11 +495,11 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_String_EndsWith));
-            Assert.That(query.Parameters.First().Value.ToString().StartsWith("%"));
+            Assert.Equal(ExpectedQueryOutputs.Query_Supports_String_EndsWith, command);
+            Assert.StartsWith("%", query.Parameters.First().Value.ToString());
         }
 
-        [Test]
+        [Fact]
         public void Query_Supports_String_Contains()
         {
             // arrange
@@ -512,9 +511,9 @@ namespace Concordia.Framework.Tests.Queries
             var command = query.Command;
 
             // assert
-            Assert.That(command, Is.EqualTo(ExpectedQueryOutputs.Query_Supports_String_Contains));
-            Assert.That(query.Parameters.First().Value.ToString().StartsWith("%"));
-            Assert.That(query.Parameters.First().Value.ToString().EndsWith("%"));
+            Assert.Equal(ExpectedQueryOutputs.Query_Supports_String_Contains, command);
+            Assert.StartsWith("%", query.Parameters.First().Value.ToString());
+            Assert.EndsWith("%", query.Parameters.First().Value.ToString());
         }
     }
 }

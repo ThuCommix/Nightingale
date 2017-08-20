@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Web;
 using Concordia.Framework.Sessions;
+using Microsoft.AspNetCore.Http;
 
 namespace Concordia.Framework.Web
 {
     public class WebSessionContext : ISessionContext
     {
-        private Dictionary<Guid, Session> _sessions;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly Dictionary<Guid, Session> _sessions;
 
         /// <summary>
         /// Initializes a new WebSessionContext class.
         /// </summary>
-        public WebSessionContext()
+        /// <param name="httpContextAccessor">The http context accessor.</param>
+        public WebSessionContext(IHttpContextAccessor httpContextAccessor)
         {
+            if (httpContextAccessor == null)
+                throw new ArgumentNullException(nameof(httpContextAccessor));
+
+            _httpContextAccessor = httpContextAccessor;
             _sessions = new Dictionary<Guid, Session>();
         }
 
@@ -24,29 +29,20 @@ namespace Concordia.Framework.Web
         /// </summary>
         /// <param name="factory">The connection factory.</param>
         /// <returns>Returns a session instance.</returns>
-        public ISession GetSession(IConnectionFactory factory)
+        public Concordia.Framework.Sessions.ISession GetSession(IConnectionFactory factory)
         {
-            foreach(var sessionEntry in _sessions.ToList())
+            foreach(var entry in _sessions.ToList())
             {
-                if (!sessionEntry.Value?.IsOpen ?? false)
-                    _sessions.Remove(sessionEntry.Key);
+                if (!entry.Value?.IsOpen ?? false)
+                    _sessions.Remove(entry.Key);
             }
 
-            var currentContext = Guid.Empty;
-
-            try
+            if(_httpContextAccessor.HttpContext.GetUniqueIdentifier() == Guid.Empty)
             {
-                if(HttpContext.Current.GetUniqueIdentifier() == Guid.Empty)
-                {
-                    HttpContext.Current.SetUniqueIdentifier();
-                }
-
-                currentContext = HttpContext.Current.GetUniqueIdentifier();
-            }
-            catch(WebException)
-            {
+                _httpContextAccessor.HttpContext.SetUniqueIdentifier();
             }
 
+            var currentContext = _httpContextAccessor.HttpContext.GetUniqueIdentifier();
             if(_sessions.ContainsKey(currentContext))
             {
                 var existingSession = _sessions[currentContext];
@@ -54,8 +50,9 @@ namespace Concordia.Framework.Web
                     return existingSession;
             }
 
-            var session = new StatefulSession(factory.CreateConnection());
+            var session = new Session(factory.CreateConnection());
             _sessions[currentContext] = session;
+            System.Diagnostics.Debug.WriteLine("---------------->" + currentContext.ToString());
 
             return session;
         }

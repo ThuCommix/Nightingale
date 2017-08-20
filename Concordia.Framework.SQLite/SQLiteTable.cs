@@ -12,11 +12,11 @@ namespace Concordia.Framework.SQLite
     {
         private static Dictionary<string, string> DataTypeMapping = new Dictionary<string, string>
         {
-            {"int", "int" },
-            {"decimal", "decimal" },
-            {"string", "text" },
-            {"bool", "tinyint(1)" },
-            {"DateTime", "datetime" }
+            { "int", "int" },
+            { "decimal", "decimal" },
+            { "string", "text" },
+            { "bool", "tinyint(1)" },
+            { "DateTime", "datetime" }
         };
 
         /// <summary>
@@ -36,12 +36,18 @@ namespace Concordia.Framework.SQLite
             commandBuilder.AppendLine($"CREATE TABLE IF NOT EXISTS {Metadata.Table} (");
             var fieldDefinitions = new List<string>();
             fieldDefinitions.Add("Id INTEGER PRIMARY KEY AUTOINCREMENT");
-            fieldDefinitions.Add("Deleted TINYINT(1) NOT NULL");
+            fieldDefinitions.Add("Deleted tinyint(1) NOT NULL");
             fieldDefinitions.Add("Version int NOT NULL");
 
             foreach(var field in Metadata.Fields.Where(x => x.Name != "Id" && x.Name != "Deleted" && x.Name != "Version"))
             {
-                fieldDefinitions.Add($"{field.Name} {DataTypeMapping[field.IsComplexFieldType ? "int" : field.FieldType]}{GetDecimalPrecisionCommand(field)} {GetMandatoryCommand(field.Mandatory)} {GetUniqueCommand(field.Unique)}");
+                if(field.FieldType == "string" && field.MaxLength > 0)
+                {
+                    fieldDefinitions.Add($"{field.Name} varchar{GetPrecisionCommand(field)} {GetMandatoryCommand(field.Mandatory)} {GetUniqueCommand(field.Unique)}");
+                    continue;
+                }
+
+                fieldDefinitions.Add($"{field.Name} {DataTypeMapping[field.IsComplexFieldType ? "int" : field.FieldType]}{GetPrecisionCommand(field)} {GetMandatoryCommand(field.Mandatory)} {GetUniqueCommand(field.Unique)}");
             }
 
             commandBuilder.AppendLine(string.Join(",", fieldDefinitions));
@@ -62,31 +68,12 @@ namespace Concordia.Framework.SQLite
         }
 
         /// <summary>
-        /// Removes the column.
+        /// Gets a value indicating whether the table exists.
         /// </summary>
-        /// <param name="column">The column.</param>
-        public override void RemoveColumn(Column column)
+        public override bool Exists()
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Adds a new column to the table.
-        /// </summary>
-        /// <param name="column">The column.</param>
-        /// <param name="defaultValue">The default value.</param>
-        public override void AddColumn(Column column, object defaultValue = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Gets an enumeration of the available columns.
-        /// </summary>
-        /// <returns></returns>
-        public override IEnumerable<Column> GetColumns()
-        {
-            throw new NotImplementedException();
+            var query = new Query($"SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND tbl_name = '{Metadata.Table}'", Type);
+            return Convert.ToInt32(Connection.ExecuteScalar(query)) > 0;
         }
 
         /// <summary>
@@ -110,15 +97,20 @@ namespace Concordia.Framework.SQLite
         }
 
         /// <summary>
-        /// Gets the decimal precision/scale sql command.
+        /// Gets the precision sql command.
         /// </summary>
         /// <param name="field">The field metadata.</param>
         /// <returns>Returns the command.</returns>
-        private string GetDecimalPrecisionCommand(FieldMetadata field)
+        private string GetPrecisionCommand(FieldMetadata field)
         {
-            if(field.FieldType == "decimal")
+            if (field.FieldType == "decimal")
             {
                 return $"({field.DecimalPrecision}, {field.DecimalScale})";
+            }
+
+            if(field.FieldType == "string" && field.MaxLength > 0)
+            {
+                return $"({field.MaxLength})";
             }
 
             return string.Empty;

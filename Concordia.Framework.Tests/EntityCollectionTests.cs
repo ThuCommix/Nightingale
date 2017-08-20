@@ -1,18 +1,16 @@
-﻿using NUnit.Framework;
-using Concordia.Framework.Tests.DataSources;
+﻿using Concordia.Framework.Tests.DataSources;
+using Xunit;
 
 namespace Concordia.Framework.Tests
 {
-    [TestFixture]
     public class EntityCollectionTests
     {
-        [SetUp]
-        public void Setup()
+        public EntityCollectionTests()
         {
             DependencyResolver.Clear();
         }
 
-        [Test]
+        [Fact]
         public void Add_Sets_Foreign_Field()
         {
             // arrange
@@ -25,10 +23,10 @@ namespace Concordia.Framework.Tests
             entityCollection.Add(artistStatisticValues);
 
             // assert
-            Assert.That(artistStatisticValues.AnotherArtist, Is.EqualTo(entity));
+            Assert.Equal(artistStatisticValues.AnotherArtist, entity);
         }
 
-        [Test]
+        [Fact]
         public void AddRange_Sets_Foreign_Field()
         {
             // arrange
@@ -41,10 +39,10 @@ namespace Concordia.Framework.Tests
             entityCollection.AddRange(new[] { artistStatisticValues });
 
             // assert
-            Assert.That(artistStatisticValues.AnotherArtist, Is.EqualTo(entity));
+            Assert.Equal(artistStatisticValues.AnotherArtist, entity);
         }
 
-        [Test]
+        [Fact]
         public void Insert_Sets_Foreign_Field()
         {
             // arrange
@@ -57,10 +55,10 @@ namespace Concordia.Framework.Tests
             entityCollection.Insert(0, artistStatisticValues);
 
             // assert
-            Assert.That(artistStatisticValues.AnotherArtist, Is.EqualTo(entity));
+            Assert.Equal(artistStatisticValues.AnotherArtist, entity);
         }
 
-        [Test]
+        [Fact]
         public void CopyTo_Sets_Foreign_Field()
         {
             // arrange
@@ -73,10 +71,10 @@ namespace Concordia.Framework.Tests
             entityCollection.CopyTo(new[] { artistStatisticValues }, 0);
 
             // assert
-            Assert.That(artistStatisticValues.AnotherArtist, Is.EqualTo(entity));
+            Assert.Equal(artistStatisticValues.AnotherArtist, entity);
         }
 
-        [Test]
+        [Fact]
         public void Remove_Removes_Foreign_Field()
         {
             // arrange
@@ -92,10 +90,10 @@ namespace Concordia.Framework.Tests
             entityCollection.Remove(artistStatisticValues);
 
             // assert
-            Assert.That(artistStatisticValues.SecondArtist, Is.Null);
+            Assert.Null(artistStatisticValues.SecondArtist);
         }
 
-        [Test]
+        [Fact]
         public void RemoveAt_Removes_Foreign_Field()
         {
             // arrange
@@ -111,10 +109,10 @@ namespace Concordia.Framework.Tests
             entityCollection.RemoveAt(0);
 
             // assert
-            Assert.That(artistStatisticValues.SecondArtist, Is.Null);
+            Assert.Null(artistStatisticValues.SecondArtist);
         }
 
-        [Test]
+        [Fact]
         public void RemoveAt_Removes_Not_When_ReferenceField_Is_Mandatory()
         {
             // arrange
@@ -130,10 +128,10 @@ namespace Concordia.Framework.Tests
             entityCollection.RemoveAt(0);
 
             // assert
-            Assert.That(artistStatisticValues.AnotherArtist, Is.Not.Null);
+            Assert.NotNull(artistStatisticValues.AnotherArtist);
         }
 
-        [Test]
+        [Fact]
         public void Remove_Removes_Not_When_ReferenceField_Is_Mandatory()
         {
             // arrange
@@ -149,10 +147,10 @@ namespace Concordia.Framework.Tests
             entityCollection.Remove(artistStatisticValues);
 
             // assert
-            Assert.That(artistStatisticValues.AnotherArtist, Is.Not.Null);
+            Assert.NotNull(artistStatisticValues.AnotherArtist);
         }
 
-        [Test]
+        [Fact]
         public void Add_Adds_Collection_Changed_Item()
         {
             // arrange
@@ -167,10 +165,10 @@ namespace Concordia.Framework.Tests
             entityCollection.Add(artistStatisticValues);
 
             // assert
-            Assert.That(entity.PropertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues), Is.True);
+            Assert.True(entity.PropertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues));
         }
 
-        [Test]
+        [Fact]
         public void Remove_Adds_Collection_Changed_Item()
         {
             // arrange
@@ -188,7 +186,7 @@ namespace Concordia.Framework.Tests
             entityCollection.Remove(artistStatisticValues);
 
             // assert
-            Assert.That(entity.PropertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues), Is.True);
+            Assert.True(entity.PropertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues));
         }
     }
 }

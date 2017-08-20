@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
+using Microsoft.Data.Sqlite;
 
 namespace Concordia.Framework.SQLite
 {
@@ -16,8 +16,8 @@ namespace Concordia.Framework.SQLite
         /// </summary>
         public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
 
-        private readonly System.Data.SQLite.SQLiteConnection _connection;
-        private SQLiteTransaction _currentTransaction;
+        private readonly SqliteConnection _connection;
+        private SqliteTransaction _currentTransaction;
         private bool _isDisposed;
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Concordia.Framework.SQLite
         /// <param name="connectionString">The connection string.</param>
         public SQLiteConnection(string connectionString)
         {
-            _connection = new System.Data.SQLite.SQLiteConnection(connectionString);
+            _connection = new SqliteConnection(connectionString);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Concordia.Framework.SQLite
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(query.Parameters.Select(x => new SqliteParameter(x.Name, x.Value ?? DBNull.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteNonQuery();
@@ -144,7 +144,7 @@ namespace Concordia.Framework.SQLite
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(query.Parameters.Select(x => new SqliteParameter(x.Name, x.Value ?? DBNull.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteScalar();
@@ -160,7 +160,7 @@ namespace Concordia.Framework.SQLite
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(query.Parameters.Select(x => new SqliteParameter(x.Name, x.Value ?? DBNull.Value)).ToArray());
             command.Prepare();
 
             return command.ExecuteReader();
@@ -176,7 +176,7 @@ namespace Concordia.Framework.SQLite
             var command = _connection.CreateCommand();
             command.CommandText = query.Command + " SELECT last_insert_rowid()";
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new SQLiteParameter(x.Name, x.Value)).ToArray());
+            command.Parameters.AddRange(query.Parameters.Select(x => new SqliteParameter(x.Name, x.Value ?? DBNull.Value)).ToArray());
             command.Prepare();
 
             return Convert.ToInt32(command.ExecuteScalar());

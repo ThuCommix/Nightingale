@@ -1,23 +1,21 @@
 ﻿using System.Linq;
-using NUnit.Framework;
 using Concordia.Framework.Metadata;
 using Concordia.Framework.Tests.DataSources;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Concordia.Framework.Tests
 {
-    [TestFixture]
     public class PropertyChangeTrackerTests
     {
-        [SetUp]
-        public void Setup()
+        public PropertyChangeTrackerTests()
         {
             DependencyResolver.Clear();
             DependencyResolver.Register<IEntityMetadataService>(new EntityMetadataService());
             DependencyResolver.Register<IEntityMetadataResolver>(new EntityMetadataResolver());
         }
 
-        [Test]
+        [Fact]
         public void HasChanged_Should_Not_Track_Property_Changes_With_The_Same_NewValue_As_The_Old_Value()
         {
             // arrange
@@ -30,10 +28,10 @@ namespace Concordia.Framework.Tests
             var result = propertyChangeTracker.HasChanged<Artist>(x => x.Name);
 
             // assert
-            Assert.That(result, Is.False);
+            Assert.False(result);
         }
 
-        [Test]
+        [Fact]
         public void HasChanged_Works()
         {
             // arrange
@@ -46,10 +44,10 @@ namespace Concordia.Framework.Tests
             var result = propertyChangeTracker.HasChanged<Artist>(x => x.Name);
 
             // assert
-            Assert.That(result, Is.True);
+            Assert.True(result);
         }
 
-        [Test]
+        [Fact]
         public void HasChanged_Returns_True_For_Unsaved_Entity()
         {
             // arrange
@@ -59,10 +57,10 @@ namespace Concordia.Framework.Tests
             var result = propertyChangeTracker.HasChanged<Artist>(x => x.Name);
 
             // assert
-            Assert.That(result, Is.True);
+            Assert.True(result);
         }
 
-        [Test]
+        [Fact]
         public void HasChanged_Returns_True_For_Newly_Created_Entity_ForeignKey()
         {
             // arrange
@@ -75,10 +73,10 @@ namespace Concordia.Framework.Tests
             var result = propertyChangeTracker.HasChanged<Artist>(x => x.FK_AnotherArtist_ID);
 
             // assert
-            Assert.That(result, Is.True);
+            Assert.True(result);
         }
 
-        [Test]
+        [Fact]
         public void TryGetReplacedValue_Extracts_The_Oldest_Value()
         {
             // arrange
@@ -93,10 +91,10 @@ namespace Concordia.Framework.Tests
             propertyChangeTracker.TryGetReplacedValue<Artist, string>(x => x.Name, out value);
 
             // assert
-            Assert.That(value, Is.EqualTo("T1"));
+            Assert.Equal("T1", value);
         }
 
-        [Test]
+        [Fact]
         public void AddPropertyChangedItem_Does_Nothing_When_Tracking_Is_Disabled()
         {
             // arrange
@@ -110,10 +108,10 @@ namespace Concordia.Framework.Tests
             var result = propertyChangeTracker.HasChanged<Artist>(x => x.Name);
 
             // asset
-            Assert.That(result, Is.False);
+            Assert.False(result);
         }
 
-        [Test]
+        [Fact]
         public void Clear_Any_Changes_Are_Discarded()
         {
             // arrange
@@ -126,10 +124,10 @@ namespace Concordia.Framework.Tests
             propertyChangeTracker.Clear();
 
             // asset
-            Assert.That(propertyChangeTracker.HasChanges, Is.False);
+            Assert.False(propertyChangeTracker.HasChanges);
         }
 
-        [Test]
+        [Fact]
         public void GetChangedProperties_Works()
         {
             // arrange
@@ -142,11 +140,12 @@ namespace Concordia.Framework.Tests
             var result = propertyChangeTracker.GetChangedProperties();
 
             // asset
-            Assert.That(result.First(), Is.EqualTo("Name"));
+            Assert.Equal("Name", result.First());
         }
 
-        [TestCase(CollectionChangeType.Added)]
-        [TestCase(CollectionChangeType.Removed)]
+        [Theory]
+        [InlineData(CollectionChangeType.Added)]
+        [InlineData(CollectionChangeType.Removed)]
         public void AddCollectionChangedItem_Adds_ChangedItem(CollectionChangeType changeType)
         {
             // arrange
@@ -157,11 +156,12 @@ namespace Concordia.Framework.Tests
             propertyChangeTracker.AddCollectionChangedItem(new CollectionChangedItem("StatisticValues", null, changeType));
 
             // assert
-            Assert.That(propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues), Is.True);
+            Assert.True(propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues));
         }
 
-        [TestCase(CollectionChangeType.Added)]
-        [TestCase(CollectionChangeType.Removed)]
+        [Theory]
+        [InlineData(CollectionChangeType.Added)]
+        [InlineData(CollectionChangeType.Removed)]
         public void AddCollectionChangedItem_Prevents_Unneccessary_Changes(CollectionChangeType changeType)
         {
             // arrange
@@ -175,11 +175,12 @@ namespace Concordia.Framework.Tests
             propertyChangeTracker.AddCollectionChangedItem(new CollectionChangedItem("StatisticValues", statisticValue, oppositeChangeType));
 
             // assert
-            Assert.That(propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues), Is.False);
+            Assert.False(propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues));
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void AddCollectionChangedItem_Does_Nothing_When_Tracking_Is_Disabled(bool disableChangeTracking)
         {
             // arrange
@@ -190,10 +191,10 @@ namespace Concordia.Framework.Tests
             propertyChangeTracker.AddCollectionChangedItem(new CollectionChangedItem("StatisticValues", null, CollectionChangeType.Added));
 
             // assert
-            Assert.That(propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues), Is.EqualTo(!disableChangeTracking));
+            Assert.Equal(!disableChangeTracking, propertyChangeTracker.HasChanged<Artist>(x => x.StatisticValues));
         }
 
-        [Test]
+        [Fact]
         public void TryGetAddedCollectionItems_Can_Get_Added_Items()
         {
             // arrange
@@ -209,14 +210,14 @@ namespace Concordia.Framework.Tests
             var result = entity.PropertyChangeTracker.TryGetAddedCollectionItems<Artist, ArtistStatisticValues>(x => x.StatisticValues, out listAddedItems);
 
             // assert
-            Assert.That(result, Is.True);
-            Assert.That(listAddedItems, Is.Not.Null);
-            Assert.That(listAddedItems.Count, Is.EqualTo(2));
-            Assert.That(listAddedItems[0], Is.EqualTo(entityCollection[0]));
-            Assert.That(listAddedItems[1], Is.EqualTo(entityCollection[1]));
+            Assert.True(result);
+            Assert.NotNull(listAddedItems);
+            Assert.Equal(2, listAddedItems.Count);
+            Assert.Equal(entityCollection[0], listAddedItems[0]);
+            Assert.Equal(entityCollection[1], listAddedItems[1]);
         }
 
-        [Test]
+        [Fact]
         public void TryGetRemovedCollectionItems_Can_Get_Removed_Items()
         {
             // arrange
@@ -237,10 +238,9 @@ namespace Concordia.Framework.Tests
             var result = entity.PropertyChangeTracker.TryGetRemovedCollectionItems<Artist, ArtistStatisticValues>(x => x.StatisticValues, out listRemovedItems);
 
             // assert
-            Assert.That(result, Is.True);
-            Assert.That(listRemovedItems, Is.Not.Null);
-            Assert.That(listRemovedItems.Count, Is.EqualTo(1));
-            Assert.That(listRemovedItems[0], Is.EqualTo(statisticValues));
+            Assert.True(result);
+            Assert.NotNull(listRemovedItems);
+            Assert.Equal(statisticValues, listRemovedItems[0]);
         }
     }
 }

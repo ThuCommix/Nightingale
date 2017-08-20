@@ -26,6 +26,9 @@ namespace Concordia.Framework.MsSql
         {
         }
 
+        /// <summary>
+        /// Creates the table.
+        /// </summary>
         public override void Create()
         {
             var commandBuilder = new StringBuilder();
@@ -58,31 +61,10 @@ namespace Concordia.Framework.MsSql
             Connection.ExecuteNonQuery(query);
         }
 
-
         /// <summary>
-        /// Removes the column.
+        /// Gets a value indicating whether the table exists.
         /// </summary>
-        /// <param name="column">The column.</param>
-        public override void RemoveColumn(Column column)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Adds a new column to the table.
-        /// </summary>
-        /// <param name="column">The column.</param>
-        /// <param name="defaultValue">The default value.</param>
-        public override void AddColumn(Column column, object defaultValue = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Gets an enumeration of the available columns.
-        /// </summary>
-        /// <returns></returns>
-        public override IEnumerable<Column> GetColumns()
+        public override bool Exists()
         {
             throw new NotImplementedException();
         }

@@ -25,11 +25,6 @@
         /// <summary>
         /// Boolean
         /// </summary>
-        Boolean,
-
-        /// <summary>
-        /// ForeignKey alias Integer.
-        /// </summary>
-        ForeignKey = Integer,
+        Boolean
     }
 }

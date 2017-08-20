@@ -4,15 +4,15 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Moq;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Metadata;
 using Concordia.Framework.Queries;
 using Concordia.Framework.Queries.Tokens;
-using Concordia.Framework.Sessions;
 using Concordia.Framework.Tests.DataSources;
+using Moq;
+using Xunit;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace Concordia.Framework.Tests
 {

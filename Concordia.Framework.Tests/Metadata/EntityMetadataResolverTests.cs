@@ -1,29 +1,27 @@
 ﻿using System.Linq;
-using NUnit.Framework;
 using Concordia.Framework.Metadata;
+using Xunit;
 
 namespace Concordia.Framework.Tests.Metadata
 {
-    [TestFixture]
     public class EntityMetadataResolverTests
     {
-        [SetUp]
-        public void Setup()
+        public EntityMetadataResolverTests()
         {
             DependencyResolver.Clear();
             TestHelper.SetupEntityMetadataServices();
         }
 
-        [Test]
+        [Fact]
         public void EntityMetadataResolver_Has_All_Entity_Metadata()
         {
             // act
             var result = new EntityMetadataResolver().EntityMetadata;
 
             // assert
-            Assert.That(result.Count(), Is.EqualTo(3));
-            Assert.That(result.Any(x => x.Name == "Artist"), Is.True);
-            Assert.That(result.Any(x => x.Name == "ArtistStatisticValues"), Is.True);
+            Assert.Equal(3, result.Count());
+            Assert.Contains(result, x => x.Name == "Artist");
+            Assert.Contains(result, x => x.Name == "ArtistStatisticValues");
         }
     }
 }

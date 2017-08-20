@@ -1,26 +1,24 @@
-﻿using Concordia.Framework.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
 using Concordia.Framework.Sessions;
 using Concordia.Framework.Tests.DataSources;
 using Moq;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+using Xunit;
 
 namespace Concordia.Framework.Tests.Sessions
 {
-    [TestFixture]
     public class SessionTests
     {
-        [SetUp]
-        public void Setup()
+        public SessionTests()
         {
             DependencyResolver.Clear();
         }
 
-        [Test]
+        [Fact]
         public void Session_Constructor_Opens_Connection()
         {
             // arrange
@@ -34,7 +32,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Session_Constructor_Verify_Default_Config()
         {
             // arrange
@@ -44,13 +42,13 @@ namespace Concordia.Framework.Tests.Sessions
             var session = new SessionProxy(connectionMock.Object);
 
             // assert
-            Assert.That(session.DeletionMode, Is.EqualTo(DeletionMode.Recoverable));
-            Assert.That(session.FlushMode, Is.EqualTo(FlushMode.Commit));
+            Assert.Equal(DeletionMode.Recoverable, session.DeletionMode);
+            Assert.Equal(FlushMode.Commit, session.FlushMode);
 
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void BeginTransaction_Calls_DataProvider_BeginTransaction()
         {
             // arrange
@@ -68,13 +66,13 @@ namespace Concordia.Framework.Tests.Sessions
             var result = session.BeginTransaction(isolationlevel);
 
             // assert
-            Assert.That(result, Is.TypeOf<TransactionProxy>());
+            Assert.IsType<TransactionProxy>(result);
 
             connectionMock.VerifyAll();
             disposeableMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void BeginTransaction_Dispose_Calls_Rollback()
         {
             // arrange
@@ -101,7 +99,7 @@ namespace Concordia.Framework.Tests.Sessions
             disposeableMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void BeginTransaction_Throws_Exception_When_Already_In_Transaction()
         {
             // arrange
@@ -124,7 +122,7 @@ namespace Concordia.Framework.Tests.Sessions
             disposeableMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Rollback_Calls_DataProvider_Rollback()
         {
             // arrange
@@ -145,7 +143,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Rollback_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
@@ -161,7 +159,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void RollbackTo_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
@@ -197,7 +195,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Release_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
@@ -213,7 +211,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Release_Calls_DataProvider_Release()
         {
             // arrange
@@ -234,7 +232,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Commit_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
@@ -250,7 +248,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Commit_Calls_DataProvider_Commit()
         {
             // arrange
@@ -271,7 +269,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Save_Throws_Exception_When_Not_In_Transaction()
         {
             // arrange
@@ -287,7 +285,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Save_Calls_DataProvider_Save()
         {
             // arrange
@@ -308,7 +306,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Evict_Set_Flag_On_Entity_And_Remove_From_Flushlist()
         {
             // arrange
@@ -327,14 +325,14 @@ namespace Concordia.Framework.Tests.Sessions
             session.Evict(entity);
 
             // assert
-            Assert.That(flushListCountBeforeEvict, Is.EqualTo(1));
-            Assert.That(TestHelper.CheckEvicted(entity), Is.True);
-            Assert.That(session.CallGetDirtyEntities(), Is.Empty);
+            Assert.Equal(1, flushListCountBeforeEvict);
+            Assert.True(TestHelper.CheckEvicted(entity));
+            Assert.Empty(session.CallGetDirtyEntities());
 
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void SaveOrUpdate_Prevent_Saving_Of_Deleted_Entity()
         {
             // arrange
@@ -354,7 +352,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void SaveOrUpdate_Resolved_Child_Entities()
         {
             // arrange
@@ -371,14 +369,14 @@ namespace Concordia.Framework.Tests.Sessions
             session.SaveOrUpdate(entity);
 
             // assert
-            Assert.That(session.CallGetDirtyEntities().Count, Is.EqualTo(2));
-            Assert.That(session.CallGetDirtyEntities()[0], Is.EqualTo(entity));
-            Assert.That(session.CallGetDirtyEntities()[1], Is.EqualTo(entity.AnotherArtist));
+            Assert.Equal(2, session.CallGetDirtyEntities().Count);
+            Assert.Equal(session.CallGetDirtyEntities()[0], entity);
+            Assert.Equal(session.CallGetDirtyEntities()[1], entity.AnotherArtist);
 
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void ExecuteQuery_Throws_When_Query_Is_Null()
         {
             // arrange
@@ -392,7 +390,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void ExecuteQuery_Creates_Entity_Result_List()
         {
             // arrange
@@ -415,13 +413,13 @@ namespace Concordia.Framework.Tests.Sessions
             var result = session.ExecuteQuery(query);
 
             // assert
-            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.Single(result);
 
             connectionMock.VerifyAll();
             dataReaderMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Load_Creates_Expected_Query_And_Calls_ExecuteQuery()
         {
             // arrange
@@ -444,17 +442,17 @@ namespace Concordia.Framework.Tests.Sessions
             var result = session.Load(Id, typeof(Artist));
 
             // assert
-            Assert.That(result, Is.Null);
-            Assert.That(query, Is.Not.Null);
-            Assert.That(query.ConditionGroups.First().Conditions.Any(x => x.PropertyPath == "Id" && (int)x.EquationValue == Id), Is.True);
-            Assert.That(query.ConditionGroups.First().Conditions.Any(x => x.PropertyPath == "Deleted" && (bool)x.EquationValue == false), Is.True);
-            Assert.That(query.EntityType, Is.EqualTo(typeof(Artist)));
+            Assert.Null(result);
+            Assert.NotNull(query);
+            Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Id" && (int)x.EquationValue == Id);
+            Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Deleted" && (bool)x.EquationValue == false);
+            Assert.Equal(query.EntityType, typeof(Artist));
 
             dataReaderMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Flush_Throws_Exception_When_Entity_Is_Not_Valid()
         {
             // arrange
@@ -477,7 +475,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Flush_Insert_Entity_If_Not_Saved()
         {
             // arrange
@@ -496,14 +494,14 @@ namespace Concordia.Framework.Tests.Sessions
             session.Flush();
 
             // assert
-            Assert.That(session.PerformInsertCalled, Is.True);
-            Assert.That(entity.Id, Is.EqualTo(1));
+            Assert.True(session.PerformInsertCalled);
+            Assert.Equal(1, entity.Id);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Flush_Throws_Exception_When_Entity_Is_Not_Saved_After_Insert()
         {
             // arrange
@@ -524,14 +522,14 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.Throws<SessionInsertException>(() => session.Flush());
 
             // assert
-            Assert.That(session.PerformInsertCalled, Is.True);
-            Assert.That(entity.Id, Is.EqualTo(0));
+            Assert.True(session.PerformInsertCalled);
+            Assert.Equal(0, entity.Id);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Flush_Throws_Exception_When_Insert_Fails()
         {
             // arrange
@@ -552,15 +550,16 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.Throws<SessionInsertException>(() => session.Flush());
 
             // assert
-            Assert.That(session.PerformInsertCalled, Is.True);
-            Assert.That(entity.Id, Is.EqualTo(0));
+            Assert.True(session.PerformInsertCalled);
+            Assert.Equal(entity.Id, 0);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void Flush_Update_Only_When_Entity_Has_Changes(bool hasChanges)
         {
             // arrange
@@ -586,13 +585,13 @@ namespace Concordia.Framework.Tests.Sessions
             session.Flush();
 
             // assert
-            Assert.That(session.PerformUpdateCalled, Is.EqualTo(hasChanges));
+            Assert.Equal(session.PerformUpdateCalled, hasChanges);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Flush_Update_Increases_Version()
         {
             // arrange
@@ -617,14 +616,14 @@ namespace Concordia.Framework.Tests.Sessions
             session.Flush();
 
             // assert
-            Assert.That(session.PerformUpdateCalled, Is.True);
-            Assert.That(oldVersion + 1, Is.EqualTo(entity.Version));
+            Assert.True(session.PerformUpdateCalled);
+            Assert.Equal(oldVersion + 1, entity.Version);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Flush_Update_On_Error_Restore_Version()
         {
             // arrange
@@ -651,14 +650,14 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.Throws<SessionUpdateException>(() => session.Flush());
 
             // assert
-            Assert.That(session.PerformUpdateCalled, Is.True);
-            Assert.That(oldVersion, Is.EqualTo(entity.Version));
+            Assert.True(session.PerformUpdateCalled);
+            Assert.Equal(oldVersion, entity.Version);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Flush_Update_Clear_PropertyChangeTracker()
         {
             // arrange
@@ -681,13 +680,13 @@ namespace Concordia.Framework.Tests.Sessions
             session.Flush();
 
             // assert
-            Assert.That(entity.PropertyChangeTracker.HasChanges, Is.False);
+            Assert.False(entity.PropertyChangeTracker.HasChanges);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Delete_Does_Nothing_On_DeletionMode_None()
         {
             // arrange
@@ -705,7 +704,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Delete_Set_Entity_Deleted_And_Call_SaveOrUpdate_In_SoftMode()
         {
             // arrange
@@ -733,15 +732,15 @@ namespace Concordia.Framework.Tests.Sessions
             session.Delete(entity);
 
             // assert
-            Assert.That(entity.Deleted, Is.True);
-            Assert.That(session.CallGetDirtyEntities()[0], Is.EqualTo(entity));
+            Assert.True(entity.Deleted);
+            Assert.Equal(session.CallGetDirtyEntities()[0], entity);
 
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Delete_Set_Entity_Deleted_And_Call_PerformDelete_In_HardMode()
         {
             // arrange
@@ -768,16 +767,17 @@ namespace Concordia.Framework.Tests.Sessions
             session.Delete(entity);
 
             // assert
-            Assert.That(entity.Deleted, Is.True);
-            Assert.That(session.PerformDeleteCalled, Is.True);
+            Assert.True(entity.Deleted);
+            Assert.True(session.PerformDeleteCalled);
 
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void Delete_Set_Hard_Delete_Is_Only_Called_For_Saved_Entities(bool saved)
         {
             // arrange
@@ -804,15 +804,15 @@ namespace Concordia.Framework.Tests.Sessions
             session.Delete(entity);
 
             // assert
-            Assert.That(entity.Deleted, Is.True);
-            Assert.That(session.PerformDeleteCalled, Is.EqualTo(saved));
+            Assert.True(entity.Deleted);
+            Assert.Equal(session.PerformDeleteCalled, saved);
 
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Delete_Throws_If_Entity_Is_Referenced_Somewhere()
         {
             // arrange
@@ -840,9 +840,9 @@ namespace Concordia.Framework.Tests.Sessions
 
             // act
             var result = Assert.Throws<SessionDeleteException>(() => session.Delete(entity));
-            Assert.That(entity.Deleted, Is.False);
-            Assert.That(result.ConstraintViolations.Count, Is.EqualTo(1));
-            Assert.That(result.ConstraintViolations[0], Is.EqualTo("Entity 'ArtistStatisticValues' with Id = '0' references 'Artist' in 'FK_AnotherArtist_ID'."));
+            Assert.False(entity.Deleted);
+            Assert.Single(result.ConstraintViolations);
+            Assert.Equal("Entity 'ArtistStatisticValues' with Id = '0' references 'Artist' in 'FK_AnotherArtist_ID'.", result.ConstraintViolations[0]);
 
             // assert
             dataReaderMock.VerifyAll();
@@ -851,7 +851,7 @@ namespace Concordia.Framework.Tests.Sessions
             tokenServiceMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void PerformDelete_Throws_Exception_If_Entity_Could_Not_Be_Deleted()
         {
             // arrange
@@ -871,7 +871,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void PerformDelete_Expected_Query_Command()
         {
             // arrange
@@ -890,14 +890,14 @@ namespace Concordia.Framework.Tests.Sessions
             session.CallPerformDelete(entity);
 
             // assert
-            Assert.That(query, Is.Not.Null);
-            Assert.That(query.Command, Is.EqualTo("DELETE Artist WHERE Id = 1 AND Version = 1"));
-            Assert.That(query.EntityType, Is.EqualTo(typeof(Artist)));
+            Assert.NotNull(query);
+            Assert.Equal("DELETE Artist WHERE Id = 1 AND Version = 1", query.Command);
+            Assert.Equal(typeof(Artist), query.EntityType);
 
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void PerformUpdate_Throws_Exception_When_No_Rows_Changed()
         {
             // arrange
@@ -919,7 +919,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void PerformUpdate_Returns_When_Entity_Has_No_Changes()
         {
             // arrange
@@ -937,7 +937,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void PerformUpdate_Expected_Query_Command()
         {
             // arrange
@@ -962,16 +962,16 @@ namespace Concordia.Framework.Tests.Sessions
             session.CallPerformUpdate(entity);
 
             // assert
-            Assert.That(query, Is.Not.Null);
-            Assert.That(query.Command, Is.EqualTo("UPDATE Artist SET Name = @Name,Alias = @Alias WHERE Id = 1 AND Version = 0"));
-            Assert.That(query.EntityType, Is.EqualTo(typeof(Artist)));
-            Assert.That(query.Parameters.First().Value, Is.EqualTo("Name"));
-            Assert.That(query.Parameters.Last().Value, Is.EqualTo("Alias"));
+            Assert.NotNull(query);
+            Assert.Equal("UPDATE Artist SET Name = @Name,Alias = @Alias WHERE Id = 1 AND Version = 0", query.Command);
+            Assert.Equal(typeof(Artist), query.EntityType);
+            Assert.Equal("Name", query.Parameters.First().Value);
+            Assert.Equal("Alias", query.Parameters.Last().Value);
 
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void PerformInsert_Expected_Query_Command()
         {
             // arrange
@@ -992,17 +992,17 @@ namespace Concordia.Framework.Tests.Sessions
             var result = session.CallPerformInsert(entity);
 
             // assert
-            Assert.That(result, Is.EqualTo(1));
-            Assert.That(query, Is.Not.Null);
-            Assert.That(query.Command, Is.EqualTo("INSERT INTO Artist (Name,Alias,BirthDate,DeathDate,WebLink,Biography,Note,Label,FK_AnotherArtist_ID,Deleted,Version) VALUES (@Name,@Alias,@BirthDate,@DeathDate,@WebLink,@Biography,@Note,@Label,@FK_AnotherArtist_ID,@Deleted,@Version);"));
-            Assert.That(query.EntityType, Is.EqualTo(typeof(Artist)));
-            Assert.That(query.Parameters.Any(x => x.Name == "@Name" && (string)x.Value == entity.Name), Is.True);
-            Assert.That(query.Parameters.Any(x => x.Name == "@Alias" && (string)x.Value == entity.Alias), Is.True);
+            Assert.Equal(1, result);
+            Assert.NotNull(query);
+            Assert.Equal("INSERT INTO Artist (Name,Alias,BirthDate,DeathDate,WebLink,Biography,Note,Label,FK_AnotherArtist_ID,Deleted,Version) VALUES (@Name,@Alias,@BirthDate,@DeathDate,@WebLink,@Biography,@Note,@Label,@FK_AnotherArtist_ID,@Deleted,@Version);", query.Command);
+            Assert.Equal(typeof(Artist), query.EntityType);
+            Assert.Contains(query.Parameters, x => x.Name == "@Name" && (string)x.Value == entity.Name);
+            Assert.Contains(query.Parameters, x => x.Name == "@Alias" && (string)x.Value == entity.Alias);
 
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void ExecuteFunc_Builds_Expected_Query()
         {
             // arrange
@@ -1016,13 +1016,13 @@ namespace Concordia.Framework.Tests.Sessions
             var result = session.ExecuteFunc<int>("dbo.test");
 
             // assert
-            Assert.That(result, Is.EqualTo(0));
-            Assert.That(query.Command, Is.EqualTo("SELECT dbo.test()"));
+            Assert.Equal(0, result);
+            Assert.Equal("SELECT dbo.test()", query.Command);
 
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Session_EntityListeners_Initialized()
         {
             // arrange
@@ -1032,12 +1032,12 @@ namespace Concordia.Framework.Tests.Sessions
             var session = new SessionProxy(connectionMock.Object);
 
             // assert
-            Assert.That(session.EntityListeners, Is.Not.Null);
+            Assert.NotNull(session.EntityListeners);
 
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Save_Calls_EntityListeners()
         {
             // arrange
@@ -1061,7 +1061,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Save_Throws_Exception_If_EntityListener_Returns_False()
         {
             // arrange
@@ -1085,7 +1085,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Delete_Calls_EntityListeners()
         {
             // arrange
@@ -1109,7 +1109,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Delete_Throws_Exception_If_EntityListener_Returns_False()
         {
             // arrange
@@ -1133,7 +1133,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Save_Calls_EntityListeners_For_Cascaded_Entities()
         {
             // arrange
@@ -1158,7 +1158,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Delete_Calls_EntityListeners_For_Cascaded_Entities()
         {
             // arrange
@@ -1183,7 +1183,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Commit_Calls_CommitListeners()
         {
             // arrange
@@ -1203,14 +1203,15 @@ namespace Concordia.Framework.Tests.Sessions
             session.Commit();
 
             // assert
-            Assert.That(result, Is.True);
+            Assert.True(result);
 
             commitListener.VerifyAll();
             connectionMock.VerifyAll();
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void Flush_Detect_Transient_Entity(bool isTransient)
         {
             // arrange
@@ -1248,7 +1249,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void SaveOrUpdate_Prevent_Saving_Of_Evicted_Entity()
         {
             // arrange
@@ -1265,7 +1266,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Flush_Check_For_Evicted_Entities_In_FlushList()
         {
             // arrange
@@ -1290,7 +1291,7 @@ namespace Concordia.Framework.Tests.Sessions
             entityServiceMock.VerifyAll();
         }
 
-        [Test]
+        [Fact]
         public void Load_Query_PersistenceCache_First()
         {
             // arrange
@@ -1309,7 +1310,7 @@ namespace Concordia.Framework.Tests.Sessions
             var result = session.Load(1, typeof(Artist));
 
             // assert
-            Assert.That(result, Is.EqualTo(entity));
+            Assert.Equal(result, entity);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();

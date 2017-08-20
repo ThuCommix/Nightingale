@@ -1,172 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{500734C8-D477-4AED-9225-A7E1142109A7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Concordia.Framework</RootNamespace>
-    <AssemblyName>Concordia.Framework</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>2.0.0</Version>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <None Remove="Entity.xsd" />
+    <None Remove="Entity.xsl" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Caching\CacheExtensions.cs" />
-    <Compile Include="Caching\ICache.cs" />
-    <Compile Include="Caching\PersistenceCache.cs" />
-    <Compile Include="CollectionChangedItem.cs" />
-    <Compile Include="CollectionChangeType.cs" />
-    <Compile Include="Column.cs" />
-    <Compile Include="ColumnType.cs" />
-    <Compile Include="ConnectionFactory.cs" />
-    <Compile Include="DependencyResolver.cs" />
-    <Compile Include="Entities\EagerLoadAttribute.cs" />
-    <Compile Include="Entities\Entity.cs" />
-    <Compile Include="Entities\EnumAttribute.cs" />
-    <Compile Include="Entities\FieldTypeAttribute.cs" />
-    <Compile Include="Entities\ForeignKeyAttribute.cs" />
-    <Compile Include="Entities\VirtualPropertyAttribute.cs" />
-    <Compile Include="Entities\MandatoryAttribute.cs" />
-    <Compile Include="Entities\MappedAttribute.cs" />
-    <Compile Include="Entities\MaxLengthAttribute.cs" />
-    <Compile Include="Entities\PrimaryKeyAttribute.cs" />
-    <Compile Include="EntityCollection.cs" />
-    <Compile Include="EntityListener.cs" />
-    <Compile Include="Extensions\ExceptionExtensions.cs" />
-    <Compile Include="Extensions\FieldMetadataExtensions.cs" />
-    <Compile Include="Extensions\TableExtensions.cs" />
-    <Compile Include="ICommitListener.cs" />
-    <Compile Include="IConnection.cs" />
-    <Compile Include="IConnectionFactory.cs" />
-    <Compile Include="IEntityCollection.cs" />
-    <Compile Include="Logging\ILogger.cs" />
-    <Compile Include="IRepository.cs" />
-    <Compile Include="Logging\LogLevel.cs" />
-    <Compile Include="Metadata\IEntityMetadataResolver.cs" />
-    <Compile Include="PropertyChangeTracker.cs" />
-    <Compile Include="EntityService.cs" />
-    <Compile Include="IEntityService.cs" />
-    <Compile Include="Queries\GlobalQueryFilter.cs" />
-    <Compile Include="Queries\IQuery.cs" />
-    <Compile Include="Queries\Operator.cs" />
-    <Compile Include="Queries\Query.cs" />
-    <Compile Include="Queries\QueryCondition.cs" />
-    <Compile Include="Queries\QueryConditionGroup.cs" />
-    <Compile Include="Queries\QueryException.cs" />
-    <Compile Include="Queries\ExpressionTokenizer.cs" />
-    <Compile Include="Queries\QueryHelper.cs" />
-    <Compile Include="Queries\QueryJunction.cs" />
-    <Compile Include="Queries\QueryParameter.cs" />
-    <Compile Include="Queries\SortExpression.cs" />
-    <Compile Include="Queries\SortingMode.cs" />
-    <Compile Include="Queries\Tokens\BinaryToken.cs" />
-    <Compile Include="Queries\Tokens\ConditionLinkType.cs" />
-    <Compile Include="Queries\Tokens\ConditionLinkSqlToken.cs" />
-    <Compile Include="Queries\Tokens\ConditionSqlToken.cs" />
-    <Compile Include="Queries\Tokens\ConstantToken.cs" />
-    <Compile Include="Queries\Tokens\ISqlTokenComposerService.cs" />
-    <Compile Include="Queries\Tokens\JoinSqlToken.cs" />
-    <Compile Include="Queries\Tokens\MethodToken.cs" />
-    <Compile Include="Queries\Tokens\SelectSqlToken.cs" />
-    <Compile Include="Queries\Tokens\SqlToken.cs" />
-    <Compile Include="Queries\Tokens\SqlTokenComposerService.cs" />
-    <Compile Include="Queries\Tokens\SqlTokenType.cs" />
-    <Compile Include="Queries\Tokens\TokenComposerResult.cs" />
-    <Compile Include="Queries\Tokens\TokenType.cs" />
-    <Compile Include="Queries\Tokens\TypeContextToken.cs" />
-    <Compile Include="Queries\Tokens\PropertyToken.cs" />
-    <Compile Include="Queries\Tokens\Token.cs" />
-    <Compile Include="ReflectionHelper.cs" />
-    <Compile Include="Registry.cs" />
-    <Compile Include="Repository.cs" />
-    <Compile Include="Sessions\DeletionMode.cs" />
-    <Compile Include="Sessions\ISession.cs" />
-    <Compile Include="Sessions\ISessionContext.cs" />
-    <Compile Include="Sessions\ISessionFactory.cs" />
-    <Compile Include="Sessions\Session.cs" />
-    <Compile Include="Sessions\SessionContext.cs" />
-    <Compile Include="Sessions\SessionContextMode.cs" />
-    <Compile Include="Sessions\SessionDeleteException.cs" />
-    <Compile Include="Sessions\SessionException.cs" />
-    <Compile Include="Sessions\SessionFactory.cs" />
-    <Compile Include="Sessions\FlushMode.cs" />
-    <Compile Include="Sessions\SessionInsertException.cs" />
-    <Compile Include="Sessions\SessionUpdateException.cs" />
-    <Compile Include="IEntityListener.cs" />
-    <Compile Include="Metadata\EntityMetadata.cs" />
-    <Compile Include="Metadata\EntityMetadataService.cs" />
-    <Compile Include="Metadata\FieldMetadata.cs" />
-    <Compile Include="Metadata\IEntityMetadataService.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Metadata\ListFieldMetadata.cs" />
-    <Compile Include="Entities\Cascade.cs" />
-    <Compile Include="Metadata\VirtualFieldMetadata.cs" />
-    <Compile Include="Metadata\VirtualListFieldMetadata.cs" />
-    <Compile Include="Metadata\FieldBaseMetadata.cs" />
-    <Compile Include="Entities\CascadeAttribute.cs" />
-    <Compile Include="Entities\UniqueAttribute.cs" />
-    <Compile Include="Entities\DecimalAttribute.cs" />
-    <Compile Include="Entities\TableAttribute.cs" />
-    <Compile Include="Entities\ReferenceFieldAttribute.cs" />
-    <Compile Include="PropertyChangedItem.cs" />
-    <Compile Include="Entities\DescriptionAttribute.cs" />
-    <Compile Include="Entities\ExpressionAttribute.cs" />
-    <Compile Include="Metadata\EntityMetadataResolver.cs" />
-    <Compile Include="Entities\DateOnlyAttribute.cs" />
-    <Compile Include="Extensions\EnumerableExtension.cs" />
-    <Compile Include="Sessions\StatelessSession.cs" />
-    <Compile Include="Sessions\TransactionProxy.cs" />
-    <Compile Include="Sessions\TransientEntityException.cs" />
-    <Compile Include="Table.cs" />
-    <Compile Include="Logging\TraceLogger.cs" />
-  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Entity.xsd" />
     <EmbeddedResource Include="Entity.xsl">
-      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Todo.txt" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

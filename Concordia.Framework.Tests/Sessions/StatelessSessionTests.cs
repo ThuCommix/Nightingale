@@ -1,23 +1,21 @@
 ﻿using System.Collections.Generic;
 using Moq;
-using NUnit.Framework;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
 using Concordia.Framework.Sessions;
 using Concordia.Framework.Tests.DataSources;
+using Xunit;
 
 namespace Concordia.Framework.Tests.Sessions
 {
-    [TestFixture]
     public class StatelessSessionTests
     {
-        [SetUp]
-        public void Setup()
+        public StatelessSessionTests()
         {
             DependencyResolver.Clear();
         }
 
-        [Test]
+        [Fact]
         public void Evict_Does_Nothing()
         {
             // arrange
@@ -29,15 +27,16 @@ namespace Concordia.Framework.Tests.Sessions
             session.Evict(entity);
 
             // assert
-            Assert.That(TestHelper.CheckEvicted(entity), Is.False);
+            Assert.False(TestHelper.CheckEvicted(entity));
 
             connectionMock.VerifyAll();
         }
 
-        [TestCase(FlushMode.Manual)]
-        [TestCase(FlushMode.Always)]
-        [TestCase(FlushMode.Commit)]
-        [TestCase(FlushMode.Intelligent)]
+        [Theory]
+        [InlineData(FlushMode.Manual)]
+        [InlineData(FlushMode.Always)]
+        [InlineData(FlushMode.Commit)]
+        [InlineData(FlushMode.Intelligent)]
         public void SaveOrUpdate_Flushes_On_Whichever_FlushMode(FlushMode flushMode)
         {
             // arrange

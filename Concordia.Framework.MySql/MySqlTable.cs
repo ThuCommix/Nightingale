@@ -26,6 +26,9 @@ namespace Concordia.Framework.MySql
         {
         }
 
+        /// <summary>
+        /// Creates the table.
+        /// </summary>
         public override void Create()
         {
             var commandBuilder = new StringBuilder();
@@ -57,33 +60,13 @@ namespace Concordia.Framework.MySql
             Connection.ExecuteNonQuery(query);
         }
 
-
         /// <summary>
-        /// Removes the column.
+        /// Gets a value indicating whether the table exists.
         /// </summary>
-        /// <param name="column">The column.</param>
-        public override void RemoveColumn(Column column)
+        public override bool Exists()
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Adds a new column to the table.
-        /// </summary>
-        /// <param name="column">The column.</param>
-        /// <param name="defaultValue">The default value.</param>
-        public override void AddColumn(Column column, object defaultValue = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Gets an enumeration of the available columns.
-        /// </summary>
-        /// <returns></returns>
-        public override IEnumerable<Column> GetColumns()
-        {
-            throw new NotImplementedException();
+            var query = new Query($"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = (SELECT DATABASE()) AND table_name = '{Metadata.Table}'", Type);
+            return Convert.ToInt32(Connection.ExecuteScalar(query)) == 1;
         }
 
         /// <summary>

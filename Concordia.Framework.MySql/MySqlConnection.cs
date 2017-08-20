@@ -5,6 +5,7 @@ using System.Linq;
 using MySql.Data.MySqlClient;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
+using System.Data.Common;
 
 namespace Concordia.Framework.MySql
 {
@@ -17,7 +18,7 @@ namespace Concordia.Framework.MySql
         public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
 
         private readonly global::MySql.Data.MySqlClient.MySqlConnection _connection;
-        private MySqlTransaction _currentTransaction;
+        private DbTransaction _currentTransaction;
         private bool _isDisposed;
 
         /// <summary>
@@ -126,7 +127,16 @@ namespace Concordia.Framework.MySql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new MySqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach(var parameter in query.Parameters)
+            {
+                var mysqlParameter = new MySqlParameter();
+                mysqlParameter.ParameterName = parameter.Name;
+                mysqlParameter.Value = parameter.Value;
+
+                command.Parameters.Add(mysqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteNonQuery();
@@ -142,7 +152,16 @@ namespace Concordia.Framework.MySql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new MySqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var mysqlParameter = new MySqlParameter();
+                mysqlParameter.ParameterName = parameter.Name;
+                mysqlParameter.Value = parameter.Value;
+
+                command.Parameters.Add(mysqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteScalar();
@@ -158,7 +177,16 @@ namespace Concordia.Framework.MySql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new MySqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var mysqlParameter = new MySqlParameter();
+                mysqlParameter.ParameterName = parameter.Name;
+                mysqlParameter.Value = parameter.Value;
+
+                command.Parameters.Add(mysqlParameter);
+            }
+
             command.Prepare();
 
             return command.ExecuteReader();
@@ -174,7 +202,16 @@ namespace Concordia.Framework.MySql
             var command = _connection.CreateCommand();
             command.CommandText = query.Command + " SELECT LAST_INSERT_ID()";
             command.Transaction = _currentTransaction;
-            command.Parameters.AddRange(query.Parameters.Select(x => new MySqlParameter(x.Name, x.Value)).ToArray());
+
+            foreach (var parameter in query.Parameters)
+            {
+                var mysqlParameter = new MySqlParameter();
+                mysqlParameter.ParameterName = parameter.Name;
+                mysqlParameter.Value = parameter.Value;
+
+                command.Parameters.Add(mysqlParameter);
+            }
+
             command.Prepare();
 
             return Convert.ToInt32(command.ExecuteScalar());
