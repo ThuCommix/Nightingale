@@ -312,7 +312,7 @@ namespace Concordia.Framework.Metadata
 
 			var argsList = new XsltArgumentList();
 
-			var transform = new XslCompiledTransform(true);
+			var transform = new XslCompiledTransform(false);
 			var xslReader = XmlReader.Create(Assembly.GetExecutingAssembly().GetManifestResourceStream("Concordia.Framework.Entity.xsl"));
 			var xmlReader = XmlReader.Create(entityStream);
 
