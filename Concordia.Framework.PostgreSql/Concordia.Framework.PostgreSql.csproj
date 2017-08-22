@@ -5,6 +5,13 @@
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
     <Version>2.0.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Provides PostgreSQL database access for Concordia.Framework.</Description>
+    <Authors>Kevin Scholz</Authors>
+    <Copyright>Kevin Scholz</Copyright>
+    <PackageTags>PostgreSQL, SQL, Provider, ConcordiaFramework, Database</PackageTags>
+    <PackageProjectUrl>https://github.com/ThuCommix/Concordia.Framework/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ThuCommix/Concordia.Framework/</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
