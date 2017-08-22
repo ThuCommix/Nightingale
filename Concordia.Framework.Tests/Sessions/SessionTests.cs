@@ -175,6 +175,7 @@ namespace Concordia.Framework.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
+        [Fact]
         public void RollbackTo_Calls_DataProvider_RollbackTo()
         {
             // arrange
@@ -446,7 +447,7 @@ namespace Concordia.Framework.Tests.Sessions
             Assert.NotNull(query);
             Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Id" && (int)x.EquationValue == Id);
             Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Deleted" && (bool)x.EquationValue == false);
-            Assert.Equal(query.EntityType, typeof(Artist));
+            Assert.Equal(typeof(Artist), query.EntityType);
 
             dataReaderMock.VerifyAll();
             connectionMock.VerifyAll();
@@ -551,7 +552,7 @@ namespace Concordia.Framework.Tests.Sessions
 
             // assert
             Assert.True(session.PerformInsertCalled);
-            Assert.Equal(entity.Id, 0);
+            Assert.Equal(0, entity.Id);
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();

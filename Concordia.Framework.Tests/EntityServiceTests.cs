@@ -52,7 +52,7 @@ namespace Concordia.Framework.Tests
             var result = new EntityService().GetChildEntities(artist, Cascade.SaveDelete);
 
             // assert
-            Assert.Equal(1, result.Count);
+            Assert.Single(result);
             Assert.Contains(result, x => x == artist);
         }
 

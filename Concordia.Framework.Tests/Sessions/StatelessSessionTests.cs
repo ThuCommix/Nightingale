@@ -41,7 +41,7 @@ namespace Concordia.Framework.Tests.Sessions
         {
             // arrange
             var connectionMock = TestHelper.SetupConnection();
-            var session = new StatelessSession(connectionMock.Object);
+            var session = new StatelessSession(connectionMock.Object) { FlushMode = flushMode };
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             entity.Name = "Test";
 
