@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Concordia.Framework.SQLite"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{1DC5A8D5-B093-4E2A-B5B1-677A87B61D10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityGenerator", "EntityGenerator\EntityGenerator.csproj", "{EF04FDC3-C04A-4B8D-B807-B1DF82D82EEE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Concordia.Framework.MsSql", "Concordia.Framework.MsSql\Concordia.Framework.MsSql.csproj", "{0DE14ED1-6FCB-4299-8BA7-55B957F3F1AC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Concordia.Framework.PostgreSql", "Concordia.Framework.PostgreSql\Concordia.Framework.PostgreSql.csproj", "{8DF450A9-7B72-41B9-8956-E2E338AFB5F0}"
@@ -28,6 +26,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Concordia.Framework.Web", "Concordia.Framework.Web\Concordia.Framework.Web.csproj", "{E26FD488-D416-43BD-8034-D5665514FD3D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Concordia.Framework.Tests", "Concordia.Framework.Tests\Concordia.Framework.Tests.csproj", "{2A948E8A-D592-4E50-BA5B-44D3FB5B8C9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcordiaFrameworkCli", "Tools\ConcordiaFrameworkCli\ConcordiaFrameworkCli.csproj", "{965502E0-938C-42F3-A567-0601AF9058D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,10 +43,6 @@ Global
 		{A8EFF1BA-9E6E-40D4-A3DC-966E2E779081}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8EFF1BA-9E6E-40D4-A3DC-966E2E779081}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8EFF1BA-9E6E-40D4-A3DC-966E2E779081}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EF04FDC3-C04A-4B8D-B807-B1DF82D82EEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EF04FDC3-C04A-4B8D-B807-B1DF82D82EEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EF04FDC3-C04A-4B8D-B807-B1DF82D82EEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EF04FDC3-C04A-4B8D-B807-B1DF82D82EEE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0DE14ED1-6FCB-4299-8BA7-55B957F3F1AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0DE14ED1-6FCB-4299-8BA7-55B957F3F1AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DE14ED1-6FCB-4299-8BA7-55B957F3F1AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -75,17 +71,21 @@ Global
 		{2A948E8A-D592-4E50-BA5B-44D3FB5B8C9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A948E8A-D592-4E50-BA5B-44D3FB5B8C9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A948E8A-D592-4E50-BA5B-44D3FB5B8C9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{965502E0-938C-42F3-A567-0601AF9058D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{965502E0-938C-42F3-A567-0601AF9058D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{965502E0-938C-42F3-A567-0601AF9058D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{965502E0-938C-42F3-A567-0601AF9058D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A8EFF1BA-9E6E-40D4-A3DC-966E2E779081} = {0E00B61C-147A-4EA1-9F7F-48DB5EC8496A}
-		{EF04FDC3-C04A-4B8D-B807-B1DF82D82EEE} = {1DC5A8D5-B093-4E2A-B5B1-677A87B61D10}
 		{0DE14ED1-6FCB-4299-8BA7-55B957F3F1AC} = {0E00B61C-147A-4EA1-9F7F-48DB5EC8496A}
 		{8DF450A9-7B72-41B9-8956-E2E338AFB5F0} = {0E00B61C-147A-4EA1-9F7F-48DB5EC8496A}
 		{551015FC-FB0E-4227-9C48-3C058F313121} = {EC541A0E-85F6-4814-A90F-1BE822AF8256}
 		{37CE8C26-39EC-4624-AC1C-C6D78543D1C4} = {0E00B61C-147A-4EA1-9F7F-48DB5EC8496A}
+		{965502E0-938C-42F3-A567-0601AF9058D7} = {1DC5A8D5-B093-4E2A-B5B1-677A87B61D10}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1598D4C3-4993-4A23-9406-236BC3E3A539}
