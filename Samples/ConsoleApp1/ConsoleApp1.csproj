@@ -10,4 +10,10 @@
     <ProjectReference Include="..\..\Concordia.Framework\Concordia.Framework.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="persons.s3db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
