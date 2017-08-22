@@ -8,13 +8,5 @@ install:
 - dotnet restore
 
 script:
-  - dotnet build Concordia.Framework
-  - dotnet build Concordia.Framework.log4net
-  - dotnet build Concordia.Framework.MsSql
-  - dotnet build Concordia.Framework.MySql
-  - dotnet build Concordia.Framework.PostgreSql
-  - dotnet build Concordia.Framework.SQLite
-  - dotnet build Concordia.Framework.Tests
-  - dotnet build Concordia.Framework.Web
-  - dotnet build Samples\ConsoleApp1
-  - dotnet test Concordia.Framework.Tests\Concordia.Framework.Tests.csproj
+  - dotnet build
+  - dotnet test Concordia.Framework.Tests
