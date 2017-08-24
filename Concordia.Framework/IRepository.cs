@@ -117,6 +117,6 @@ namespace Concordia.Framework
         /// Refreshs the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        void Refresh(Entity entity);
+        void Refresh(ref Entity entity);
     }
 }

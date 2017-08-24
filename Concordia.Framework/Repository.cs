@@ -206,9 +206,9 @@ namespace Concordia.Framework
         /// Refreshs the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        public void Refresh(Entity entity)
+        public void Refresh(ref Entity entity)
         {
-            Session.Refresh(entity);
+            Session.Refresh(ref entity);
         }
 
         /// <summary>
