@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Concordia.Framework.Entities;
 
 namespace Concordia.Framework.Caching
 {
-    public interface ICache : IDisposable
+    public interface ICache : IDisposable, IEnumerable<Entity>
     {
         /// <summary>
         /// Inserts an entity into the cache.

@@ -1,18 +1,19 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Concordia.Framework.Entities;
 
 namespace Concordia.Framework.Caching
 {
-    public class PersistenceCache : ICache
+    public class SessionCache : ICache
     {
         private readonly Dictionary<Type, List<Entity>> _entityCache;
 
         /// <summary>
-        /// Initializes a new PersistenceCache class.
+        /// Initializes a new SessionCache class.
         /// </summary>
-        public PersistenceCache()
+        public SessionCache()
         {
             _entityCache = new Dictionary<Type, List<Entity>>();
         }
@@ -71,11 +72,29 @@ namespace Concordia.Framework.Caching
         }
 
         /// <summary>
-        /// Disposes the persistence cache.
+        /// Disposes the session cache.
         /// </summary>
         public void Dispose()
         {
             Clear();
+        }
+
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns>Returns the enumerator.</returns>
+        public IEnumerator<Entity> GetEnumerator()
+        {
+            return _entityCache.SelectMany(x => x.Value).GetEnumerator();
+        }
+
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns>Returns the enumerator.</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

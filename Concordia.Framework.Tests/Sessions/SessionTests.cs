@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Concordia.Framework.Entities;
+using Concordia.Framework.Extensions;
 using Concordia.Framework.Queries;
 using Concordia.Framework.Sessions;
 using Concordia.Framework.Tests.DataSources;
@@ -1315,6 +1316,47 @@ namespace Concordia.Framework.Tests.Sessions
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CopySessionCacheTo_Copies_All_Entities()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session1 = new Session(connectionMock.Object);
+            var session2 = new Session(connectionMock.Object);
+
+            var entity = TestHelper.CreateEntityWithId<Artist>(1);
+            session1.SessionCache.Insert(entity);
+
+            // act
+            session1.CopySessionCacheTo(session2);
+
+            // assert
+            Assert.Equal(entity, session2.SessionCache.Get(entity.Id, entity.GetType()));
+        }
+
+        [Fact]
+        public void MergeSessionCache_Copies_Non_Existing_Entities()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupConnection();
+            var session1 = new Session(connectionMock.Object);
+            var session2 = new Session(connectionMock.Object);
+
+            var entity1 = TestHelper.CreateEntityWithId<Artist>(1);
+            var entity2 = TestHelper.CreateEntityWithId<Artist>(2);
+
+            session1.SessionCache.Insert(entity1);
+            session2.SessionCache.Insert(entity1);
+            session2.SessionCache.Insert(entity2);
+
+            // act
+            session1.MergeSessionCache(session2);
+
+            // assert
+            Assert.Equal(entity2, session1.SessionCache.Get(entity2.Id, entity2.GetType()));
+            Assert.Equal(session1.SessionCache.Get(entity1.Id, entity1.GetType()), session2.SessionCache.Get(entity1.Id, entity1.GetType()));
         }
 
         private class SessionProxy : Session

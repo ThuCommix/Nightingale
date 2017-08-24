@@ -1,9 +1,9 @@
-﻿using Concordia.Framework.Entities;
-using Concordia.Framework.Queries;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Concordia.Framework.Logging;
+using Concordia.Framework.Caching;
+using Concordia.Framework.Entities;
+using Concordia.Framework.Queries;
 
 namespace Concordia.Framework.Sessions
 {
@@ -38,6 +38,11 @@ namespace Concordia.Framework.Sessions
         /// Gets or sets the deletion mode.
         /// </summary>
         DeletionMode DeletionMode { get; set; }
+
+        /// <summary>
+        /// Gets the session cache.
+        /// </summary>
+        ICache SessionCache { get; }
 
         /// <summary>
         /// Evicts an entity from the persistence cache.

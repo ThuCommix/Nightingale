@@ -45,6 +45,11 @@ namespace Concordia.Framework.Sessions
         public List<ICommitListener> CommitListeners { get; }
 
         /// <summary>
+        /// Gets the session cache.
+        /// </summary>
+        public ICache SessionCache => _sessionCache;
+
+        /// <summary>
         /// Gets the entity service.
         /// </summary>
         protected IEntityService EntityService => DependencyResolver.GetInstance<IEntityService>();
@@ -61,7 +66,7 @@ namespace Concordia.Framework.Sessions
 
         private readonly List<Entity> _flushList;
         private readonly ILogger _logger;
-        private readonly ICache _persistenceCache;
+        private readonly ICache _sessionCache;
         private bool _isInTransaction;
 
         /// <summary>
@@ -74,7 +79,7 @@ namespace Concordia.Framework.Sessions
                 throw new ArgumentNullException(nameof(connection));
 
             _logger = DependencyResolver.TryGetInstance<ILogger>();
-            _persistenceCache = GetSessionCache();
+            _sessionCache = GetSessionCache();
 
             EntityListeners = new List<IEntityListener>();
             CommitListeners = new List<ICommitListener>();
@@ -105,7 +110,7 @@ namespace Concordia.Framework.Sessions
         {
             entity.Evicted = true;
             _flushList.Remove(entity);
-            _persistenceCache?.Remove(entity);
+            _sessionCache?.Remove(entity);
         }
 
         /// <summary>
@@ -135,7 +140,7 @@ namespace Concordia.Framework.Sessions
             if (FlushMode == FlushMode.Always)
                 Flush();
 
-            _persistenceCache?.Insert(entity);
+            _sessionCache?.Insert(entity);
         }
 
         /// <summary>
@@ -179,7 +184,7 @@ namespace Concordia.Framework.Sessions
         /// <returns>Returns the entity or null.</returns>
         public virtual Entity Load(int id, Type entityType)
         {
-            var entity = _persistenceCache?.Get(id, entityType);
+            var entity = _sessionCache?.Get(id, entityType);
             if (entity != null)
                 return entity;
 
@@ -383,14 +388,14 @@ namespace Concordia.Framework.Sessions
                 }
             }
 
-            if (_persistenceCache == null)
+            if (_sessionCache == null)
                 return entityList;
 
             var persistentResults = new List<Entity>();
 
             foreach (var entity in entityList)
             {
-                var persistentEntity = _persistenceCache.Get(entity.Id, query.EntityType);
+                var persistentEntity = _sessionCache.Get(entity.Id, query.EntityType);
                 if (persistentEntity != null)
                 {
                     persistentResults.Add(persistentEntity);
@@ -398,7 +403,7 @@ namespace Concordia.Framework.Sessions
                 else
                 {
                     persistentResults.Add(entity);
-                    _persistenceCache.Insert(entity);
+                    _sessionCache.Insert(entity);
                 }
             }
 
@@ -425,7 +430,7 @@ namespace Concordia.Framework.Sessions
         public virtual void Clear()
         {
             _flushList.Clear();
-            _persistenceCache?.Clear();
+            _sessionCache?.Clear();
         }
 
         /// <summary>
@@ -581,7 +586,7 @@ namespace Concordia.Framework.Sessions
         /// <returns>Returns the cache.</returns>
         protected virtual ICache GetSessionCache()
         {
-            return new PersistenceCache();
+            return new SessionCache();
         }
 
         /// <summary>
