@@ -437,14 +437,10 @@ namespace Concordia.Framework.Sessions
         /// Refreshs the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        public virtual void Refresh(Entity entity)
+        public virtual void Refresh(ref Entity entity)
         {
-            var query = new Query { EntityType = entity.GetType(), MaxResults = 1 };
-            var group = query.CreateQueryConditionGroup();
-            group.CreateQueryCondition("Id", entity.Id, System.Linq.Expressions.ExpressionType.Equal);
-            group.CreateQueryCondition("Deleted", false, System.Linq.Expressions.ExpressionType.Equal);
-
-            entity = ExecuteQuery(query).FirstOrDefault();
+            _sessionCache.Remove(entity);
+            entity = Load(entity.Id, entity.GetType());
         }
 
         /// <summary>

@@ -135,7 +135,7 @@ namespace Concordia.Framework.Sessions
         /// Refreshs the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        void Refresh(Entity entity);
+        void Refresh(ref Entity entity);
 
         /// <summary>
         /// Gets the table.
