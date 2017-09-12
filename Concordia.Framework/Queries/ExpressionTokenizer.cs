@@ -85,7 +85,8 @@ namespace Concordia.Framework.Queries
                     else
                     {
                         EvalInternal(memberExpression.Expression);
-                        Tokens.Add(new PropertyToken(memberExpression.Member.Name));
+                        if(typeof(Entity).IsAssignableFrom(memberExpression.Member.DeclaringType))
+                            Tokens.Add(new PropertyToken(memberExpression.Member.Name));
                     }
                     break;
                 case ExpressionType.Equal:
