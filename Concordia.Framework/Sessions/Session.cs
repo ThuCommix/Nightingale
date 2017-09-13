@@ -407,7 +407,7 @@ namespace Concordia.Framework.Sessions
                 }
             }
 
-            return persistentResults;;
+            return persistentResults;
         }
 
         /// <summary>

@@ -29,7 +29,7 @@ namespace Concordia.Framework.Web
         /// </summary>
         /// <param name="factory">The connection factory.</param>
         /// <returns>Returns a session instance.</returns>
-        public Concordia.Framework.Sessions.ISession GetSession(IConnectionFactory factory)
+        public Sessions.ISession GetSession(IConnectionFactory factory)
         {
             foreach(var entry in _sessions.ToList())
             {

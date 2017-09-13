@@ -13,7 +13,7 @@ namespace Concordia.Framework.Metadata
 	    public IEnumerable<EntityMetadata> EntityMetadata => _entityMetadata.Select(x => x.Value); 
 
 		private readonly Dictionary<Type, EntityMetadata> _entityMetadata = new Dictionary<Type, EntityMetadata>();
-        private readonly IEntityMetadataService EntityMetadataService = DependencyResolver.GetInstance<IEntityMetadataService>();
+        private readonly IEntityMetadataService _entityMetadataService = DependencyResolver.GetInstance<IEntityMetadataService>();
 
 	    public EntityMetadataResolver()
 	    {
@@ -22,7 +22,7 @@ namespace Concordia.Framework.Metadata
 
 	        foreach (var entityType in entityTypes)
 	        {
-                _entityMetadata[entityType] = EntityMetadataService.GetEntityMetadata(entityType);
+                _entityMetadata[entityType] = _entityMetadataService.GetEntityMetadata(entityType);
             }
 	    }
 
@@ -55,7 +55,7 @@ namespace Concordia.Framework.Metadata
 	    {
             if (!_entityMetadata.ContainsKey(entityType))
             {
-                _entityMetadata[entityType] = EntityMetadataService.GetEntityMetadata(entityType);
+                _entityMetadata[entityType] = _entityMetadataService.GetEntityMetadata(entityType);
             }
 
             return _entityMetadata[entityType];

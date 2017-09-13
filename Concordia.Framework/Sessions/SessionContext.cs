@@ -85,7 +85,7 @@ namespace Concordia.Framework.Sessions
         /// <returns>Returns the session instance.</returns>
         private ISession CreateSession(IConnection connection)
         {
-            return (ISession)Activator.CreateInstance(typeof(T), new object[] { connection });
+            return (ISession)Activator.CreateInstance(typeof(T), connection);
         }
     }
 }

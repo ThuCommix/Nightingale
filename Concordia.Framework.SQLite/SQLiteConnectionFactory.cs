@@ -9,7 +9,7 @@ namespace Concordia.Framework.SQLite
         /// </summary>
         public string DataSource
         {
-            get { return _dataSource; }
+            get => _dataSource;
             set
             {
                 _dataSource = value;
@@ -22,7 +22,7 @@ namespace Concordia.Framework.SQLite
         /// </summary>
         public bool IsMemory
         {
-            get { return _isMemory; }
+            get => _isMemory;
             set
             {
                 _isMemory = value;

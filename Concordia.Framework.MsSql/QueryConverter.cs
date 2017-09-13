@@ -1,4 +1,5 @@
-﻿using Concordia.Framework.Queries;
+﻿using System;
+using Concordia.Framework.Queries;
 
 namespace Concordia.Framework.MsSql
 {
@@ -15,7 +16,7 @@ namespace Concordia.Framework.MsSql
                 return query.Command;
 
             var command = query.Command;
-            var index = command.IndexOf("LIMIT");
+            var index = command.IndexOf("LIMIT", StringComparison.Ordinal);
 
             command = command.Substring(0, index);
             command = command.Insert(6, $" TOP {query.MaxResults} ");

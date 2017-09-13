@@ -11,11 +11,8 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            var connectionFactory = new SQLiteConnectionFactory();
-            connectionFactory.DataSource = "persons.s3db";
-
-            var sessionFactory = new SessionFactory(connectionFactory);
-            sessionFactory.Logger = new TraceLogger(LogLevel.Debug);
+            var connectionFactory = new SQLiteConnectionFactory {DataSource = "persons.s3db"};
+            var sessionFactory = new SessionFactory(connectionFactory) {Logger = new TraceLogger(LogLevel.Debug)};
 
             // register entity listeners
             sessionFactory.EntityListeners.Add(new PersonEntityService());
@@ -29,17 +26,21 @@ namespace ConsoleApp1
             session.GetTable<Address>().Recreate();
 
             // create entities
-            var person = new Person();
-            person.FirstName = "Max";
-            person.Name = "Mustermann";
-            person.Age = 21;
+            var person = new Person
+            {
+                FirstName = "Max",
+                Name = "Mustermann",
+                Age = 21
+            };
 
-            var address = new Address();
-            address.ValidFrom = DateTime.Today;
-            address.Zip = "0815";
-            address.Town = "SampleTown";
-            address.Street = "Samplestreet 75a";
-            address.Type = AddressType.Business;
+            var address = new Address
+            {
+                ValidFrom = DateTime.Today,
+                Zip = "0815",
+                Town = "SampleTown",
+                Street = "Samplestreet 75a",
+                Type = AddressType.Business
+            };
 
             person.Addresses.Add(address);
 

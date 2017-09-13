@@ -11,7 +11,7 @@ namespace Concordia.Framework.Queries
         /// <summary>
         /// Gets a stack of evaluated tokens.
         /// </summary>
-        public List<Token> Tokens { get; private set; }
+        public List<Token> Tokens { get; }
 
         private string _memberPath;
 
@@ -113,14 +113,10 @@ namespace Concordia.Framework.Queries
                     {
                         var type = constantExpression.Value.GetType();
                         var property = type.GetProperty(_memberPath);
-                        if(property != null)
-                        {
-                            Tokens.Add(new ConstantToken(property.GetValue(constantExpression.Value)));
-                        }
-                        else
-                        {
-                            Tokens.Add(new ConstantToken(type.GetField(_memberPath).GetValue(constantExpression.Value)));
-                        }
+
+                        Tokens.Add(property != null
+                            ? new ConstantToken(property.GetValue(constantExpression.Value))
+                            : new ConstantToken(type.GetField(_memberPath).GetValue(constantExpression.Value)));
                     }
                     else
                     {

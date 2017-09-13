@@ -24,7 +24,7 @@ namespace Concordia.Framework
         /// </summary>
         /// <param name="propertyName">The property name.</param>
         /// <param name="item">The entity item.</param>
-        /// <param name="changedType">The collection changed type.</param>
+        /// <param name="changeType">The collection changed type.</param>
         public CollectionChangedItem(string propertyName, Entity item, CollectionChangeType changeType)
         {
             PropertyName = propertyName;

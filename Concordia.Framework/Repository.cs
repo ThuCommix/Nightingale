@@ -148,7 +148,7 @@ namespace Concordia.Framework
         /// <typeparam name="T">The entity type.</typeparam>
         /// <param name="expression">The expression.</param>
         /// <returns>Returns the result list of entities.</returns>
-        public virtual List<T> GetList<T>(Expression<Func<T, bool>> expression = null) where T : Entity
+        public virtual List<T> GetList<T>(Expression<Func<T, bool>> expression) where T : Entity
         {
             var query = Query.CreateQuery<T>();
             var group = query.CreateQueryConditionGroup();
@@ -166,7 +166,7 @@ namespace Concordia.Framework
         /// Gets a list of entities based on the expression.
         /// </summary>
         /// <typeparam name="T">The entity type.</typeparam>
-        /// <returns>Returns the result list of entities.</returns
+        /// <returns>Returns the result list of entities.</returns>
         public virtual List<T> GetList<T>() where T : Entity
         {
             return GetList<T>(null);

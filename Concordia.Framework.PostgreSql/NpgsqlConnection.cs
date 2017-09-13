@@ -14,7 +14,7 @@ namespace Concordia.Framework.PostgreSql
         /// <summary>
         /// A value indicating whether the connection is open.
         /// </summary>
-        public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
+        public bool IsOpen => !_isDisposed && _connection.State != ConnectionState.Closed;
 
         private readonly Npgsql.NpgsqlConnection _connection;
         private NpgsqlTransaction _currentTransaction;

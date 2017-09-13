@@ -20,18 +20,9 @@ namespace Concordia.Framework.Metadata
         [XmlAttribute]
         public string Table 
 		{
-			get 
-			{
-				if (string.IsNullOrWhiteSpace(_table))
-					return Name;
-				
-				return _table;
-			}
-			set
-			{
-				_table = value;
-			}
-		}
+			get => string.IsNullOrWhiteSpace(_table) ? Name : _table;
+            set => _table = value;
+        }
 
         /// <summary>
         /// Gets or sets the namespace.

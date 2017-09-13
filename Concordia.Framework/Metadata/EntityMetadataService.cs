@@ -77,10 +77,9 @@ namespace Concordia.Framework.Metadata
 		/// <returns><c>true</c>, if xml was validated, <c>false</c> otherwise.</returns>
 		public bool ValidateXml(Stream stream, List<string> validationIssues)
 		{
-			var settings = new XmlReaderSettings();
-			settings.ValidationType = ValidationType.Schema;
+		    var settings = new XmlReaderSettings {ValidationType = ValidationType.Schema};
 
-			var myAssembly = Assembly.GetExecutingAssembly();
+		    var myAssembly = Assembly.GetExecutingAssembly();
 			using (var schemaStream = myAssembly.GetManifestResourceStream("Concordia.Framework.Entity.xsd"))
 			{
 				using (var schemaReader = XmlReader.Create(schemaStream))
@@ -183,12 +182,13 @@ namespace Concordia.Framework.Metadata
         /// <returns>The entity metadata.</returns>
         public EntityMetadata GetEntityMetadata(Type entityType)
         {
-            var entityMetadata = new EntityMetadata();
-
-            entityMetadata.Name = entityType.Name;
-			entityMetadata.Table = entityType.GetCustomAttribute<TableAttribute>().Table;
-            entityMetadata.Namespace = entityType.Namespace;
-            entityMetadata.Description = entityType.GetCustomAttribute<DescriptionAttribute>().Description;
+            var entityMetadata = new EntityMetadata
+            {
+                Name = entityType.Name,
+                Table = entityType.GetCustomAttribute<TableAttribute>().Table,
+                Namespace = entityType.Namespace,
+                Description = entityType.GetCustomAttribute<DescriptionAttribute>().Description
+            };
 
             foreach (var property in ReflectionHelper.GetProperties(entityType))
             {
@@ -199,21 +199,25 @@ namespace Concordia.Framework.Metadata
 
                     if (typeof(IList).IsAssignableFrom(property.PropertyType))
                     {
-                        var virtualListFieldMetadata = new VirtualListFieldMetadata();
-                        virtualListFieldMetadata.Name = property.GetCustomAttribute<FieldTypeAttribute>().FieldType;
-                        virtualListFieldMetadata.Description = property.GetCustomAttribute<DescriptionAttribute>().Description;
-                        virtualListFieldMetadata.Expression = property.GetCustomAttribute<ExpressionAttribute>().Expression;
-                        virtualListFieldMetadata.FieldType = property.PropertyType.Name;
+                        var virtualListFieldMetadata = new VirtualListFieldMetadata
+                        {
+                            Name = property.GetCustomAttribute<FieldTypeAttribute>().FieldType,
+                            Description = property.GetCustomAttribute<DescriptionAttribute>().Description,
+                            Expression = property.GetCustomAttribute<ExpressionAttribute>().Expression,
+                            FieldType = property.PropertyType.Name
+                        };
 
                         entityMetadata.VirtualListFields.Add(virtualListFieldMetadata);
                     }
                     else
                     {
-                        var virtualFieldMetadata = new VirtualFieldMetadata();
-                        virtualFieldMetadata.Name = property.GetCustomAttribute<FieldTypeAttribute>().FieldType;
-                        virtualFieldMetadata.Description = property.GetCustomAttribute<DescriptionAttribute>().Description;
-                        virtualFieldMetadata.Expression = property.GetCustomAttribute<ExpressionAttribute>().Expression;
-                        virtualFieldMetadata.FieldType = property.PropertyType.Name;
+                        var virtualFieldMetadata = new VirtualFieldMetadata
+                        {
+                            Name = property.GetCustomAttribute<FieldTypeAttribute>().FieldType,
+                            Description = property.GetCustomAttribute<DescriptionAttribute>().Description,
+                            Expression = property.GetCustomAttribute<ExpressionAttribute>().Expression,
+                            FieldType = property.PropertyType.Name
+                        };
 
                         entityMetadata.VirtualFields.Add(virtualFieldMetadata);
                     }
@@ -225,18 +229,20 @@ namespace Concordia.Framework.Metadata
 
                 if (referenceFieldAttribute == null)
                 {
-                    var fieldMetadata = new FieldMetadata();
-                    fieldMetadata.Name = property.Name;
-                    fieldMetadata.FieldType = property.GetCustomAttribute<FieldTypeAttribute>().FieldType;
-                    fieldMetadata.Mandatory = property.GetCustomAttribute<MandatoryAttribute>() != null;
-                    fieldMetadata.Unique = property.GetCustomAttribute<UniqueAttribute>() != null;
-                    fieldMetadata.MaxLength = property.GetCustomAttribute<MaxLengthAttribute>()?.MaxLength ?? 0;
-                    fieldMetadata.Cascade = property.GetCustomAttribute<CascadeAttribute>().Cascade;
-                    fieldMetadata.Description = property.GetCustomAttribute<DescriptionAttribute>().Description;
-                    fieldMetadata.ForeignKey = property.GetCustomAttribute<ForeignKeyAttribute>()?.Name;
-					fieldMetadata.DateOnly = property.GetCustomAttribute<DateOnlyAttribute>() != null;
-                    fieldMetadata.EagerLoad = property.GetCustomAttribute<EagerLoadAttribute>() != null;
-                    fieldMetadata.Enum = property.GetCustomAttribute<EnumAttribute>() != null;
+                    var fieldMetadata = new FieldMetadata
+                    {
+                        Name = property.Name,
+                        FieldType = property.GetCustomAttribute<FieldTypeAttribute>().FieldType,
+                        Mandatory = property.GetCustomAttribute<MandatoryAttribute>() != null,
+                        Unique = property.GetCustomAttribute<UniqueAttribute>() != null,
+                        MaxLength = property.GetCustomAttribute<MaxLengthAttribute>()?.MaxLength ?? 0,
+                        Cascade = property.GetCustomAttribute<CascadeAttribute>().Cascade,
+                        Description = property.GetCustomAttribute<DescriptionAttribute>().Description,
+                        ForeignKey = property.GetCustomAttribute<ForeignKeyAttribute>()?.Name,
+                        DateOnly = property.GetCustomAttribute<DateOnlyAttribute>() != null,
+                        EagerLoad = property.GetCustomAttribute<EagerLoadAttribute>() != null,
+                        Enum = property.GetCustomAttribute<EnumAttribute>() != null
+                    };
 
                     var decimalAttribute = property.GetCustomAttribute<DecimalAttribute>();
                     fieldMetadata.DecimalPrecision = decimalAttribute?.Precision ?? 0;
@@ -246,13 +252,15 @@ namespace Concordia.Framework.Metadata
                 }
                 else
                 {
-                    var listFieldMetadata = new ListFieldMetadata();
-                    listFieldMetadata.Name = property.Name;
-                    listFieldMetadata.FieldType = property.GetCustomAttribute<FieldTypeAttribute>().FieldType;
-                    listFieldMetadata.ReferenceField = referenceFieldAttribute.ReferenceField;
-                    listFieldMetadata.Cascade = property.GetCustomAttribute<CascadeAttribute>().Cascade;
-                    listFieldMetadata.Description = property.GetCustomAttribute<DescriptionAttribute>().Description;
-                    listFieldMetadata.EagerLoad = property.GetCustomAttribute<EagerLoadAttribute>() != null;
+                    var listFieldMetadata = new ListFieldMetadata
+                    {
+                        Name = property.Name,
+                        FieldType = property.GetCustomAttribute<FieldTypeAttribute>().FieldType,
+                        ReferenceField = referenceFieldAttribute.ReferenceField,
+                        Cascade = property.GetCustomAttribute<CascadeAttribute>().Cascade,
+                        Description = property.GetCustomAttribute<DescriptionAttribute>().Description,
+                        EagerLoad = property.GetCustomAttribute<EagerLoadAttribute>() != null
+                    };
 
                     entityMetadata.ListFields.Add(listFieldMetadata);
                 }

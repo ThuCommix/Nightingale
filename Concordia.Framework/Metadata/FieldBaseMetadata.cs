@@ -6,7 +6,7 @@ namespace Concordia.Framework.Metadata
 	public class FieldBaseMetadata
 	{
 	    [XmlIgnore]
-        private static List<string> _simpleTypes = new List<string> {"string", "int", "decimal", "DateTime", "bool"};
+        private static readonly List<string> SimpleTypes = new List<string> {"string", "int", "decimal", "DateTime", "bool"};
 
 		/// <summary>
 		/// Gets or sets the name.
@@ -30,6 +30,6 @@ namespace Concordia.Framework.Metadata
         /// A value indicating whether the field type is a complex field type.
         /// </summary>
 	    [XmlIgnore]
-	    public bool IsComplexFieldType => !_simpleTypes.Contains(FieldType);
+	    public bool IsComplexFieldType => !SimpleTypes.Contains(FieldType);
 	}
 }

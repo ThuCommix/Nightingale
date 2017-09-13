@@ -15,7 +15,7 @@ namespace Concordia.Framework
         /// <returns>Returns a connection instance.</returns>
         public virtual IConnection CreateConnection()
         {
-            return (IConnection)Activator.CreateInstance(typeof(T), new object[] { ConnectionString });
+            return (IConnection)Activator.CreateInstance(typeof(T), ConnectionString);
         }
     }
 }

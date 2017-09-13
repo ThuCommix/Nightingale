@@ -4,7 +4,7 @@ namespace Concordia.Framework.Web
 {
     public class WebSessionFactory : SessionFactory
     {
-        private static readonly object _locker = new object();
+        private static readonly object Locker = new object();
 
         /// <summary>
         /// Initializes a new WebSessionFactory class.
@@ -29,7 +29,7 @@ namespace Concordia.Framework.Web
         /// <returns>Returns a session instance.</returns>
         public override ISession GetCurrentSession()
         {
-            lock (_locker)
+            lock (Locker)
             {
                 return base.GetCurrentSession();
             }
