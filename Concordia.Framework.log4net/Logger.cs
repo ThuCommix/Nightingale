@@ -142,9 +142,7 @@ namespace Concordia.Framework.log4net
                     return LogLevel.Info;
             }
 
-            LogLevel errorLevel;
-
-            return !Enum.TryParse(level.DisplayName, true, out errorLevel)
+            return !Enum.TryParse(level.DisplayName, true, out LogLevel errorLevel)
                        ? LogLevel.Error
                        : errorLevel;
         }

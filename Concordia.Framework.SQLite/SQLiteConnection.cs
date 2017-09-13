@@ -14,7 +14,7 @@ namespace Concordia.Framework.SQLite
         /// <summary>
         /// A value indicating whether the connection is open.
         /// </summary>
-        public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
+        public bool IsOpen => !_isDisposed && _connection.State != ConnectionState.Closed;
 
         private readonly SqliteConnection _connection;
         private SqliteTransaction _currentTransaction;

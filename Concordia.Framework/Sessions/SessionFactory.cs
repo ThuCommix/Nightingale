@@ -37,11 +37,8 @@ namespace Concordia.Framework.Sessions
         /// </summary>
         public ILogger Logger
         {
-            get { return DependencyResolver.GetInstance<ILogger>(); }
-            set
-            {
-                DependencyResolver.Register(value);
-            }
+            get => DependencyResolver.GetInstance<ILogger>();
+            set => DependencyResolver.Register(value);
         }
 
         /// <summary>

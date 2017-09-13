@@ -14,7 +14,9 @@ namespace Concordia.Framework
         /// </summary>
         /// <param name="index">The index.</param>
         /// <returns>Returns a collection item.</returns>
-        public T this[int index] { get { return _collectionItems[index]; } set { _collectionItems[index] = value; } }
+        public T this[int index] { get => _collectionItems[index];
+            set => _collectionItems[index] = value;
+        }
 
         /// <summary>
         /// Gets the amount of items in the collection.
@@ -84,7 +86,7 @@ namespace Concordia.Framework
         public void AddRange(IEnumerable<T> items)
         {
             _collectionItems.AddRange(items);
-            items.ForEach(x => SetReferenceField(x));
+            items.ForEach(SetReferenceField);
         }
 
         /// <summary>
@@ -120,7 +122,7 @@ namespace Concordia.Framework
         /// </summary>
         public void Clear()
         {
-            _collectionItems.ForEach(x => RemoveReferenceField(x));
+            _collectionItems.ForEach(RemoveReferenceField);
             _collectionItems.Clear();
         }
 
@@ -142,7 +144,7 @@ namespace Concordia.Framework
         public void CopyTo(T[] array, int arrayIndex)
         {
             _collectionItems.CopyTo(array, arrayIndex);
-            array.ForEach(x => SetReferenceField(x));
+            array.ForEach(SetReferenceField);
         }
 
         /// <summary>

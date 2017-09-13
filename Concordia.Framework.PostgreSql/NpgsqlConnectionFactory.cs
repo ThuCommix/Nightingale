@@ -9,7 +9,7 @@ namespace Concordia.Framework.PostgreSql
         /// </summary>
         public string Host
         {
-            get { return _host; }
+            get => _host;
             set
             {
                 _host = value;
@@ -22,7 +22,7 @@ namespace Concordia.Framework.PostgreSql
         /// </summary>
         public string Database
         {
-            get { return _database; }
+            get => _database;
             set
             {
                 _database = value;
@@ -35,7 +35,7 @@ namespace Concordia.Framework.PostgreSql
         /// </summary>
         public string User
         {
-            get { return _user; }
+            get => _user;
             set
             {
                 _user = value;
@@ -48,7 +48,7 @@ namespace Concordia.Framework.PostgreSql
         /// </summary>
         public string Password
         {
-            get { return _password; }
+            get => _password;
             set
             {
                 _password = value;
@@ -61,7 +61,7 @@ namespace Concordia.Framework.PostgreSql
         /// </summary>
         public int MaxPoolSize
         {
-            get { return _maxPoolSize; }
+            get => _maxPoolSize;
             set
             {
                 _maxPoolSize = value;
@@ -75,7 +75,7 @@ namespace Concordia.Framework.PostgreSql
         /// </summary>
         public bool Pooling
         {
-            get { return _pooling; }
+            get => _pooling;
             set
             {
                 _pooling = value;
@@ -91,7 +91,7 @@ namespace Concordia.Framework.PostgreSql
         /// </summary>
         public int Port
         {
-            get { return _port; }
+            get => _port;
             set
             {
                 _port = value;

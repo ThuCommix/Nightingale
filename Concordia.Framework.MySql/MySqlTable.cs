@@ -10,7 +10,7 @@ namespace Concordia.Framework.MySql
 {
     public class MySqlTable<T> : Table<T> where T : Entity
     {
-        private static Dictionary<string, string> DataTypeMapping = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> DataTypeMapping = new Dictionary<string, string>
         {
             {"int", "int" },
             {"decimal", "decimal" },
@@ -21,7 +21,7 @@ namespace Concordia.Framework.MySql
         /// <summary>
         /// Initializes a new MySqlTable class.
         /// </summary>
-        /// <param name="dataProvider">The connection.</param>
+        /// <param name="connection">The connection.</param>
         public MySqlTable(IConnection connection) : base(connection)
         {
         }

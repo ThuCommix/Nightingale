@@ -81,8 +81,7 @@ namespace Concordia.Framework.Tests
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             var artistStatisticValues = new ArtistStatisticValues();
 
-            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "SecondArtist", "StatisticValues");
-            entityCollection.Add(artistStatisticValues);
+            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "SecondArtist", "StatisticValues") {artistStatisticValues};
 
             TestHelper.SetupEntityMetadataServices();
 
@@ -100,8 +99,7 @@ namespace Concordia.Framework.Tests
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             var artistStatisticValues = new ArtistStatisticValues();
 
-            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "SecondArtist", "StatisticValues");
-            entityCollection.Add(artistStatisticValues);
+            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "SecondArtist", "StatisticValues") {artistStatisticValues};
 
             TestHelper.SetupEntityMetadataServices();
 
@@ -119,8 +117,7 @@ namespace Concordia.Framework.Tests
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             var artistStatisticValues = new ArtistStatisticValues();
 
-            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "AnotherArtist", "StatisticValues");
-            entityCollection.Add(artistStatisticValues);
+            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "AnotherArtist", "StatisticValues") {artistStatisticValues};
 
             TestHelper.SetupEntityMetadataServices();
 
@@ -138,8 +135,7 @@ namespace Concordia.Framework.Tests
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
             var artistStatisticValues = new ArtistStatisticValues();
 
-            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "AnotherArtist", "StatisticValues");
-            entityCollection.Add(artistStatisticValues);
+            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "AnotherArtist", "StatisticValues") {artistStatisticValues};
 
             TestHelper.SetupEntityMetadataServices();
 
@@ -176,8 +172,7 @@ namespace Concordia.Framework.Tests
             var artistStatisticValues = new ArtistStatisticValues();
 
             entity.PropertyChangeTracker.DisableChangeTracking = true;
-            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "AnotherArtist", "StatisticValues");
-            entityCollection.Add(artistStatisticValues);
+            var entityCollection = new EntityCollection<ArtistStatisticValues>(entity, "AnotherArtist", "StatisticValues") {artistStatisticValues};
             entity.PropertyChangeTracker.DisableChangeTracking = false;
 
             TestHelper.SetupEntityMetadataServices();

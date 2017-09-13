@@ -1,5 +1,4 @@
-﻿using System;
-using Concordia.Framework.Metadata;
+﻿using Concordia.Framework.Metadata;
 
 namespace Concordia.Framework.Queries.Tokens
 {

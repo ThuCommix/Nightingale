@@ -13,7 +13,7 @@ namespace Concordia.Framework.MsSql
         /// <summary>
         /// A value indicating whether the connection is open.
         /// </summary>
-        public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
+        public bool IsOpen => !_isDisposed && _connection.State != ConnectionState.Closed;
 
         private readonly SqlConnection _connection;
         private SqlTransaction _currentTransaction;
@@ -115,9 +115,12 @@ namespace Concordia.Framework.MsSql
 
             foreach(var parameter in query.Parameters)
             {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
-                sqlParameter.IsNullable = parameter.IsNullable;
-                sqlParameter.Value = parameter.Value;
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
+                {
+                    IsNullable = parameter.IsNullable,
+                    Value = parameter.Value
+                };
+
                 if (sqlParameter.Value == null)
                     sqlParameter.Value = DBNull.Value;
 
@@ -142,9 +145,12 @@ namespace Concordia.Framework.MsSql
 
             foreach (var parameter in query.Parameters)
             {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
-                sqlParameter.IsNullable = parameter.IsNullable;
-                sqlParameter.Value = parameter.Value;
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
+                {
+                    IsNullable = parameter.IsNullable,
+                    Value = parameter.Value
+                };
+
                 if (sqlParameter.Value == null)
                     sqlParameter.Value = DBNull.Value;
 
@@ -169,9 +175,12 @@ namespace Concordia.Framework.MsSql
 
             foreach (var parameter in query.Parameters)
             {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
-                sqlParameter.IsNullable = parameter.IsNullable;
-                sqlParameter.Value = parameter.Value;
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
+                {
+                    IsNullable = parameter.IsNullable,
+                    Value = parameter.Value
+                };
+
                 if (sqlParameter.Value == null)
                     sqlParameter.Value = DBNull.Value;
 
@@ -196,9 +205,12 @@ namespace Concordia.Framework.MsSql
 
             foreach (var parameter in query.Parameters)
             {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size);
-                sqlParameter.IsNullable = parameter.IsNullable;
-                sqlParameter.Value = parameter.Value;
+                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
+                {
+                    IsNullable = parameter.IsNullable,
+                    Value = parameter.Value
+                };
+
                 if (sqlParameter.Value == null)
                     sqlParameter.Value = DBNull.Value;
 

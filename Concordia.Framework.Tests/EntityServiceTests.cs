@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Data;
-using System.Linq;
-using Moq;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Tests.DataSources;
+using Moq;
 using Xunit;
 
 namespace Concordia.Framework.Tests

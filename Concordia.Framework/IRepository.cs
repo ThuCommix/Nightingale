@@ -72,7 +72,7 @@ namespace Concordia.Framework
         /// Gets a list of entities based on the expression.
         /// </summary>
         /// <typeparam name="T">The entity type.</typeparam>
-        /// <returns>Returns the result list of entities.</returns
+        /// <returns>Returns the result list of entities.</returns>
         List<T> GetList<T>() where T : Entity;
 
         /// <summary>

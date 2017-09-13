@@ -31,7 +31,7 @@ namespace Concordia.Framework.Entities
         [Description("A value indicating whether the entity is marked as deleted.")]
         public bool Deleted
         {
-            get { return _deleted; }
+            get => _deleted;
             internal set
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Deleted), _deleted, value);
@@ -48,8 +48,8 @@ namespace Concordia.Framework.Entities
         [Description("A value indicating the version of the entity.")]
 		public int Version 
 		{ 
-			get { return _version; }
-			internal set
+			get => _version;
+            internal set
 			{
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Version), _version, value);
 				_version = value;

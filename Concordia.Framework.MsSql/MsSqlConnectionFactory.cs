@@ -9,7 +9,7 @@ namespace Concordia.Framework.MsSql
         /// </summary>
         public string Server
         {
-            get { return _server; }
+            get => _server;
             set
             {
                 _server = value;
@@ -22,7 +22,7 @@ namespace Concordia.Framework.MsSql
         /// </summary>
         public string Database
         {
-            get { return _database; }
+            get => _database;
             set
             {
                 _database = value;
@@ -35,7 +35,7 @@ namespace Concordia.Framework.MsSql
         /// </summary>
         public string User
         {
-            get { return _user; }
+            get => _user;
             set
             {
                 _user = value;
@@ -48,7 +48,7 @@ namespace Concordia.Framework.MsSql
         /// </summary>
         public string Password
         {
-            get { return _password; }
+            get => _password;
             set
             {
                 _password = value;
@@ -61,7 +61,7 @@ namespace Concordia.Framework.MsSql
         /// </summary>
         public bool Trusted
         {
-            get { return _trusted; }
+            get => _trusted;
             set
             {
                 _trusted = value;
@@ -74,7 +74,7 @@ namespace Concordia.Framework.MsSql
         /// </summary>
         public int MaxPoolSize
         {
-            get { return _maxPoolSize; }
+            get => _maxPoolSize;
             set
             {
                 _maxPoolSize = value;
@@ -88,7 +88,7 @@ namespace Concordia.Framework.MsSql
         /// </summary>
         public bool Pooling
         {
-            get { return _pooling; }
+            get => _pooling;
             set
             {
                 _pooling = value;

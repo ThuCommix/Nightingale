@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Concordia.Framework.Logging
 {
@@ -26,6 +22,7 @@ namespace Concordia.Framework.Logging
         public TraceLogger(LogLevel minimumLogLevel, string loggerName = "ConcordiaFramework")
         {
             LoggerName = loggerName;
+            MinimumLogLevel = minimumLogLevel;
         }
 
         /// <summary>
@@ -133,14 +130,7 @@ namespace Concordia.Framework.Logging
         {
             if ((int)logLevel >= (int)MinimumLogLevel)
             {
-                if(exception != null)
-                {
-                    System.Diagnostics.Trace.WriteLine($"{LoggerName} [{logLevel}]: {message}\n \t{exception.Message}");
-                }
-                else
-                {
-                    System.Diagnostics.Trace.WriteLine($"{LoggerName} [{logLevel}]: {message}");
-                }
+                System.Diagnostics.Trace.WriteLine(exception != null ? $"{LoggerName} [{logLevel}]: {message}\n \t{exception.Message}" : $"{LoggerName} [{logLevel}]: {message}");
             }
         }
     }

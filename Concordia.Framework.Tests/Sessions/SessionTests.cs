@@ -432,7 +432,7 @@ namespace Concordia.Framework.Tests.Sessions
             TestHelper.SetupEntityMetadataServices();
             TestHelper.SetupSqlTokenComposer();
 
-            const int Id = 1;
+            const int id = 1;
 
             Query query = null;
 
@@ -441,12 +441,12 @@ namespace Concordia.Framework.Tests.Sessions
             dataReaderMock.Setup(s => s.Dispose());
 
             // act
-            var result = session.Load(Id, typeof(Artist));
+            var result = session.Load(id, typeof(Artist));
 
             // assert
             Assert.Null(result);
             Assert.NotNull(query);
-            Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Id" && (int)x.EquationValue == Id);
+            Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Id" && (int)x.EquationValue == id);
             Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Deleted" && (bool)x.EquationValue == false);
             Assert.Equal(typeof(Artist), query.EntityType);
 
@@ -1363,15 +1363,15 @@ namespace Concordia.Framework.Tests.Sessions
         {
             public bool PerformInsertCalled { get; private set; }
 
-            public bool EntityNotSavedAfterInsert { get; set; }
+            public bool EntityNotSavedAfterInsert { private get; set; }
 
-            public bool ThrowExceptionOnInsert { get; set; }
+            public bool ThrowExceptionOnInsert { private get; set; }
 
             public bool PerformUpdateCalled { get; private set; }
 
-            public bool ThrowExceptionOnUpdate { get; set; }
+            public bool ThrowExceptionOnUpdate { private get; set; }
 
-            public bool PerformDeleteCalled { get; set; }
+            public bool PerformDeleteCalled { get; private set; }
 
             public SessionProxy(IConnection connection) : base(connection)
             {

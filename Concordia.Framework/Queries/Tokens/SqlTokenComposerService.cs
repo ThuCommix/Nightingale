@@ -18,7 +18,6 @@ namespace Concordia.Framework.Queries.Tokens
                 throw new QueryException("The query does not contain a select statement.");
 
             var joinTokens = sqlTokens.Where(x => x.TokenType == SqlTokenType.Join);
-            var conditionTokens = sqlTokens.Where(x => x.TokenType == SqlTokenType.Condition || x.TokenType == SqlTokenType.ConditionLink);
 
             var queryBuilder = new StringBuilder();
             queryBuilder.Append(rootSelectToken.Sql);
@@ -33,8 +32,7 @@ namespace Concordia.Framework.Queries.Tokens
 
             foreach(var token in sqlTokens.Where(x => x.TokenType == SqlTokenType.Condition || x.TokenType == SqlTokenType.ConditionLink))
             {
-                var conditionToken = token as ConditionSqlToken;
-                if(conditionToken != null)
+                if(token is ConditionSqlToken conditionToken)
                 {
                     var parameter = Query.GetQueryParameter($"@p{parameterIndex++}", conditionToken.Value, conditionToken.FieldMetadata);
                     parameters.Add(parameter);
@@ -42,8 +40,7 @@ namespace Concordia.Framework.Queries.Tokens
                     queryBuilder.Append($"{token.Sql} {parameter.Name} ");
                 }
 
-                var conditionLinkToken = token as ConditionLinkSqlToken;
-                if(conditionLinkToken != null)
+                if(token is ConditionLinkSqlToken conditionLinkToken)
                 {
                     if(conditionLinkToken.LinkType == ConditionLinkType.Start)
                     {

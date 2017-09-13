@@ -1,11 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
-using System.Linq;
-using MySql.Data.MySqlClient;
+using System.Data.Common;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Queries;
-using System.Data.Common;
+using MySql.Data.MySqlClient;
 
 namespace Concordia.Framework.MySql
 {
@@ -15,7 +14,7 @@ namespace Concordia.Framework.MySql
         /// <summary>
         /// A value indicating whether the connection is open.
         /// </summary>
-        public bool IsOpen => _isDisposed ? false : _connection.State != ConnectionState.Closed;
+        public bool IsOpen => !_isDisposed && _connection.State != ConnectionState.Closed;
 
         private readonly global::MySql.Data.MySqlClient.MySqlConnection _connection;
         private DbTransaction _currentTransaction;
@@ -130,9 +129,11 @@ namespace Concordia.Framework.MySql
 
             foreach(var parameter in query.Parameters)
             {
-                var mysqlParameter = new MySqlParameter();
-                mysqlParameter.ParameterName = parameter.Name;
-                mysqlParameter.Value = parameter.Value;
+                var mysqlParameter = new MySqlParameter
+                {
+                    ParameterName = parameter.Name,
+                    Value = parameter.Value
+                };
 
                 command.Parameters.Add(mysqlParameter);
             }
@@ -155,9 +156,11 @@ namespace Concordia.Framework.MySql
 
             foreach (var parameter in query.Parameters)
             {
-                var mysqlParameter = new MySqlParameter();
-                mysqlParameter.ParameterName = parameter.Name;
-                mysqlParameter.Value = parameter.Value;
+                var mysqlParameter = new MySqlParameter
+                {
+                    ParameterName = parameter.Name,
+                    Value = parameter.Value
+                };
 
                 command.Parameters.Add(mysqlParameter);
             }
@@ -180,9 +183,11 @@ namespace Concordia.Framework.MySql
 
             foreach (var parameter in query.Parameters)
             {
-                var mysqlParameter = new MySqlParameter();
-                mysqlParameter.ParameterName = parameter.Name;
-                mysqlParameter.Value = parameter.Value;
+                var mysqlParameter = new MySqlParameter
+                {
+                    ParameterName = parameter.Name,
+                    Value = parameter.Value
+                };
 
                 command.Parameters.Add(mysqlParameter);
             }
@@ -205,9 +210,11 @@ namespace Concordia.Framework.MySql
 
             foreach (var parameter in query.Parameters)
             {
-                var mysqlParameter = new MySqlParameter();
-                mysqlParameter.ParameterName = parameter.Name;
-                mysqlParameter.Value = parameter.Value;
+                var mysqlParameter = new MySqlParameter
+                {
+                    ParameterName = parameter.Name,
+                    Value = parameter.Value
+                };
 
                 command.Parameters.Add(mysqlParameter);
             }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Concordia.Framework.Metadata;
 
-namespace EntityGenerator
+namespace ConcordiaFrameworkCli
 {
 	class MainClass
 	{

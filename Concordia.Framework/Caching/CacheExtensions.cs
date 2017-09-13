@@ -27,9 +27,8 @@ namespace Concordia.Framework.Caching
         public static bool TryGet<T>(this ICache cache, int id, out T entity) where T : Entity
         {
             entity = null;
-            Entity genericEntity;
 
-            if (TryGet(cache, id, typeof(T), out genericEntity))
+            if (TryGet(cache, id, typeof(T), out var genericEntity))
             {
                 entity = genericEntity as T;
             }

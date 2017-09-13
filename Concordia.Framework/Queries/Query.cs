@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Extensions;
 using Concordia.Framework.Metadata;
@@ -56,10 +55,11 @@ namespace Concordia.Framework.Queries
         /// <summary>
         /// Gets the global query filters.
         /// </summary>
-        public static IEnumerable<GlobalQueryFilter> GlobalQueryFilters { get { return _globalQueryFilters; } }
+        public static IEnumerable<GlobalQueryFilter> GlobalQueryFilters => GlobalQueryFiltersList;
 
-        private readonly static List<GlobalQueryFilter> _globalQueryFilters = new List<GlobalQueryFilter>();
+        private static readonly List<GlobalQueryFilter> GlobalQueryFiltersList = new List<GlobalQueryFilter>();
 
+        /// <summary>
         /// Gets the entity metadata resolver.
         /// </summary>
         protected IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
@@ -181,8 +181,7 @@ namespace Concordia.Framework.Queries
             var rootSelectToken = new SelectSqlToken(entityMetadata);
             var sqlTokens = new List<SqlToken> { rootSelectToken };
             var aliasIndex = 0;
-            var propertyAliasMapping = new Dictionary<string, string>();
-            propertyAliasMapping.Add(string.Empty, entityMetadata.Table.ToLower());
+            var propertyAliasMapping = new Dictionary<string, string> {{string.Empty, entityMetadata.Table.ToLower()}};
 
             foreach (var group in ConditionGroups)
             {
@@ -193,7 +192,7 @@ namespace Concordia.Framework.Queries
                     // The expression can be null, in this case the PropertyPath, EquationValue and Binary operator is set
                     // TypeContextToken -> PropertyToken -> BinaryToken -> ConstantToken
 
-                    List<Token> tokens = null;
+                    List<Token> tokens;
 
                     if (condition.Expression == null)
                     {
@@ -216,14 +215,9 @@ namespace Concordia.Framework.Queries
                     var currentAlias = rootSelectToken.Alias;
                     var propertyPath = string.Empty;
 
-                    for (int i = 0; i < tokens.Count; i++)
+                    for (var i = 0; i < tokens.Count; i++)
                     {
                         var currentToken = tokens[i];
-                        if(currentToken.TokenType == TokenType.TypeContext)
-                        {
-                            var typeContextToken = (TypeContextToken)currentToken;
-                        }
-
                         if(currentToken.TokenType == TokenType.Constant)
                         {
                             if(i + 1 < tokens.Count && tokens[i + 1].TokenType == TokenType.Binary)
@@ -387,7 +381,7 @@ namespace Concordia.Framework.Queries
         /// <param name="expression">The expression.</param>
         public static void SetQueryFilter<T>(Expression<Func<T, bool>> expression) where T : Entity
         {
-            _globalQueryFilters.Add(GlobalQueryFilter.CreateQueryFilter(expression));
+            GlobalQueryFiltersList.Add(GlobalQueryFilter.CreateQueryFilter(expression));
         }
 
         /// <summary>
@@ -396,7 +390,7 @@ namespace Concordia.Framework.Queries
         /// <typeparam name="T">The entity type.</typeparam>
         public static void RemoveQueryFilters<T>()
         {
-            _globalQueryFilters.RemoveAll(x => x.EntityType == typeof(T));
+            GlobalQueryFiltersList.RemoveAll(x => x.EntityType == typeof(T));
         }
     }
 }

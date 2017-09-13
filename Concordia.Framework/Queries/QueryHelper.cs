@@ -13,7 +13,7 @@ namespace Concordia.Framework.Queries
         public static string GetPropertyPath(Expression expression)
         {
             var lambdaExpression = expression as LambdaExpression;
-            MemberExpression memberExpression = null;
+            MemberExpression memberExpression;
 
             if(lambdaExpression.Body is BinaryExpression)
             {
@@ -25,7 +25,7 @@ namespace Concordia.Framework.Queries
                 memberExpression = lambdaExpression.Body as MemberExpression;
             }
 
-            var propertyPath = (memberExpression.Expression.ToString() + $".{memberExpression.Member.Name}");
+            var propertyPath = (memberExpression.Expression + $".{memberExpression.Member.Name}");
             var lambdaParameterName = $"{lambdaExpression.Parameters[0].Name}.";
             if (propertyPath.StartsWith(lambdaParameterName))
             {
@@ -39,6 +39,7 @@ namespace Concordia.Framework.Queries
         /// Gets the operator symbol.
         /// </summary>
         /// <param name="op">The operator.</param>
+        /// <param name="isNullType">A value indicating the type is nullable.</param>
         /// <returns>Returns the operator sql symbol.</returns>
         public static string GetOperatorSymbol(Operator op, bool isNullType = false)
         {
