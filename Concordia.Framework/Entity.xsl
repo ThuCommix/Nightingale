@@ -181,21 +181,24 @@ namespace <xsl:value-of select="@Namespace" />
         {
             get
             {
-                if(!_<xsl:value-of select="@Name" />Queried)
+                lock (_<xsl:value-of select="@Name" />)
                 {
-                    var query = Query.CreateQuery&lt;<xsl:value-of select="@FieldType" />&gt;();
-                    var group = query.CreateQueryConditionGroup();
-                    
-                    group.CreateQueryCondition&lt;<xsl:value-of select="@FieldType" />&gt;(x =&gt; x.FK_<xsl:value-of select="@ReferenceField" />_ID == Id);
-                    group.CreateQueryCondition&lt;<xsl:value-of select="@FieldType" />&gt;(x =&gt; x.Deleted == false);
-                    
-                    var items = Session?.ExecuteQuery(query)?.OfType&lt;<xsl:value-of select="@FieldType" />&gt;();
-                    if(items != null)
+                    if(!_<xsl:value-of select="@Name" />Queried)
                     {
-                        items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = true);
-                        ((EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt;)_<xsl:value-of select="@Name" />).AddRange(items);
-                        items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = false);
-                        _<xsl:value-of select="@Name" />Queried = true;   
+                        var query = Query.CreateQuery&lt;<xsl:value-of select="@FieldType" />&gt;();
+                        var group = query.CreateQueryConditionGroup();
+                    
+                        group.CreateQueryCondition&lt;<xsl:value-of select="@FieldType" />&gt;(x =&gt; x.FK_<xsl:value-of select="@ReferenceField" />_ID == Id);
+                        group.CreateQueryCondition&lt;<xsl:value-of select="@FieldType" />&gt;(x =&gt; x.Deleted == false);
+                    
+                        var items = Session?.ExecuteQuery(query)?.OfType&lt;<xsl:value-of select="@FieldType" />&gt;();
+                        if(items != null)
+                        {
+                            items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = true);
+                            ((EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt;)_<xsl:value-of select="@Name" />).AddRange(items);
+                            items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = false);
+                            _<xsl:value-of select="@Name" />Queried = true;   
+                        }
                     }
                 }
                 
