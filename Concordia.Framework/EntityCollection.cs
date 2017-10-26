@@ -33,6 +33,7 @@ namespace Concordia.Framework
         private readonly Entity _owner;
         private readonly List<T> _collectionItems;
         private readonly List<T> _removedCollectionItems;
+        private readonly object _locker = new object();
 
         /// <summary>
         /// Initializes a new EntityCollection class.
@@ -113,8 +114,11 @@ namespace Concordia.Framework
         /// <param name="item">The item.</param>
         public void Add(T item)
         {
-            _collectionItems.Add(item);
-            SetReferenceField(item);
+            lock (_locker)
+            {
+                _collectionItems.Add(item);
+                SetReferenceField(item);
+            }
         }
 
         /// <summary>
@@ -122,8 +126,11 @@ namespace Concordia.Framework
         /// </summary>
         public void Clear()
         {
-            _collectionItems.ForEach(RemoveReferenceField);
-            _collectionItems.Clear();
+            lock (_locker)
+            {
+                _collectionItems.ForEach(RemoveReferenceField);
+                _collectionItems.Clear();
+            }
         }
 
         /// <summary>
@@ -143,8 +150,11 @@ namespace Concordia.Framework
         /// <param name="arrayIndex">The array index.</param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            _collectionItems.CopyTo(array, arrayIndex);
-            array.ForEach(SetReferenceField);
+            lock (_locker)
+            {
+                _collectionItems.CopyTo(array, arrayIndex);
+                array.ForEach(SetReferenceField);
+            }
         }
 
         /// <summary>
@@ -173,8 +183,11 @@ namespace Concordia.Framework
         /// <param name="item">The item.</param>
         public void Insert(int index, T item)
         {
-            _collectionItems.Insert(index, item);
-            SetReferenceField(item);
+            lock (_locker)
+            {
+                _collectionItems.Insert(index, item);
+                SetReferenceField(item);
+            }
         }
 
         /// <summary>
@@ -184,13 +197,16 @@ namespace Concordia.Framework
         /// <returns>Returns true if the item was removed.</returns>
         public bool Remove(T item)
         {
-            if(_collectionItems.Remove(item))
+            lock (_locker)
             {
-                RemoveReferenceField(item);
-                return true;
-            }
+                if (_collectionItems.Remove(item))
+                {
+                    RemoveReferenceField(item);
+                    return true;
+                }
 
-            return false;
+                return false;
+            }
         }
 
         /// <summary>
