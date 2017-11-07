@@ -20,7 +20,7 @@ namespace <xsl:value-of select="@Namespace" />
 	/// &lt;/summary&gt;
 	[Table("<xsl:value-of select="@Table" />")]
 	[Description("<xsl:value-of select="@Description" />")]
-	public class <xsl:value-of select="@Name" /> : Entity<xsl:for-each select="Interfaces/Interface">, <xsl:value-of select="@Name" /></xsl:for-each>
+	public partial class <xsl:value-of select="@Name" /> : Entity<xsl:for-each select="Interfaces/Interface">, <xsl:value-of select="@Name" /></xsl:for-each>
 	{
 	<xsl:for-each select="Fields/Field">
 		/// &lt;summary&gt;
