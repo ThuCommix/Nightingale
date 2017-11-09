@@ -1,6 +1,6 @@
-# Concordia.Framework [![Build Status](https://travis-ci.org/ThuCommix/Concordia.Framework.svg?branch=master)](https://travis-ci.org/ThuCommix/Concordia.Framework)
+# Nightingale [![Build Status](https://travis-ci.org/ThuCommix/Nightingale.svg?branch=master)](https://travis-ci.org/ThuCommix/Nightingale)
 
-Concordia.Framework is an object relational mapper (ORM) for .NET languages. It follows the model first pattern in which you declare your entity metadata via xml files. Through this metadata C# classes are generated which are annotated with attributes to fetch the right tables and columns during runtime.
+Nightingale is an object relational mapper (ORM) for .NET languages. It follows the model first pattern in which you declare your entity metadata via xml files. Through this metadata C# classes are generated which are annotated with attributes to fetch the right tables and columns during runtime.
 
 ### Supported databases
 
@@ -11,15 +11,15 @@ Concordia.Framework is an object relational mapper (ORM) for .NET languages. It 
 
 ### Getting started
 
-1. Create a new project and add Concordia.Framework via nuget
+1. Create a new project and add Nightingale via nuget
 2. Select a data provider (also available via nuget) and add it to your project
 3. Create an entity via xml as described below
 
 ```
-PM> Install-Package Concordia.Framework
+PM> Install-Package Nightingale
 ```
 ```
-PM> Install-Package Concordia.Framework.SQLite
+PM> Install-Package Nightingale.SQLite
 ```
 
 [Metadata for Person.xml](https://gist.github.com/ThuCommix/fbd987fd81d7544ac8252008a243916c "Person.xml")

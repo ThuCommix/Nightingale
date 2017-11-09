@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Concordia.Framework.SQLite\Concordia.Framework.SQLite.csproj" />
-    <ProjectReference Include="..\..\Concordia.Framework\Concordia.Framework.csproj" />
+    <ProjectReference Include="..\..\Nightingale.SQLite\Nightingale.SQLite.csproj" />
+    <ProjectReference Include="..\..\Nightingale\Nightingale.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Concordia.Framework;
-using Concordia.Framework.Entities;
-using Concordia.Framework.Extensions;
-using Concordia.Framework.Queries;
+using Nightingale;
+using Nightingale.Entities;
 
 // generated Address.cs
 		
