@@ -1,6 +1,6 @@
 language: csharp
 dist: trusty
-solution: Concordia.Framework.sln
+solution: Nightingale.sln
 mono: none
 dotnet: 2.0.0
 
@@ -9,4 +9,4 @@ install:
 
 script:
   - dotnet build
-  - dotnet test Concordia.Framework.Tests
+  - dotnet test Nightingale.Tests
