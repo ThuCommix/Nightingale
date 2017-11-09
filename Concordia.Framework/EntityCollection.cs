@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using Concordia.Framework.Entities;
 using Concordia.Framework.Extensions;
@@ -10,12 +12,34 @@ namespace Concordia.Framework
     public class EntityCollection<T> : IEntityCollection, IList<T> where T : Entity
     {
         /// <summary>
+        /// Raises when a property changed.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Raises when the collection changed.
+        /// </summary>
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        /// <summary>
         /// Gets or sets a collection item specified by the index.
         /// </summary>
         /// <param name="index">The index.</param>
         /// <returns>Returns a collection item.</returns>
-        public T this[int index] { get => _collectionItems[index];
-            set => _collectionItems[index] = value;
+        public T this[int index]
+        {
+            get => _collectionItems[index];
+            set
+            {
+                var oldItem = _collectionItems[index];
+                RemoveReferenceField(oldItem);
+                SetReferenceField(value);
+
+                _collectionItems[index] = value;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem, index));
+            }
         }
 
         /// <summary>
@@ -86,8 +110,12 @@ namespace Concordia.Framework
         /// <param name="items">The items.</param>
         public void AddRange(IEnumerable<T> items)
         {
+            var newItemStartingIndex = _collectionItems.Count;
             _collectionItems.AddRange(items);
             items.ForEach(SetReferenceField);
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items.ToList(), newItemStartingIndex));
         }
 
         /// <summary>
@@ -118,6 +146,9 @@ namespace Concordia.Framework
             {
                 _collectionItems.Add(item);
                 SetReferenceField(item);
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item));
             }
         }
 
@@ -130,6 +161,9 @@ namespace Concordia.Framework
             {
                 _collectionItems.ForEach(RemoveReferenceField);
                 _collectionItems.Clear();
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
         }
 
@@ -187,6 +221,9 @@ namespace Concordia.Framework
             {
                 _collectionItems.Insert(index, item);
                 SetReferenceField(item);
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
             }
         }
 
@@ -202,6 +239,9 @@ namespace Concordia.Framework
                 if (_collectionItems.Remove(item))
                 {
                     RemoveReferenceField(item);
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
                     return true;
                 }
 

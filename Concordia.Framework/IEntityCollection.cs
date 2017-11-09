@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using Concordia.Framework.Entities;
 
 namespace Concordia.Framework
 {
-    public interface IEntityCollection
+    public interface IEntityCollection : INotifyPropertyChanged, INotifyCollectionChanged
     {
         /// <summary>
         /// Gets the collection items.

@@ -1,14 +1,21 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Concordia.Framework.Metadata;
 using Concordia.Framework.Queries;
 using Concordia.Framework.Sessions;
 
 namespace Concordia.Framework.Entities
 {
-    public abstract class Entity
+    public abstract class Entity : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Raises when a property changed.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private bool _deleted;
 		private int _version;
 
@@ -36,6 +43,8 @@ namespace Concordia.Framework.Entities
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Deleted), _deleted, value);
                 _deleted = value;
+
+                OnPropertyChanged();
             }
         }
 
@@ -53,7 +62,9 @@ namespace Concordia.Framework.Entities
 			{
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Version), _version, value);
 				_version = value;
-			}
+
+			    OnPropertyChanged();
+            }
 		}
 
         /// <summary>
@@ -143,6 +154,15 @@ namespace Concordia.Framework.Entities
             group.CreateQueryCondition<T>(x => x.Deleted == false);
 
             return query;
+        }
+
+        /// <summary>
+        /// Should be called when a property was changed.
+        /// </summary>
+        /// <param name="propertyName"></param>
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

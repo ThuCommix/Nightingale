@@ -20,7 +20,7 @@ namespace <xsl:value-of select="@Namespace" />
 	/// &lt;/summary&gt;
 	[Table("<xsl:value-of select="@Table" />")]
 	[Description("<xsl:value-of select="@Description" />")]
-	public class <xsl:value-of select="@Name" /> : Entity<xsl:for-each select="Interfaces/Interface">, <xsl:value-of select="@Name" /></xsl:for-each>
+	public partial class <xsl:value-of select="@Name" /> : Entity<xsl:for-each select="Interfaces/Interface">, <xsl:value-of select="@Name" /></xsl:for-each>
 	{
 	<xsl:for-each select="Fields/Field">
 		/// &lt;summary&gt;
@@ -58,6 +58,8 @@ namespace <xsl:value-of select="@Namespace" />
                 
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(<xsl:value-of select="@Name" />), _<xsl:value-of select="@Name" />, newValue);
                 _<xsl:value-of select="@Name" /> = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -71,6 +73,8 @@ namespace <xsl:value-of select="@Namespace" />
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(<xsl:value-of select="@Name" />), _<xsl:value-of select="@Name" />, value);
                 _<xsl:value-of select="@Name" /> = value;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -85,6 +89,8 @@ namespace <xsl:value-of select="@Namespace" />
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(<xsl:value-of select="@Name" />), _<xsl:value-of select="@Name" />, value);
                 _<xsl:value-of select="@Name" /> = value; 
+                
+                OnPropertyChanged();
             }
         }
         
@@ -98,6 +104,8 @@ namespace <xsl:value-of select="@Namespace" />
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(<xsl:value-of select="@Name" />), _<xsl:value-of select="@Name" />, value);
                 _<xsl:value-of select="@Name" /> = value; 
+                
+                OnPropertyChanged();
             }
         }
         
@@ -112,6 +120,8 @@ namespace <xsl:value-of select="@Namespace" />
                 var newValue = value<xsl:if test="@DateOnly = 'true'"><xsl:if test="@Mandatory = 'false'">?</xsl:if>.Date</xsl:if>;
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(<xsl:value-of select="@Name" />), _<xsl:value-of select="@Name" />, newValue);
                 _<xsl:value-of select="@Name" /> = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -128,6 +138,8 @@ namespace <xsl:value-of select="@Namespace" />
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(<xsl:value-of select="@Name" />), _<xsl:value-of select="@Name" />, value);
                 _<xsl:value-of select="@Name" /> = value;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -155,6 +167,8 @@ namespace <xsl:value-of select="@Namespace" />
                 
                 _<xsl:value-of select="@Name" /> = value;
                 FK_<xsl:value-of select="@Name" />_ID = value<xsl:if test="@Mandatory = 'false'">?</xsl:if>.Id;
+                
+                OnPropertyChanged();
             }
         }
 
