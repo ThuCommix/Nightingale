@@ -17,4 +17,19 @@
       <ProjectReference Include="..\Nightingale\Nightingale.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Queries\ExpectedQueryOutputs.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>ExpectedQueryOutputs.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Queries\ExpectedQueryOutputs.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ExpectedQueryOutputs.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
 </Project>
