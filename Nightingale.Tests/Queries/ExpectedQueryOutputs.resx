@@ -183,4 +183,7 @@
     <data name="Query_Supports_String_Contains" xml:space="preserve">
         <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name LIKE @p0 AND artist.Alias = @p1)</value>
     </data>
+    <data name="Query_Supports_Right_MemberExpression" xml:space="preserve">
+        <value>SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name = @p0)</value>
+    </data>
 </root>

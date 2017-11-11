@@ -515,5 +515,23 @@ namespace Nightingale.Tests.Queries
             Assert.StartsWith("%", query.Parameters.First().Value.ToString());
             Assert.EndsWith("%", query.Parameters.First().Value.ToString());
         }
+
+
+        [Fact]
+        public void Query_Supports_Right_MemberExpression()
+        {
+            // arrange
+            var artist = new Artist { Name = "Artist" };
+            var query = Query.CreateQuery<Artist>();
+            var group = query.CreateQueryConditionGroup();
+            group.CreateQueryCondition<Artist>(x => x.Name == artist.Name);
+
+            // act
+            var command = query.Command;
+
+            // assert
+            Assert.Equal(ExpectedQueryOutputs.Query_Supports_Right_MemberExpression, command);
+            Assert.Equal(artist.Name, query.Parameters.First().Value);
+        }
     }
 }

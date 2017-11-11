@@ -9,6 +9,9 @@
 //------------------------------------------------------------------------------
 
 namespace Nightingale.Tests.Queries {
+    using System;
+    
+    
     /// <summary>
     ///   Eine stark typisierte Ressourcenklasse zum Suchen von lokalisierten Zeichenfolgen usw.
     /// </summary>
@@ -16,7 +19,7 @@ namespace Nightingale.Tests.Queries {
     // -Klasse über ein Tool wie ResGen oder Visual Studio automatisch generiert.
     // Um einen Member hinzuzufügen oder zu entfernen, bearbeiten Sie die .ResX-Datei und führen dann ResGen
     // mit der /str-Option erneut aus, oder Sie erstellen Ihr VS-Projekt neu.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class ExpectedQueryOutputs {
@@ -279,6 +282,15 @@ namespace Nightingale.Tests.Queries {
         internal static string Query_Supports_Complex_Expressions2 {
             get {
                 return ResourceManager.GetString("Query_Supports_Complex_Expressions2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT Name, Alias, BirthDate, DeathDate, WebLink, Biography, Note, Label, FK_AnotherArtist_ID, Id, Deleted, Version FROM Artist artist WHERE (artist.Name = @p0) ähnelt.
+        /// </summary>
+        internal static string Query_Supports_Right_MemberExpression {
+            get {
+                return ResourceManager.GetString("Query_Supports_Right_MemberExpression", resourceCulture);
             }
         }
         

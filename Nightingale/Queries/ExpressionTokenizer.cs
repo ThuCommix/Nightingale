@@ -99,9 +99,18 @@ namespace Nightingale.Queries
                 case ExpressionType.Or:
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
-                    EvalInternal((expression as BinaryExpression).Left);
+                    var binaryExpression = expression as BinaryExpression;
+
+                    EvalInternal(binaryExpression.Left);
                     Tokens.Add(new BinaryToken(ConvertExpressionType(expression.NodeType)));
-                    EvalInternal((expression as BinaryExpression).Right);
+                    if (IsBinaryExpression(binaryExpression.Right))
+                    {
+                        EvalInternal(binaryExpression.Right);
+                    }
+                    else
+                    {
+                        ResolveRightConstant(binaryExpression.Right);
+                    }
                     break;
                 case ExpressionType.Convert:
                     var unaryExpression = expression as UnaryExpression;
@@ -132,6 +141,34 @@ namespace Nightingale.Queries
                 default:
                     throw new NotSupportedException($"The nodeType {expression.NodeType} was not supported.");
             }
+        }
+
+        private void ResolveRightConstant(Expression expression)
+        {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Lambda:
+                    var lambdaExpression = expression as LambdaExpression;
+                    ResolveRightConstant(lambdaExpression.Body);
+                    break;
+                case ExpressionType.MemberAccess:
+                    var memberExpression = expression as MemberExpression;
+                    Tokens.Add(new ConstantToken(Expression.Lambda(memberExpression).Compile().DynamicInvoke()));
+                    break;
+                case ExpressionType.Convert:
+                    var unaryExpression = expression as UnaryExpression;
+                    ResolveRightConstant(unaryExpression.Operand);
+                    break;
+                case ExpressionType.Constant:
+                    var constantExpression = expression as ConstantExpression;
+                    Tokens.Add(new ConstantToken(constantExpression.Value));
+                    break;
+            }
+        }
+
+        private static bool IsBinaryExpression(Expression expression)
+        {
+            return expression is BinaryExpression;
         }
 
         private static Operator ConvertExpressionType(ExpressionType expressionType)
