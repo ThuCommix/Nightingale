@@ -19,7 +19,6 @@ namespace ConsoleApp1
             sessionFactory.EntityListeners.Add(new AddressEntityService());
 
             var session = sessionFactory.GetCurrentSession();
-            var repository = new Repository(session);
 
             // create tables if not available
             session.GetTable<Person>().Recreate();
@@ -44,32 +43,32 @@ namespace ConsoleApp1
 
             person.Addresses.Add(address);
 
-            using (repository.BeginTransaction())
+            using (session.BeginTransaction())
             {
-                repository.Save(person);
-                repository.Commit();
+                session.SaveOrUpdate(person);
+                session.Commit();
             }
 
-            repository.Dispose();
+            session.Dispose();
 
             // creating a new session so that the entities aren't cached anymore
-            repository = new Repository(sessionFactory.GetCurrentSession());
+            session = sessionFactory.GetCurrentSession();
 
-            var loadedPerson = repository.GetById<Person>(1);
+            var loadedPerson = session.Get<Person>(1);
 
             Console.WriteLine($"Person: {loadedPerson.FullName}, IsLegalAge: {loadedPerson.IsLegalAge}");
 
             foreach (var addr in loadedPerson.ValidAddresses)
                 Console.WriteLine($"{addr.Street}, Type={addr.Type}");
 
-            using (repository.BeginTransaction())
+            using (session.BeginTransaction())
             {
                 try
                 {
                     // try to remove the only address from person
                     var addr = loadedPerson.Addresses[0];
-                    repository.Delete(addr);
-                    repository.Commit();
+                    session.Delete(addr);
+                    session.Commit();
                 }
                 catch (Exception e)
                 {

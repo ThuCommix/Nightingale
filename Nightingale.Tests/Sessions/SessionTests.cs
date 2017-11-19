@@ -56,10 +56,10 @@ namespace Nightingale.Tests.Sessions
             const IsolationLevel isolationlevel = IsolationLevel.Serializable;
 
             var connectionMock = TestHelper.SetupMock<IConnection>();
-            var disposeableMock = TestHelper.SetupMock<IDisposable>();
+            var dbTransactionMock = TestHelper.SetupMock<IDbTransaction>();
 
             connectionMock.Setup(s => s.Open());
-            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
+            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(dbTransactionMock.Object);
 
             var session = new SessionProxy(connectionMock.Object);
 
@@ -67,10 +67,10 @@ namespace Nightingale.Tests.Sessions
             var result = session.BeginTransaction(isolationlevel);
 
             // assert
-            Assert.IsType<TransactionProxy>(result);
+            Assert.IsType<Transaction>(result);
 
             connectionMock.VerifyAll();
-            disposeableMock.VerifyAll();
+            dbTransactionMock.VerifyAll();
         }
 
         [Fact]
@@ -80,12 +80,12 @@ namespace Nightingale.Tests.Sessions
             const IsolationLevel isolationlevel = IsolationLevel.Serializable;
 
             var connectionMock = TestHelper.SetupMock<IConnection>();
-            var disposeableMock = TestHelper.SetupMock<IDisposable>();
+            var dbTransactionMock = TestHelper.SetupMock<IDbTransaction>();
 
-            disposeableMock.Setup(s => s.Dispose());
+            dbTransactionMock.Setup(s => s.Dispose());
 
             connectionMock.Setup(s => s.Open());
-            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
+            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(dbTransactionMock.Object);
             connectionMock.Setup(s => s.Rollback());
 
             var session = new SessionProxy(connectionMock.Object);
@@ -97,7 +97,7 @@ namespace Nightingale.Tests.Sessions
 
             // assert
             connectionMock.VerifyAll();
-            disposeableMock.VerifyAll();
+            dbTransactionMock.VerifyAll();
         }
 
         [Fact]
@@ -107,10 +107,10 @@ namespace Nightingale.Tests.Sessions
             const IsolationLevel isolationlevel = IsolationLevel.Serializable;
 
             var connectionMock = TestHelper.SetupMock<IConnection>();
-            var disposeableMock = TestHelper.SetupMock<IDisposable>();
+            var dbTransactionMock = TestHelper.SetupMock<IDbTransaction>();
 
             connectionMock.Setup(s => s.Open());
-            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(disposeableMock.Object);
+            connectionMock.Setup(s => s.BeginTransaction(isolationlevel)).Returns(dbTransactionMock.Object);
 
             var session = new SessionProxy(connectionMock.Object);
 
@@ -120,7 +120,7 @@ namespace Nightingale.Tests.Sessions
 
             // assert
             connectionMock.VerifyAll();
-            disposeableMock.VerifyAll();
+            dbTransactionMock.VerifyAll();
         }
 
         [Fact]
@@ -128,11 +128,11 @@ namespace Nightingale.Tests.Sessions
         {
             // arrange
             var connectionMock = TestHelper.SetupMock<IConnection>();
-            var disposeableMock = TestHelper.SetupMock<IDisposable>();
+            var dbTransactionMock = TestHelper.SetupMock<IDbTransaction>();
 
             connectionMock.Setup(s => s.Rollback());
             connectionMock.Setup(s => s.Open());
-            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposeableMock.Object);
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(dbTransactionMock.Object);
 
             var session = new SessionProxy(connectionMock.Object);
 
@@ -181,10 +181,10 @@ namespace Nightingale.Tests.Sessions
         {
             // arrange
             var connectionMock = TestHelper.SetupMock<IConnection>();
-            var disposableMock = TestHelper.SetupMock<IDisposable>();
+            var dbTransactionMock = TestHelper.SetupMock<IDbTransaction>();
 
             connectionMock.Setup(s => s.Open());
-            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(dbTransactionMock.Object);
             connectionMock.Setup(s => s.RollbackTo(string.Empty));
 
             var session = new SessionProxy(connectionMock.Object);
@@ -218,10 +218,10 @@ namespace Nightingale.Tests.Sessions
         {
             // arrange
             var connectionMock = TestHelper.SetupMock<IConnection>();
-            var disposableMock = TestHelper.SetupMock<IDisposable>();
+            var dbTransactionMock = TestHelper.SetupMock<IDbTransaction>();
 
             connectionMock.Setup(s => s.Open());
-            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(dbTransactionMock.Object);
             connectionMock.Setup(s => s.Release(string.Empty));
 
             var session = new SessionProxy(connectionMock.Object);
@@ -255,10 +255,10 @@ namespace Nightingale.Tests.Sessions
         {
             // arrange
             var connectionMock = TestHelper.SetupMock<IConnection>();
-            var disposableMock = TestHelper.SetupMock<IDisposable>();
+            var dbTransactionMock = TestHelper.SetupMock<IDbTransaction>();
 
             connectionMock.Setup(s => s.Open());
-            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(dbTransactionMock.Object);
             connectionMock.Setup(s => s.Commit());
 
             var session = new SessionProxy(connectionMock.Object);
@@ -292,10 +292,10 @@ namespace Nightingale.Tests.Sessions
         {
             // arrange
             var connectionMock = TestHelper.SetupMock<IConnection>();
-            var disposableMock = TestHelper.SetupMock<IDisposable>();
+            var dbTransactionMock = TestHelper.SetupMock<IDbTransaction>();
 
             connectionMock.Setup(s => s.Open());
-            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(disposableMock.Object);
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(dbTransactionMock.Object);
             connectionMock.Setup(s => s.Save(string.Empty));
 
             var session = new SessionProxy(connectionMock.Object);
@@ -1158,8 +1158,9 @@ namespace Nightingale.Tests.Sessions
             // arrange
             var connectionMock = TestHelper.SetupConnection();
             var session = new SessionProxy(connectionMock.Object);
+            var transactionMock = TestHelper.SetupMock<IDbTransaction>();
 
-            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns((IDisposable)null);
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(transactionMock.Object);
             connectionMock.Setup(s => s.Commit());
 
             var commitListener = TestHelper.SetupMock<ICommitListener>();
@@ -1261,7 +1262,7 @@ namespace Nightingale.Tests.Sessions
         }
 
         [Fact]
-        public void Load_Query_PersistenceCache_First()
+        public void Get_Query_PersistenceCache_First()
         {
             // arrange
             TestHelper.SetupEntityMetadataServices();
@@ -1276,7 +1277,7 @@ namespace Nightingale.Tests.Sessions
             session.SaveOrUpdate(entity);
 
             // act
-            var result = session.Load(1, typeof(Artist));
+            var result = session.Get(1, typeof(Artist));
 
             // assert
             Assert.Equal(result, entity);

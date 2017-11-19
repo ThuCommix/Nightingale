@@ -80,17 +80,11 @@ namespace Nightingale.Sessions
 
             _logger = DependencyResolver.TryGetInstance<ILogger>();
             _sessionCache = GetSessionCache();
+            _flushList = new List<Entity>();
 
             EntityListeners = new List<IEntityListener>();
             CommitListeners = new List<ICommitListener>();
-
             Connection = connection;
-
-            _flushList = new List<Entity>();
-
-            var connectionType = Connection.GetType();
-            _logger?.Info($"Underlying database: {ReflectionHelper.GetDisplayName(connectionType) ?? connectionType.Name}");
-
             Connection.Open();
         }
 
@@ -177,12 +171,12 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
-        /// Loads an entity.
+        /// Gets the entity by the given id and type.
         /// </summary>
         /// <param name="id">The id.</param>
         /// <param name="entityType">The entity type.</param>
-        /// <returns>Returns the entity or null.</returns>
-        public virtual Entity Load(int id, Type entityType)
+        /// <returns>Returns the entity.</returns>
+        public virtual Entity Get(int id, Type entityType)
         {
             var entity = _sessionCache?.Get(id, entityType);
             if (entity != null)
@@ -192,18 +186,29 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
+        /// Gets the entity by the given id.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="id">The id.</param>
+        /// <returns>Returns the entity or null.</returns>
+        public virtual T Get<T>(int id) where T : Entity
+        {
+            return (T) Get(id, typeof(T));
+        }
+
+        /// <summary>
         /// Begins a new transaction.
         /// </summary>
         /// <param name="isolationLevel">The isolation level.</param>
         /// <returns>Returns an IDisposeable instance.</returns>
-        public virtual IDisposable BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable)
+        public virtual Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable)
         {
             if (_isInTransaction)
                 throw new SessionException("The session is already in a transaction.").Log(_logger);
 
             _isInTransaction = true;
 
-            return new TransactionProxy(Connection.BeginTransaction(isolationLevel),
+            return new Transaction(this, Connection.BeginTransaction(isolationLevel),
                 x =>
                 {
                     if (!_isInTransaction)
@@ -457,7 +462,7 @@ namespace Nightingale.Sessions
         public virtual void Refresh(ref Entity entity)
         {
             _sessionCache.Remove(entity);
-            entity = Load(entity.Id, entity.GetType());
+            entity = Get(entity.Id, entity.GetType());
         }
 
         /// <summary>

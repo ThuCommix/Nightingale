@@ -155,7 +155,7 @@ namespace <xsl:value-of select="@Namespace" />
             {
                 if(_<xsl:value-of select="@Name" /> == null<xsl:if test="@Mandatory = 'false'">&amp;&amp; FK_<xsl:value-of select="@Name" />_ID != null</xsl:if>)
                 {
-                    _<xsl:value-of select="@Name" /> = Session?.Load(FK_<xsl:value-of select="@Name" />_ID<xsl:if test="@Mandatory = 'false'">.Value</xsl:if>, typeof(<xsl:value-of select="@FieldType" />)) as <xsl:value-of select="@FieldType" />;
+                    _<xsl:value-of select="@Name" /> = Session?.Get(FK_<xsl:value-of select="@Name" />_ID<xsl:if test="@Mandatory = 'false'">.Value</xsl:if>, typeof(<xsl:value-of select="@FieldType" />)) as <xsl:value-of select="@FieldType" />;
                 }
 
                 return _<xsl:value-of select="@Name" />;
@@ -275,11 +275,11 @@ namespace <xsl:value-of select="@Namespace" />
             <xsl:if test="@Mandatory = 'false'">    
             if(FK_<xsl:value-of select="@Name" />_ID != null)
             {
-                _<xsl:value-of select="@Name" /> = Session.Load(FK_<xsl:value-of select="@Name" />_ID<xsl:if test="@Mandatory = 'false'">.Value</xsl:if>, typeof(<xsl:value-of select="@FieldType"/>)) as <xsl:value-of select="@FieldType"/>;
+                _<xsl:value-of select="@Name" /> = Session.Get(FK_<xsl:value-of select="@Name" />_ID<xsl:if test="@Mandatory = 'false'">.Value</xsl:if>, typeof(<xsl:value-of select="@FieldType"/>)) as <xsl:value-of select="@FieldType"/>;
             }
             </xsl:if>
             <xsl:if test="@Mandatory = 'true'">
-            _<xsl:value-of select="@Name" /> = Session.Load(FK_<xsl:value-of select="@Name" />_ID, typeof(<xsl:value-of select="@FieldType"/>)) as <xsl:value-of select="@FieldType"/>;
+            _<xsl:value-of select="@Name" /> = Session.Get(FK_<xsl:value-of select="@Name" />_ID, typeof(<xsl:value-of select="@FieldType"/>)) as <xsl:value-of select="@FieldType"/>;
             </xsl:if>          
         </xsl:if>
         </xsl:for-each>

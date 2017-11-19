@@ -64,19 +64,27 @@ namespace Nightingale.Sessions
         void Delete(Entity entity);
 
         /// <summary>
-        /// Loads an entity.
+        /// Gets the entity by the given id.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="id">The id.</param>
+        /// <returns>Returns the entity or null.</returns>
+        T Get<T>(int id) where T : Entity;
+
+        /// <summary>
+        /// Gets the entity by the given id and type.
         /// </summary>
         /// <param name="id">The id.</param>
         /// <param name="entityType">The entity type.</param>
-        /// <returns>Returns the entity or null.</returns>
-        Entity Load(int id, Type entityType);
+        /// <returns>Returns the entity.</returns>
+        Entity Get(int id, Type entityType);
 
         /// <summary>
         /// Begins a new transaction.
         /// </summary>
         /// <param name="isolationLevel">The isolation level.</param>
         /// <returns>Returns an IDisposeable instance.</returns>
-        IDisposable BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable);
+        Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable);
 
         /// <summary>
         /// Rollback the current transaction.
@@ -86,7 +94,7 @@ namespace Nightingale.Sessions
         /// <summary>
         /// Rollback the current transaction to the specified save point.
         /// </summary>
-        /// <param name="savePoint"></param>
+        /// <param name="savePoint">the save point.</param>
         void RollbackTo(string savePoint);
 
         /// <summary>

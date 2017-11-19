@@ -26,8 +26,8 @@ namespace Nightingale
         /// Begins a new transaction.
         /// </summary>
         /// <param name="isolationLevel">The isolation level.</param>
-        /// <returns>Returns an IDisposeable instance.</returns>
-        IDisposable BeginTransaction(IsolationLevel isolationLevel);
+        /// <returns>Returns a db transaction instance.</returns>
+        IDbTransaction BeginTransaction(IsolationLevel isolationLevel);
 
         /// <summary>
         /// Rollbacks the current transaction.

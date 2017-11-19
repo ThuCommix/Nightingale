@@ -39,7 +39,7 @@ namespace ConsoleApp1
             {
                 if(_Person == null)
                 {
-                    _Person = Session?.Load(FK_Person_ID, typeof(Person)) as Person;
+                    _Person = Session?.Get(FK_Person_ID, typeof(Person)) as Person;
                 }
 
                 return _Person;

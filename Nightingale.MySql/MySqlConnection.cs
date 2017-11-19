@@ -50,7 +50,7 @@ namespace Nightingale.MySql
         /// </summary>
         /// <param name="isolationLevel">The isolation level.</param>
         /// <returns>Returns an IDisposeable instance.</returns>
-        public IDisposable BeginTransaction(IsolationLevel isolationLevel)
+        public IDbTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             _currentTransaction = _connection.BeginTransaction(isolationLevel);
 
