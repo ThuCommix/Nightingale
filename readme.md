@@ -110,24 +110,9 @@ using the Query class itself.
     var customers = repository.GetList<Person>(x => x.FirstName == "Peter" && x.Age >= 18);
     var customers2 = repository.GetList<Person>(x => x.Name.StartsWith("Mueller"));
 
-    // using the Query class
-    var query = Query.CreateQuery<Person>();
-    var group = query.CreateQueryConditionGroup()
-
-    group.CreateQueryCondition<Person>(x => x.FirstName == "Peter" && x.Age >= 18);
-    group.CreateQueryCondition<Person>(x => x.Name.StartsWith("Mueller"));
-
-    var customers3 = repository.ExecuteQuery(query);
-
-    var query2 = Query.CreateQuery<Person>();
-    var group1 = query2.CreateQueryConditionGroup();
-    var group2 = query2.CreateQueryConditionGroup(QueryJunction.Or);
-
-    // can also be merge into one condition using the c# OR operator
-    group1.CreateQueryCondition<Person>(x => x.FirstName == "Peter");
-    group2.CreateQueryCondition<Person>(x => x.FirstName == "Klaus");
-
-    var customers4 = repository.ExecuteQuery(query);
+    // using the IQueryable interface
+    var customers3 = repository.Query<Person>().Where(x => x.FirstName == "Peter" && x.Age >= 18).ToList();
+    var customers4 = repository.Query<Person>().Where(x => x.Orders.Any(y => y.Status == OrderStatus.Pending)).OrderBy(x => x.Name).ThenBy(x => x.FirstName).ToList()
 ```
 
 ### Session behaviour
