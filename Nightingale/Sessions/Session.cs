@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 using Nightingale.Caching;
 using Nightingale.Entities;
@@ -509,7 +508,7 @@ namespace Nightingale.Sessions
             foreach (var field in fields)
             {
                 var propertyValue = ReflectionHelper.GetProperty(entityType, field.Name).GetValue(entity);
-                parameters.Add(Queries.Query.GetQueryParameter($"@{field.Name}", propertyValue, field));
+                parameters.Add(QueryHelper.GetQueryParameter($"@{field.Name}", propertyValue, field));
             }
 
             var query = new Query(commandBuilder.ToString(), entityType, parameters);
@@ -541,7 +540,7 @@ namespace Nightingale.Sessions
             foreach (var field in changedFields)
             {
                 var propertyValue = ReflectionHelper.GetProperty(entityType, field.Name).GetValue(entity);
-                parameters.Add(Queries.Query.GetQueryParameter($"@{field.Name}", propertyValue, field));
+                parameters.Add(QueryHelper.GetQueryParameter($"@{field.Name}", propertyValue, field));
             }
 
             var query = new Query(commandBuilder.ToString(), entityType, parameters);

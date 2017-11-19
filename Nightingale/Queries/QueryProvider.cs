@@ -143,11 +143,8 @@ namespace Nightingale.Queries
 
         private IQuery CreateQuery(string command, Type entityType, QueryExpressionVisitor queryExpressionVisitor)
         {
-            return new Query(command, queryExpressionVisitor.ChangedEntityType ?? entityType, queryExpressionVisitor.Parameters)
-            {
-                MaxResults = queryExpressionVisitor.Limit,
-                Skip = queryExpressionVisitor.Offset
-            };
+            return new Query(command, queryExpressionVisitor.ChangedEntityType ?? entityType,
+                queryExpressionVisitor.Parameters);
         }
     }
 }

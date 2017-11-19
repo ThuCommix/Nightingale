@@ -681,8 +681,6 @@ namespace Nightingale.Tests.Sessions
             var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
-            TestHelper.SetupSqlTokenComposer();
-
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -716,8 +714,6 @@ namespace Nightingale.Tests.Sessions
             var connectionMock = TestHelper.SetupConnection();
             var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
-
-            TestHelper.SetupSqlTokenComposer();
 
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
@@ -753,8 +749,6 @@ namespace Nightingale.Tests.Sessions
             var connectionMock = TestHelper.SetupConnection();
             var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
-
-            TestHelper.SetupSqlTokenComposer();
 
             var entity = TestHelper.CreateEntityWithId<Artist>(saved ? 1 : 0);
 

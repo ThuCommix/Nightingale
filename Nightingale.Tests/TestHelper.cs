@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Moq;
 using Nightingale.Entities;
 using Nightingale.Metadata;
-using Nightingale.Queries;
-using Nightingale.Queries.Tokens;
 using Nightingale.Tests.DataSources;
 using Xunit;
 
@@ -89,14 +85,6 @@ namespace Nightingale.Tests
         {
             DependencyResolver.Register<IEntityMetadataService>(new EntityMetadataService());
             DependencyResolver.Register<IEntityMetadataResolver>(new EntityMetadataResolver());
-        }
-
-        internal static Mock<ISqlTokenComposerService> SetupSqlTokenComposer()
-        {
-            var composerMock = SetupMock<ISqlTokenComposerService>();
-            composerMock.Setup(s => s.ComposeSql(It.IsAny<IEnumerable<SqlToken>>())).Returns(new TokenComposerResult(string.Empty, Enumerable.Empty<QueryParameter>()));
-
-            return composerMock;
         }
     }
 }

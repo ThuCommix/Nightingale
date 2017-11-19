@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Nightingale.Extensions;
+using Nightingale.Metadata;
 
 namespace Nightingale.Queries
 {
@@ -97,6 +99,18 @@ namespace Nightingale.Queries
                 default:
                     throw new NotSupportedException($"The expression-type '{expressionType} was not supported.'");
             }
+        }
+
+        /// <summary>
+        /// Gets a query parameter based on the specified name, value and field metadata.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="fieldMetadata">The field metadata.</param>
+        /// <returns>Returns a QueryParameter instance.</returns>
+        public static QueryParameter GetQueryParameter(string name, object value, FieldMetadata fieldMetadata)
+        {
+            return new QueryParameter(name, value, fieldMetadata.GetSqlDbType(), !fieldMetadata.Mandatory, fieldMetadata.MaxLength);
         }
     }
 }
