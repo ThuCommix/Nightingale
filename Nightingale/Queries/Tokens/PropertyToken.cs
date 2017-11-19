@@ -1,6 +1,6 @@
 ﻿namespace Nightingale.Queries.Tokens
 {
-    public class PropertyToken : Token
+    internal class PropertyToken : Token
     {
         /// <summary>
         /// Gets the property name.

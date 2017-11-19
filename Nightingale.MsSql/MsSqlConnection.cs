@@ -170,7 +170,7 @@ namespace Nightingale.MsSql
         public IDataReader ExecuteReader(IQuery query)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = QueryConverter.GetQueryCommand(query);
+            command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
 
             foreach (var parameter in query.Parameters)

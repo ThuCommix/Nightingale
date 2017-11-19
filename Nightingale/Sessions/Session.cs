@@ -188,12 +188,7 @@ namespace Nightingale.Sessions
             if (entity != null)
                 return entity;
 
-            var query = new Query {EntityType = entityType, MaxResults = 1};
-            var group = query.CreateQueryConditionGroup();
-            group.CreateQueryCondition("Id", id, System.Linq.Expressions.ExpressionType.Equal);
-            group.CreateQueryCondition("Deleted", false, System.Linq.Expressions.ExpressionType.Equal);
-
-            return ExecuteQuery(query).FirstOrDefault();
+            return Query<Entity>().ApplyDeleteFilter().ApplyIdFilter(id).ChangeQueryType(entityType).FirstOrDefault();
         }
 
         /// <summary>
@@ -411,6 +406,16 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
+        /// Gets the queryable.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <returns>Returns the queryable.</returns>
+        public IQueryable<T> Query<T>() where T : Entity
+        {
+            return new Queryable<T>(this).ApplyDeleteFilter();
+        }
+
+        /// <summary>
         /// Executes the specified function and returns the result object.
         /// </summary>
         /// <typeparam name="T">The type.</typeparam>
@@ -422,6 +427,18 @@ namespace Nightingale.Sessions
             var query = new Query($"SELECT {name}({string.Join(",", parameters.Select(x => x.Name))})", null, parameters);
 
             return (T)Connection.ExecuteScalar(query);
+        }
+
+        /// <summary>
+        /// Executes the specified query scalar.
+        /// </summary>
+        /// <typeparam name="T">The result type.</typeparam>
+        /// <param name="query">The query.</param>
+        /// <returns>Returns the scalar result.</returns>
+        public T ExecuteScalar<T>(IQuery query)
+        {
+            DebugQueryResult(query);
+            return (T)Convert.ChangeType(Connection.ExecuteScalar(query), typeof(T));
         }
 
         /// <summary>
@@ -485,7 +502,7 @@ namespace Nightingale.Sessions
             foreach (var field in fields)
             {
                 var propertyValue = ReflectionHelper.GetProperty(entityType, field.Name).GetValue(entity);
-                parameters.Add(Query.GetQueryParameter($"@{field.Name}", propertyValue, field));
+                parameters.Add(Queries.Query.GetQueryParameter($"@{field.Name}", propertyValue, field));
             }
 
             var query = new Query(commandBuilder.ToString(), entityType, parameters);
@@ -517,7 +534,7 @@ namespace Nightingale.Sessions
             foreach (var field in changedFields)
             {
                 var propertyValue = ReflectionHelper.GetProperty(entityType, field.Name).GetValue(entity);
-                parameters.Add(Query.GetQueryParameter($"@{field.Name}", propertyValue, field));
+                parameters.Add(Queries.Query.GetQueryParameter($"@{field.Name}", propertyValue, field));
             }
 
             var query = new Query(commandBuilder.ToString(), entityType, parameters);
@@ -618,7 +635,7 @@ namespace Nightingale.Sessions
         private void DebugQueryResult(IQuery query)
         {
             var command = query.Command;
-            var parameterDebugString = string.Join(", ", query.Parameters.Select(x => x.Name + " = " + x.Value?.ToString() ?? "NULL"));
+            var parameterDebugString = string.Join(", ", query.Parameters.Select(x => x.Name + " = " + (x.Value ?? "NULL")));
 
             _logger?.Debug($"{command}\nParameters: {parameterDebugString}");
         }

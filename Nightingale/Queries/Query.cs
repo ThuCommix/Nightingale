@@ -9,6 +9,7 @@ using Nightingale.Queries.Tokens;
 
 namespace Nightingale.Queries
 {
+    [Obsolete("Will be removed in Nightingale 2.0.0, please use Session.Query<T> instead.")]
     public class Query : IQuery
     {
         /// <summary>
@@ -43,6 +44,11 @@ namespace Nightingale.Queries
         public int? MaxResults { get; set; }
 
         /// <summary>
+        /// Gets the amount of rows to skip.
+        /// </summary>
+        public int? Skip { get; set; }
+
+        /// <summary>
         /// Gets the condition groups.
         /// </summary>
         public IEnumerable<QueryConditionGroup> ConditionGroups => _groups;
@@ -67,7 +73,7 @@ namespace Nightingale.Queries
         /// <summary>
         /// Gets the sql token composer service.
         /// </summary>
-        protected ISqlTokenComposerService SqlTokenComposerService => DependencyResolver.GetInstance<ISqlTokenComposerService>();
+        internal ISqlTokenComposerService SqlTokenComposerService => DependencyResolver.GetInstance<ISqlTokenComposerService>();
 
         private readonly List<SortExpression> _sortingExpressions;
         private readonly List<QueryParameter> _parameters;
@@ -97,8 +103,6 @@ namespace Nightingale.Queries
 
             if(parameters != null)
                 _parameters.AddRange(parameters);
-
-            ApplyGlobalQueryFilters();
         }
 
         /// <summary>

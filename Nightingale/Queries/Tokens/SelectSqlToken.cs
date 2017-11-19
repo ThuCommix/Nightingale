@@ -3,7 +3,7 @@ using Nightingale.Metadata;
 
 namespace Nightingale.Queries.Tokens
 {
-    public class SelectSqlToken : SqlToken
+    internal class SelectSqlToken : SqlToken
     {
         /// <summary>
         /// Gets the entity metadata.

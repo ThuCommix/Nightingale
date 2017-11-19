@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Nightingale.Tests
 {
-    public static class TestHelper
+    internal static class TestHelper
     {
         public static Stream GetResourceStream(string name)
         {
@@ -91,7 +91,7 @@ namespace Nightingale.Tests
             DependencyResolver.Register<IEntityMetadataResolver>(new EntityMetadataResolver());
         }
 
-        public static Mock<ISqlTokenComposerService> SetupSqlTokenComposer()
+        internal static Mock<ISqlTokenComposerService> SetupSqlTokenComposer()
         {
             var composerMock = SetupMock<ISqlTokenComposerService>();
             composerMock.Setup(s => s.ComposeSql(It.IsAny<IEnumerable<SqlToken>>())).Returns(new TokenComposerResult(string.Empty, Enumerable.Empty<QueryParameter>()));

@@ -1,6 +1,6 @@
 ﻿namespace Nightingale.Queries.Tokens
 {
-    public class BinaryToken : Token
+    internal class BinaryToken : Token
     {
         /// <summary>
         /// Gets the operator.

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using Nightingale;
 using Nightingale.Entities;
@@ -14,7 +16,7 @@ namespace ConsoleApp1
 	/// </summary>
 	[Table("")]
 	[Description("")]
-	public class Person : Entity
+	public partial class Person : Entity
 	{
 	
 		/// <summary>
@@ -41,6 +43,8 @@ namespace ConsoleApp1
                 
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(FirstName), _FirstName, newValue);
                 _FirstName = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -70,6 +74,8 @@ namespace ConsoleApp1
                 
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Name), _Name, newValue);
                 _Name = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -91,6 +97,8 @@ namespace ConsoleApp1
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Age), _Age, value);
                 _Age = value;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -112,6 +120,8 @@ namespace ConsoleApp1
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(IsLegalAge), _IsLegalAge, value);
                 _IsLegalAge = value; 
+                
+                OnPropertyChanged();
             }
         }
         
@@ -130,21 +140,18 @@ namespace ConsoleApp1
         {
             get
             {
-                if(!_AddressesQueried)
+                lock (_Addresses)
                 {
-                    var query = Query.CreateQuery<Address>();
-                    var group = query.CreateQueryConditionGroup();
-                    
-                    group.CreateQueryCondition<Address>(x => x.FK_Person_ID == Id);
-                    group.CreateQueryCondition<Address>(x => x.Deleted == false);
-                    
-                    var items = Session?.ExecuteQuery(query)?.OfType<Address>();
-                    if(items != null)
+                    if(!_AddressesQueried)
                     {
-                        items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = true);
-                        ((EntityCollection<Address>)_Addresses).AddRange(items);
-                        items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = false);
-                        _AddressesQueried = true;   
+                        var items = Session?.Query<Address>().Where(x => x.FK_Person_ID == Id).ToList();
+                        if(items != null)
+                        {
+                            items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = true);
+                            ((EntityCollection<Address>)_Addresses).AddRange(items);
+                            items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = false);
+                            _AddressesQueried = true;   
+                        }
                     }
                 }
                 

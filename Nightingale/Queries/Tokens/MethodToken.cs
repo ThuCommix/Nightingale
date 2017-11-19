@@ -2,7 +2,7 @@
 
 namespace Nightingale.Queries.Tokens
 {
-    public class MethodToken : Token
+    internal class MethodToken : Token
     {
         /// <summary>
         /// Gets the method name.

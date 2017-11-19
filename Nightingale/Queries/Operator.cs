@@ -1,6 +1,6 @@
 ﻿namespace Nightingale.Queries
 {
-    public enum Operator
+    internal enum Operator
     {
         Equal,
 

@@ -2,7 +2,7 @@
 
 namespace Nightingale.Queries.Tokens
 {
-    public class ConditionLinkSqlToken : SqlToken
+    internal class ConditionLinkSqlToken : SqlToken
     {
         /// <summary>
         /// Gets the operator.

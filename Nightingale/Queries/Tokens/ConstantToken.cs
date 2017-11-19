@@ -1,6 +1,6 @@
 ﻿namespace Nightingale.Queries.Tokens
 {
-    public class ConstantToken : Token
+    internal class ConstantToken : Token
     {
         /// <summary>
         /// Gets the constant value.

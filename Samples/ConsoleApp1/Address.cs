@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Nightingale;
 using Nightingale.Entities;
+using Nightingale.Extensions;
+using Nightingale.Queries;
 
 // generated Address.cs
 		
@@ -14,7 +16,7 @@ namespace ConsoleApp1
 	/// </summary>
 	[Table("")]
 	[Description("")]
-	public class Address : Entity
+	public partial class Address : Entity
 	{
 	
 		/// <summary>
@@ -49,6 +51,8 @@ namespace ConsoleApp1
                 
                 _Person = value;
                 FK_Person_ID = value.Id;
+                
+                OnPropertyChanged();
             }
         }
 
@@ -72,6 +76,8 @@ namespace ConsoleApp1
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(IsValid), _IsValid, value);
                 _IsValid = value; 
+                
+                OnPropertyChanged();
             }
         }
         
@@ -98,6 +104,8 @@ namespace ConsoleApp1
                 var newValue = value.Date;
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(ValidFrom), _ValidFrom, newValue);
                 _ValidFrom = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -120,6 +128,8 @@ namespace ConsoleApp1
                 var newValue = value;
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(ValidTo), _ValidTo, newValue);
                 _ValidTo = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -149,6 +159,8 @@ namespace ConsoleApp1
                 
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Zip), _Zip, newValue);
                 _Zip = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -178,6 +190,8 @@ namespace ConsoleApp1
                 
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Town), _Town, newValue);
                 _Town = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -207,6 +221,8 @@ namespace ConsoleApp1
                 
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Street), _Street, newValue);
                 _Street = newValue;
+                
+                OnPropertyChanged();
             }
         }
         
@@ -231,6 +247,8 @@ namespace ConsoleApp1
             {
                 PropertyChangeTracker.AddPropertyChangedItem(nameof(Type), _Type, value);
                 _Type = value;
+                
+                OnPropertyChanged();
             }
         }
         
