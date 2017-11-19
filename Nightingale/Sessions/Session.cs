@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using Nightingale.Caching;
 using Nightingale.Entities;
@@ -579,16 +581,26 @@ namespace Nightingale.Sessions
 
             foreach (var entityMetadata in entityMetadataList)
             {
-                var query = new Query { EntityType = EntityMetadataResolver.GetEntityType(entityMetadata) };
+                var currentType = EntityMetadataResolver.GetEntityType(entityMetadata);
                 var fields = entityMetadata.Fields.Where(x => x.FieldType == entityType.Name && x.Mandatory);
+
+                var parameter = Expression.Parameter(currentType, "x");
+                Expression resultExpression = null;
 
                 foreach (var field in fields)
                 {
-                    var group = query.CreateQueryConditionGroup(QueryJunction.Or);
-                    group.CreateQueryCondition(field.Name, entity.Id, System.Linq.Expressions.ExpressionType.Equal);
+                    var body = Expression.Equal(Expression.Property(parameter, field.Name), Expression.Constant(entity.Id));
+                    resultExpression = resultExpression == null ? body : Expression.OrElse(resultExpression, body);
                 }
 
-                var results = ExecuteQuery(query).Where(x => !entitiesToDelete.Any(y => y.Id == x.Id && y.GetType() == x.GetType())).ToList();
+                var finalExpression = Expression.Lambda(resultExpression, parameter);
+                var queryable = new QueryProvider(this).CreateQuery(Expression.Constant(null, typeof(IQueryable<>).MakeGenericType(currentType)));
+                var methodInfo = typeof(Queryable).GetMethods().FirstOrDefault(x => x.Name == "Where").MakeGenericMethod(currentType);
+                var methodCall = Expression.Call(methodInfo, queryable.Expression, finalExpression);
+
+                queryable = queryable.Provider.CreateQuery(methodCall);
+
+                var results = queryable.Cast<Entity>().ChangeQueryType(currentType).ToList();
                 if (results.Count > 0)
                 {
                     constraints.AddRange(results.Select(x => $"Entity '{entityMetadata.Name}' with Id = '{x.Id}' references '{entityType.Name}' in {string.Join(", ", fields.Select(y => $"'{y.Name}'"))}."));

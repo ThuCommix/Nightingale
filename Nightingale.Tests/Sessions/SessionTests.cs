@@ -789,7 +789,6 @@ namespace Nightingale.Tests.Sessions
             var session = new SessionProxy(connectionMock.Object);
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
-            var tokenServiceMock = TestHelper.SetupSqlTokenComposer();
             var entity = TestHelper.CreateEntityWithId<Artist>(1);
 
             var entityServiceMock = TestHelper.SetupMock<IEntityService>();
@@ -817,7 +816,6 @@ namespace Nightingale.Tests.Sessions
             dataReaderMock.VerifyAll();
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
-            tokenServiceMock.VerifyAll();
         }
 
         [Fact]

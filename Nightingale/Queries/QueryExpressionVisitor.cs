@@ -426,6 +426,11 @@ namespace Nightingale.Queries
                 return Visit(node.Arguments[0]);
             }
 
+            if (node.Method.Name == "Cast")
+            {
+                return Visit(node.Arguments[0]);
+            }
+
             throw new NotSupportedException($"{node.Method.Name} is not supported.");
         }
 
