@@ -1,6 +1,6 @@
 ﻿namespace Nightingale.Queries.Tokens
 {
-    public enum ConditionLinkType
+    internal enum ConditionLinkType
     {
         /// <summary>
         /// Start of a condition.

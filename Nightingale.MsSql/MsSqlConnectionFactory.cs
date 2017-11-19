@@ -114,6 +114,7 @@ namespace Nightingale.MsSql
         {
             Pooling = true;
             MaxPoolSize = 100;
+            ApplySqlEngine(new MsSqlEngine());
         }
 
         /// <summary>
@@ -123,6 +124,7 @@ namespace Nightingale.MsSql
         public MsSqlConnectionFactory(string connectionString)
         {
             ConnectionString = connectionString;
+            ApplySqlEngine(new MsSqlEngine());
         }
 
         /// <summary>

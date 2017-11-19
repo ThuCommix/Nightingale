@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 using Nightingale.Entities;
 using Nightingale.Queries;
@@ -81,6 +82,13 @@ namespace Nightingale
         /// <param name="query">The query.</param>
         /// <returns>Returns the result list of entities.</returns>
         List<Entity> ExecuteQuery(IQuery query);
+
+        /// <summary>
+        /// Gets the queryable.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <returns>Returns the queryable.</returns>
+        IQueryable<T> Query<T>() where T : Entity;
 
         /// <summary>
         /// Saves the entity.

@@ -320,5 +320,212 @@ namespace Nightingale.Tests.Queries {
                 return ResourceManager.GetString("Query_Supports_String_StartsWith", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (SELECT COUNT(e1.Id) FROM ArtistStatisticValues e1 INNER JOIN Artist v0 ON v0.Id = e1.FK_AnotherArtist_ID WHERE (v0.Name = @p0) AND e1.FK_AnotherArtist_ID = e.Id) = (SELECT COUNT(e1.Id) FROM ArtistStatisticValues e1 INNER JOIN Artist v0 ON v0.Id = e1.FK_AnotherArtist_ID WHERE e1.FK_AnotherArtist_ID = e.Id)  ähnelt.
+        /// </summary>
+        internal static string Queryable_All {
+            get {
+                return ResourceManager.GetString("Queryable_All", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE e.Id IN (SELECT e1.FK_AnotherArtist_ID FROM ArtistStatisticValues e1 INNER JOIN Artist v0 ON v0.Id = e1.FK_AnotherArtist_ID WHERE (v0.Name = @p0) AND e1.FK_AnotherArtist_ID = e.Id)  ähnelt.
+        /// </summary>
+        internal static string Queryable_Any {
+            get {
+                return ResourceManager.GetString("Queryable_Any", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE e.Name LIKE @p0  ähnelt.
+        /// </summary>
+        internal static string Queryable_Contains {
+            get {
+                return ResourceManager.GetString("Queryable_Contains", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Name = @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_Equals {
+            get {
+                return ResourceManager.GetString("Queryable_Equals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Name IS NOT @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_Equals_Not_Null {
+            get {
+                return ResourceManager.GetString("Queryable_Equals_Not_Null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Name IS @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_Equals_Null {
+            get {
+                return ResourceManager.GetString("Queryable_Equals_Null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Name != @p0)  LIMIT 1 ähnelt.
+        /// </summary>
+        internal static string Queryable_FirstOrDefault {
+            get {
+                return ResourceManager.GetString("Queryable_FirstOrDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Id &gt; @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_GreaterThan {
+            get {
+                return ResourceManager.GetString("Queryable_GreaterThan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Id &gt;= @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_GreaterThan_Or_Equals {
+            get {
+                return ResourceManager.GetString("Queryable_GreaterThan_Or_Equals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Id &lt; @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_LowerThan {
+            get {
+                return ResourceManager.GetString("Queryable_LowerThan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Id &lt;= @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_LowerThan_Or_Equals {
+            get {
+                return ResourceManager.GetString("Queryable_LowerThan_Or_Equals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (((e.Name = @p0) AND (e.Alias = @p1)) OR (e.Deleted = @p2))  ähnelt.
+        /// </summary>
+        internal static string Queryable_Mixed_And_Or_Conditions {
+            get {
+                return ResourceManager.GetString("Queryable_Mixed_And_Or_Conditions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e  ORDER BY e.Name desc, e.Alias asc ähnelt.
+        /// </summary>
+        internal static string Queryable_Mixed_Order {
+            get {
+                return ResourceManager.GetString("Queryable_Mixed_Order", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE ((e.Name = @p0) AND (e.Deleted = @p1))  ähnelt.
+        /// </summary>
+        internal static string Queryable_Multiple_And_Conditions {
+            get {
+                return ResourceManager.GetString("Queryable_Multiple_And_Conditions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE ((e.Name = @p0) OR (e.Deleted = @p1))  ähnelt.
+        /// </summary>
+        internal static string Queryable_Multiple_Or_Conditions {
+            get {
+                return ResourceManager.GetString("Queryable_Multiple_Or_Conditions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.FK_AnotherArtist_ID IS @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_NonScalar_Property_Check_Results_In_Fk_Check {
+            get {
+                return ResourceManager.GetString("Queryable_NonScalar_Property_Check_Results_In_Fk_Check", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.Name != @p0)  ähnelt.
+        /// </summary>
+        internal static string Queryable_Not_Equals {
+            get {
+                return ResourceManager.GetString("Queryable_Not_Equals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e  ORDER BY e.Name asc, e.Alias asc ähnelt.
+        /// </summary>
+        internal static string Queryable_OrderBy {
+            get {
+                return ResourceManager.GetString("Queryable_OrderBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e  ORDER BY e.Name desc, e.Alias desc ähnelt.
+        /// </summary>
+        internal static string Queryable_OrderByDescending {
+            get {
+                return ResourceManager.GetString("Queryable_OrderByDescending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.FK_AnotherArtist_ID IS @p0)  LIMIT 2147483647 OFFSET 10 ähnelt.
+        /// </summary>
+        internal static string Queryable_Skip {
+            get {
+                return ResourceManager.GetString("Queryable_Skip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.FK_AnotherArtist_ID IS @p0)  LIMIT 10 OFFSET 10 ähnelt.
+        /// </summary>
+        internal static string Queryable_SkipTake {
+            get {
+                return ResourceManager.GetString("Queryable_SkipTake", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.FK_AnotherArtist_ID IS @p0)  LIMIT 10 ähnelt.
+        /// </summary>
+        internal static string Queryable_Take {
+            get {
+                return ResourceManager.GetString("Queryable_Take", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e LEFT JOIN Artist v0 ON v0.Id = e.FK_AnotherArtist_ID LEFT JOIN Artist v1 ON v1.Id = v0.FK_AnotherArtist_ID WHERE ((v0.Name = @p0) AND (v1.Alias = @p1))  ähnelt.
+        /// </summary>
+        internal static string Queryable_With_Joins {
+            get {
+                return ResourceManager.GetString("Queryable_With_Joins", resourceCulture);
+            }
+        }
     }
 }

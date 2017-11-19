@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Nightingale.Metadata;
-using Nightingale.Queries;
 using Nightingale.Sessions;
 
 namespace Nightingale.Entities
@@ -138,22 +136,6 @@ namespace Nightingale.Entities
                 metadata.Fields.Where(x => x.Mandatory)
                     .Select(fieldMetadata => properties.First(x => x.Name == fieldMetadata.Name))
                     .All(property => property.GetValue(this) != null);
-        }
-
-        /// <summary>
-        /// Gets a query prepared with the deleted statement.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <param name="expression">The expression.</param>
-        /// <returns>Returns the prepared query.</returns>
-        protected Query GetQuery<T>(Expression<Func<T, bool>> expression) where T : Entity
-        {
-            var query = Query.CreateQuery<T>();
-            var group = query.CreateQueryConditionGroup();
-
-            group.CreateQueryCondition<T>(x => x.Deleted == false);
-
-            return query;
         }
 
         /// <summary>

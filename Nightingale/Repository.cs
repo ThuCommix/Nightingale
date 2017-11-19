@@ -128,7 +128,7 @@ namespace Nightingale
         /// <returns>Returns the entity or null.</returns>
         public virtual T GetById<T>(int id) where T : Entity
         {
-            return GetByIdAndType(id, typeof(T)) as T;
+            return (T) GetByIdAndType(id, typeof(T));
         }
 
         /// <summary>
@@ -150,15 +150,10 @@ namespace Nightingale
         /// <returns>Returns the result list of entities.</returns>
         public virtual List<T> GetList<T>(Expression<Func<T, bool>> expression) where T : Entity
         {
-            var query = Query.CreateQuery<T>();
-            var group = query.CreateQueryConditionGroup();
+            if(expression == null)
+                throw new ArgumentNullException(nameof(expression));
 
-            group.CreateQueryCondition("Deleted", false, ExpressionType.Equal);
-
-            if(expression != null)
-                group.CreateQueryCondition(expression);
-
-            return Session.ExecuteQuery(query).OfType<T>().ToList();
+            return Query<T>().Where(expression).ToList();
         }
 
 
@@ -169,7 +164,7 @@ namespace Nightingale
         /// <returns>Returns the result list of entities.</returns>
         public virtual List<T> GetList<T>() where T : Entity
         {
-            return GetList<T>(null);
+            return Query<T>().ToList();
         }
 
         /// <summary>
@@ -180,6 +175,16 @@ namespace Nightingale
         public virtual List<Entity> ExecuteQuery(IQuery query)
         {
             return Session.ExecuteQuery(query);
+        }
+
+        /// <summary>
+        /// Gets the queryable.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <returns>Returns the queryable.</returns>
+        public IQueryable<T> Query<T>() where T : Entity
+        {
+            return Session.Query<T>();
         }
 
         /// <summary>

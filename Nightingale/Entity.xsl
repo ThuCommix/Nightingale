@@ -199,13 +199,7 @@ namespace <xsl:value-of select="@Namespace" />
                 {
                     if(!_<xsl:value-of select="@Name" />Queried)
                     {
-                        var query = Query.CreateQuery&lt;<xsl:value-of select="@FieldType" />&gt;();
-                        var group = query.CreateQueryConditionGroup();
-                    
-                        group.CreateQueryCondition&lt;<xsl:value-of select="@FieldType" />&gt;(x =&gt; x.FK_<xsl:value-of select="@ReferenceField" />_ID == Id);
-                        group.CreateQueryCondition&lt;<xsl:value-of select="@FieldType" />&gt;(x =&gt; x.Deleted == false);
-                    
-                        var items = Session?.ExecuteQuery(query)?.OfType&lt;<xsl:value-of select="@FieldType" />&gt;();
+                        var items = Session?.Query&lt;<xsl:value-of select="@FieldType" />&gt;().Where(x =&gt; x.FK_<xsl:value-of select="@ReferenceField" />_ID == Id).ToList();
                         if(items != null)
                         {
                             items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = true);
@@ -292,9 +286,7 @@ namespace <xsl:value-of select="@Namespace" />
 
         <xsl:for-each select="ListFields/ListField">
         <xsl:if test="@EagerLoad = 'true'">
-            var items<xsl:value-of select="@Name" /> = Session.ExecuteQuery(GetQuery&lt;<xsl:value-of select="@FieldType" />&gt;(x =&gt; x.FK_<xsl:value-of select="@ReferenceField" />_ID == Id)).OfType&lt;<xsl:value-of select="@FieldType" />&gt;();
-            ((EntityCollection&lt;<xsl:value-of select="@FieldType" />&gt;)_<xsl:value-of select="@Name" />).AddRange(items<xsl:value-of select="@Name" />);
-            _<xsl:value-of select="@Name" />Queried = true;
+            var items<xsl:value-of select="@Name" /> = <xsl:value-of select="@Name" />;
         </xsl:if>
         </xsl:for-each>
         }

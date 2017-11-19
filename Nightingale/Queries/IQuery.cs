@@ -24,5 +24,10 @@ namespace Nightingale.Queries
         /// Gets the maximum results.
         /// </summary>
         int? MaxResults { get; }
+
+        /// <summary>
+        /// Gets the amount of rows to skip.
+        /// </summary>
+        int? Skip { get; }
     }
 }

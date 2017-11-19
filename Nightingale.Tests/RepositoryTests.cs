@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using Moq;
-using Nightingale.Entities;
-using Nightingale.Queries;
+﻿using Nightingale.Entities;
 using Nightingale.Sessions;
 using Xunit;
 
@@ -49,34 +43,6 @@ namespace Nightingale.Tests
 
             // assert
             Assert.Null(result);
-
-            sessionMock.VerifyAll();
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void GetList_Adds_Deleted_Check_To_Query(bool withExpression)
-        {
-            // arrange
-            var sessionMock = TestHelper.SetupMock<ISession>();
-
-            IQuery queryCallback = null;
-
-            sessionMock.Setup(s => s.ExecuteQuery(It.IsAny<IQuery>())).Returns(new List<Entity>()).Callback<IQuery>((queryObj) => queryCallback = queryObj);
-
-            var repository = new Repository(sessionMock.Object);
-
-            // act
-            var result = repository.GetList(withExpression ? x => x.Id == 1 : (Expression<Func<Entity, bool>>)null);
-
-            // assert
-            var query = queryCallback as Query;
-            var conditionItem = query.ConditionGroups.First().Conditions.FirstOrDefault(x => x.PropertyPath == "Deleted");
-            Assert.NotNull(conditionItem);
-            Assert.NotNull(result);
-            Assert.Equal("Deleted", conditionItem.PropertyPath);
-            Assert.False((bool)conditionItem.EquationValue);
 
             sessionMock.VerifyAll();
         }

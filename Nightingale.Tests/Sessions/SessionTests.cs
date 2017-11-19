@@ -422,39 +422,6 @@ namespace Nightingale.Tests.Sessions
         }
 
         [Fact]
-        public void Load_Creates_Expected_Query_And_Calls_ExecuteQuery()
-        {
-            // arrange
-            var connectionMock = TestHelper.SetupConnection();
-            var dataReaderMock = TestHelper.SetupMock<IDataReader>();
-            var session = new SessionProxy(connectionMock.Object);
-
-            TestHelper.SetupEntityMetadataServices();
-            TestHelper.SetupSqlTokenComposer();
-
-            const int id = 1;
-
-            Query query = null;
-
-            connectionMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Returns(dataReaderMock.Object).Callback<IQuery>((q) => query = q as Query);
-            dataReaderMock.Setup(s => s.Read()).Returns(false);
-            dataReaderMock.Setup(s => s.Dispose());
-
-            // act
-            var result = session.Load(id, typeof(Artist));
-
-            // assert
-            Assert.Null(result);
-            Assert.NotNull(query);
-            Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Id" && (int)x.EquationValue == id);
-            Assert.Contains(query.ConditionGroups.First().Conditions, x => x.PropertyPath == "Deleted" && (bool)x.EquationValue == false);
-            Assert.Equal(typeof(Artist), query.EntityType);
-
-            dataReaderMock.VerifyAll();
-            connectionMock.VerifyAll();
-        }
-
-        [Fact]
         public void Flush_Throws_Exception_When_Entity_Is_Not_Valid()
         {
             // arrange

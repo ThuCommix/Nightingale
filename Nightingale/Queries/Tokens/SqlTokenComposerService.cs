@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Nightingale.Queries.Tokens
 {
-    public class SqlTokenComposerService : ISqlTokenComposerService
+    internal class SqlTokenComposerService : ISqlTokenComposerService
     {
         /// <summary>
         /// Composes the sql based on the specified tokens.

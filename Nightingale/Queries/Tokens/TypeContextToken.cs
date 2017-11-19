@@ -2,7 +2,7 @@
 
 namespace Nightingale.Queries.Tokens
 {
-    public class TypeContextToken : Token
+    internal class TypeContextToken : Token
     {
         /// <summary>
         /// Gets the type.

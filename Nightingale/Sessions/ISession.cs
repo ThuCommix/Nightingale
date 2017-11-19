@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Nightingale.Caching;
 using Nightingale.Entities;
 using Nightingale.Queries;
@@ -118,6 +119,13 @@ namespace Nightingale.Sessions
         List<Entity> ExecuteQuery(IQuery query);
 
         /// <summary>
+        /// Gets the queryable.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <returns>Returns the queryable.</returns>
+        IQueryable<T> Query<T>() where T : Entity;
+
+        /// <summary>
         /// Executes the specified function and returns the result object.
         /// </summary>
         /// <typeparam name="T">The type.</typeparam>
@@ -125,6 +133,14 @@ namespace Nightingale.Sessions
         /// <param name="parameters">The parameters.</param>
         /// <returns>Returns the result object.</returns>
         T ExecuteFunc<T>(string name, params QueryParameter[] parameters);
+
+        /// <summary>
+        /// Executes the specified query scalar.
+        /// </summary>
+        /// <typeparam name="T">The result type.</typeparam>
+        /// <param name="query">The query.</param>
+        /// <returns>Returns the scalar result.</returns>
+        T ExecuteScalar<T>(IQuery query);
 
         /// <summary>
         /// Clears the session.
