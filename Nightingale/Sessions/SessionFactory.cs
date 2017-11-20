@@ -80,7 +80,7 @@ namespace Nightingale.Sessions
         /// <returns>Returns a session instance.</returns>
         public virtual ISession OpenSession<T>() where T : ISession
         {
-            _sessions.RemoveAll(x => !x.IsOpen);
+            CleanSessions();
 
             var session = (T)Activator.CreateInstance(typeof(T), ConnectionFactory.CreateConnection());
             if (!_sessions.Contains(session))
@@ -112,6 +112,14 @@ namespace Nightingale.Sessions
         protected virtual void RemoveSession(ISession session)
         {
             _sessions.Remove(session);
+        }
+
+        /// <summary>
+        /// Cleans closed sessions.
+        /// </summary>
+        protected void CleanSessions()
+        {
+            _sessions.RemoveAll(x => !x.IsOpen);
         }
 
         /// <summary>
