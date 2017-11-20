@@ -1,5 +1,4 @@
 ﻿using System;
-using Nightingale;
 using Nightingale.Extensions;
 using Nightingale.Logging;
 using Nightingale.Sessions;
@@ -18,7 +17,7 @@ namespace ConsoleApp1
             sessionFactory.EntityListeners.Add(new PersonEntityService());
             sessionFactory.EntityListeners.Add(new AddressEntityService());
 
-            var session = sessionFactory.GetCurrentSession();
+            var session = sessionFactory.OpenSession();
 
             // create tables if not available
             session.GetTable<Person>().Recreate();
@@ -52,7 +51,7 @@ namespace ConsoleApp1
             session.Dispose();
 
             // creating a new session so that the entities aren't cached anymore
-            session = sessionFactory.GetCurrentSession();
+            session = sessionFactory.OpenSession();
 
             var loadedPerson = session.Get<Person>(1);
 

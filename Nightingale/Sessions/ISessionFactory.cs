@@ -17,11 +17,6 @@ namespace Nightingale.Sessions
         IConnectionFactory ConnectionFactory { get; }
 
         /// <summary>
-        /// Gets the session context.
-        /// </summary>
-        ISessionContext Context { get; }
-
-        /// <summary>
         /// Gets the list of entity listeners.
         /// </summary>
         List<IEntityListener> EntityListeners { get; }
@@ -47,9 +42,16 @@ namespace Nightingale.Sessions
         DeletionMode DeletionMode { get; set; }
 
         /// <summary>
-        /// Gets the current session.
+        /// Opens a new session.
         /// </summary>
         /// <returns>Returns a session instance.</returns>
-        ISession GetCurrentSession();
+        ISession OpenSession();
+
+        /// <summary>
+        /// Opens a new session.
+        /// </summary>
+        /// <typeparam name="T">The session type.</typeparam>
+        /// <returns>Returns a session instance.</returns>
+        ISession OpenSession<T>() where T : ISession;
     }
 }

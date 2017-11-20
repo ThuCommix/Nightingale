@@ -18,11 +18,6 @@ namespace Nightingale.Sessions
         public IConnectionFactory ConnectionFactory { get; }
 
         /// <summary>
-        /// Gets the session context.
-        /// </summary>
-        public ISessionContext Context { get; }
-
-        /// <summary>
         /// Gets the list of entity listeners.
         /// </summary>
         public List<IEntityListener> EntityListeners { get; }
@@ -58,18 +53,7 @@ namespace Nightingale.Sessions
         /// </summary>
         /// <param name="factory">The connection factory.</param>
         public SessionFactory(IConnectionFactory factory) 
-            : this(factory, new SessionContext<Session> { ContextMode = SessionContextMode.SessionPerThread })
         {
-        }
-
-        /// <summary>
-        /// Initializes a new SessionFactory class.
-        /// </summary>
-        /// <param name="sessionContext">The session context.</param>
-        /// <param name="factory">The connection factory.</param>
-        public SessionFactory(IConnectionFactory factory, ISessionContext sessionContext)
-        {
-            Context = sessionContext;
             ConnectionFactory = factory;
 
             EntityListeners = new List<IEntityListener>();
@@ -81,14 +65,24 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
-        /// Gets the current session.
+        /// Opens a new session.
         /// </summary>
         /// <returns>Returns a session instance.</returns>
-        public virtual ISession GetCurrentSession()
+        public virtual ISession OpenSession()
+        {
+            return OpenSession<Session>();
+        }
+
+        /// <summary>
+        /// Opens a new session.
+        /// </summary>
+        /// <typeparam name="T">The session type.</typeparam>
+        /// <returns>Returns a session instance.</returns>
+        public virtual ISession OpenSession<T>() where T : ISession
         {
             _sessions.RemoveAll(x => !x.IsOpen);
 
-            var session = Context.GetSession(ConnectionFactory);
+            var session = (T)Activator.CreateInstance(typeof(T), ConnectionFactory.CreateConnection());
             if (!_sessions.Contains(session))
             {
                 AddSession(session);
@@ -103,30 +97,30 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
+        /// Adds a new session to the list.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        protected virtual void AddSession(ISession session)
+        {
+            _sessions.Add(session);
+        }
+
+        /// <summary>
+        /// Removes the session.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        protected virtual void RemoveSession(ISession session)
+        {
+            _sessions.Remove(session);
+        }
+
+        /// <summary>
         /// Disposes the session factory.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Adds the specified session to the session list.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        protected void AddSession(ISession session)
-        {
-            _sessions.Add(session);
-        }
-
-        /// <summary>
-        /// Removes the specified session from the session list.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        protected void RemoveSession(ISession session)
-        {
-            _sessions.Remove(session);
         }
 
         /// <summary>
@@ -137,7 +131,10 @@ namespace Nightingale.Sessions
         {
             if (disposing)
             {
-                Context.Dispose();
+                foreach (var session in Sessions)
+                {
+                    session.Dispose();
+                }
             }
         }
     }

@@ -46,7 +46,7 @@ namespace Nightingale.Web
             return Task.Run(() =>
             {
                 var guid = HttpContexts.FirstOrDefault(x => x.Value == httpContext).Key;
-                if (guid != null)
+                if (guid != Guid.Empty)
                 {
                     HttpContexts.Remove(guid);
                 }
