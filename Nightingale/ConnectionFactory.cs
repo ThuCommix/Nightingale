@@ -3,6 +3,9 @@ using Nightingale.Queries;
 
 namespace Nightingale
 {
+    /// <summary>
+    /// Responsible for creating a <see cref="IConnection"/> based on the connection string.
+    /// </summary>
     public abstract class ConnectionFactory<T> : IConnectionFactory where T : IConnection
     {
         /// <summary>
@@ -16,7 +19,10 @@ namespace Nightingale
         /// <returns>Returns a connection instance.</returns>
         public virtual IConnection CreateConnection()
         {
-            return (IConnection)Activator.CreateInstance(typeof(T), ConnectionString);
+            var connection = (IConnection)Activator.CreateInstance(typeof(T), ConnectionString);
+            connection.Open();
+
+            return connection;
         }
 
         /// <summary>

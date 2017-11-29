@@ -5,6 +5,7 @@ using System.Reflection;
 using Moq;
 using Nightingale.Entities;
 using Nightingale.Metadata;
+using Nightingale.Sessions;
 using Nightingale.Tests.DataSources;
 using Xunit;
 

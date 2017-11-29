@@ -3,32 +3,47 @@ using System.Data;
 
 namespace Nightingale.Sessions
 {
+    /// <summary>
+    /// Represents a database transaction.
+    /// </summary>
     public class Transaction : IDisposable
     {
-        private readonly ISession _session;
+        /// <summary>
+        /// Raises when the transaction is committing.
+        /// </summary>
+        public event EventHandler<EventArgs> Committing;
+
+        /// <summary>
+        /// Raises when the transaction was committed.
+        /// </summary>
+        public event EventHandler<EventArgs> Committed;
+
+        /// <summary>
+        /// Raises when the transaction is finished.
+        /// </summary>
+        public event EventHandler<EventArgs> Finished; 
+
+        private readonly IConnection _connection;
         private readonly IDbTransaction _transaction;
-        private readonly Action<IDbTransaction> _disposeCallback;
+        private bool _isDisposed;
+        private bool _isInTransaction;
 
         /// <summary>
         /// Initializes a new Transaction class.
         /// </summary>
-        /// <param name="session">The session.</param>
+        /// <param name="connection">The connection.</param>
         /// <param name="transaction">The transaction.</param>
-        /// <param name="disposeCallback">The dispose callback.</param>
-        public Transaction(ISession session, IDbTransaction transaction, Action<IDbTransaction> disposeCallback)
+        public Transaction(IConnection connection, IDbTransaction transaction)
         {
-            if(session == null)
-                throw new ArgumentNullException(nameof(session));
+            if(connection == null)
+                throw new ArgumentNullException(nameof(connection));
 
             if(transaction == null)
                 throw new ArgumentNullException(nameof(transaction));
 
-            if(disposeCallback == null)
-                throw new ArgumentNullException(nameof(disposeCallback));
-
-            _session = session;
+            _connection = connection;
             _transaction = transaction;
-            _disposeCallback = disposeCallback;
+            _isInTransaction = true;
         }
 
         /// <summary>
@@ -36,7 +51,17 @@ namespace Nightingale.Sessions
         /// </summary>
         public void Commit()
         {
-            _session.Commit();
+            if(_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
+            if(!_isInTransaction)
+                throw new InvalidOperationException("The transaction was either already committed or rolled back.");
+
+            Committing?.Invoke(this, EventArgs.Empty);
+            _connection.Commit();
+            Committed?.Invoke(this, EventArgs.Empty);
+
+            FinishTransaction();
         }
 
         /// <summary>
@@ -44,7 +69,15 @@ namespace Nightingale.Sessions
         /// </summary>
         public void Rollback()
         {
-            _session.Rollback();
+            if (_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
+            if (!_isInTransaction)
+                throw new InvalidOperationException("The transaction was either already committed or rolled back.");
+
+            _connection.Rollback();
+
+            FinishTransaction();
         }
 
         /// <summary>
@@ -53,7 +86,13 @@ namespace Nightingale.Sessions
         /// <param name="savePoint">The save point.</param>
         public void Save(string savePoint)
         {
-            _session.Save(savePoint);
+            if (_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
+            if (!_isInTransaction)
+                throw new InvalidOperationException("The transaction was either already committed or rolled back.");
+
+            _connection.Save(savePoint);
         }
 
         /// <summary>
@@ -62,7 +101,13 @@ namespace Nightingale.Sessions
         /// <param name="savePoint">the save point.</param>
         public void RollbackTo(string savePoint)
         {
-            _session.RollbackTo(savePoint);
+            if (_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
+            if (!_isInTransaction)
+                throw new InvalidOperationException("The transaction was either already committed or rolled back.");
+
+            _connection.RollbackTo(savePoint);
         }
 
         /// <summary>
@@ -71,7 +116,13 @@ namespace Nightingale.Sessions
         /// <param name="savePoint">The save point.</param>
         public void Release(string savePoint)
         {
-            _session.Release(savePoint);
+            if (_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
+
+            if (!_isInTransaction)
+                throw new InvalidOperationException("The transaction was either already committed or rolled back.");
+
+            _connection.Release(savePoint);
         }
 
         /// <summary>
@@ -79,7 +130,24 @@ namespace Nightingale.Sessions
         /// </summary>
         public void Dispose()
         {
-            _disposeCallback.Invoke(_transaction);
+            if (!_isDisposed)
+            {
+                _isDisposed = true;
+
+                if(_isInTransaction)
+                    _transaction.Rollback();
+            }
+        }
+
+        /// <summary>
+        /// Finishs the transaction.
+        /// </summary>
+        private void FinishTransaction()
+        {
+            _transaction.Dispose();
+            _isInTransaction = false;
+
+            Finished?.Invoke(this, EventArgs.Empty);
         }
     }
 }

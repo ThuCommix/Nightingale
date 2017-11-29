@@ -4,6 +4,9 @@ using Nightingale.Logging;
 
 namespace Nightingale.Sessions
 {
+    /// <summary>
+    /// Responsible for creating a <see cref="Session" /> based on the connection factory and the specified settings.
+    /// </summary>
     public interface ISessionFactory : IDisposable
     {
         /// <summary>
@@ -17,14 +20,9 @@ namespace Nightingale.Sessions
         IConnectionFactory ConnectionFactory { get; }
 
         /// <summary>
-        /// Gets the list of entity listeners.
+        /// Gets the list of session plugins.
         /// </summary>
-        List<IEntityListener> EntityListeners { get; }
-
-        /// <summary>
-        /// Gets the list of commit listeners
-        /// </summary>
-        List<ICommitListener> CommitListeners { get; }
+        List<ISessionPlugin> SessionPlugins { get; }
 
         /// <summary>
         /// Gets or sets the logger.
@@ -32,14 +30,9 @@ namespace Nightingale.Sessions
         ILogger Logger { get; set; }
 
         /// <summary>
-        /// Gets or sets the flush mode.
-        /// </summary>
-        FlushMode FlushMode { get; set; }
-
-        /// <summary>
         /// Gets or sets the deletion mode.
         /// </summary>
-        DeletionMode DeletionMode { get; set; }
+        DeletionBehavior DeletionBehavior { get; set; }
 
         /// <summary>
         /// Opens a new session.

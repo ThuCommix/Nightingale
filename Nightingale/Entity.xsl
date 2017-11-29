@@ -199,6 +199,7 @@ namespace <xsl:value-of select="@Namespace" />
                 {
                     if(!_<xsl:value-of select="@Name" />Queried)
                     {
+                        PropertyChangeTracker.DisableChangeTracking = true;
                         var items = Session?.Query&lt;<xsl:value-of select="@FieldType" />&gt;().Where(x =&gt; x.FK_<xsl:value-of select="@ReferenceField" />_ID == Id).ToList();
                         if(items != null)
                         {
@@ -207,6 +208,8 @@ namespace <xsl:value-of select="@Namespace" />
                             items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = false);
                             _<xsl:value-of select="@Name" />Queried = true;   
                         }
+                        
+                        PropertyChangeTracker.DisableChangeTracking = false;
                     }
                 }
                 

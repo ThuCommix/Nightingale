@@ -18,5 +18,18 @@ namespace Nightingale
         /// </summary>
         /// <returns>Returns the removed collection items.</returns>
         List<Entity> GetRemovedCollectionItems();
+
+        /// <summary>
+        /// Adds a new entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        void Add(Entity entity);
+
+        /// <summary>
+        /// Removes an entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns>Returns true when the entity was deleted.</returns>
+        bool Remove(Entity entity);
     }
 }

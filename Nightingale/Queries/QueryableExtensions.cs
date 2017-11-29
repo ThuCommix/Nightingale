@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Nightingale.Entities;
 
 namespace Nightingale.Queries
@@ -20,6 +22,17 @@ namespace Nightingale.Queries
             var methodInfo = typeof(QueryableExtensions).GetMethod("Include", BindingFlags.Static | BindingFlags.Public).MakeGenericMethod(typeof(T));
             var method = Expression.Call(methodInfo, queryable.Expression, objSelector);
             return queryable.Provider.CreateQuery<T>(method);
+        }
+
+        /// <summary>
+        /// Creates a list from the <see cref="IQueryable{T}"/> async.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The queryable.</param>
+        /// <returns>Returns list of results.</returns>
+        public static Task<List<T>> ToListAsync<T>(this IQueryable<T> queryable) where T : Entity
+        {
+            return Task.Run(() => queryable.ToList());
         }
 
         /// <summary>

@@ -1,5 +1,8 @@
 ﻿namespace Nightingale
 {
+    /// <summary>
+    /// Responsible for creating a <see cref="IConnection"/> based on the connection string.
+    /// </summary>
     public interface IConnectionFactory
     {
         /// <summary>

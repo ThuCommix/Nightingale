@@ -5,12 +5,15 @@ using Nightingale.Logging;
 
 namespace Nightingale.Sessions
 {
+    /// <summary>
+    /// Responsible for creating a <see cref="Session" /> based on the connection factory and the specified settings.
+    /// </summary>
     public class SessionFactory : ISessionFactory
     {
         /// <summary>
         /// Gets a list of session associated with this session factory.
         /// </summary>
-        public IEnumerable<ISession> Sessions => _sessions.Where(x => x.IsOpen);
+        public IEnumerable<ISession> Sessions => _sessions.Where(x => x.Connection.IsOpen);
 
         /// <summary>
         /// Gets the connection factory for this instance.
@@ -18,14 +21,9 @@ namespace Nightingale.Sessions
         public IConnectionFactory ConnectionFactory { get; }
 
         /// <summary>
-        /// Gets the list of entity listeners.
+        /// Gets the list of session plugins.
         /// </summary>
-        public List<IEntityListener> EntityListeners { get; }
-
-        /// <summary>
-        /// Gets the list of commit listeners
-        /// </summary>
-        public List<ICommitListener> CommitListeners { get; }
+        public List<ISessionPlugin> SessionPlugins { get; }
 
         /// <summary>
         /// Gets or sets the logger.
@@ -37,14 +35,9 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
-        /// Gets or sets the flush mode.
+        /// Gets or sets the deletion behavior.
         /// </summary>
-        public FlushMode FlushMode { get; set; }
-
-        /// <summary>
-        /// Gets or sets the deletion mode.
-        /// </summary>
-        public DeletionMode DeletionMode { get; set; }
+        public DeletionBehavior DeletionBehavior { get; set; }
 
         private readonly List<ISession> _sessions;
 
@@ -55,13 +48,10 @@ namespace Nightingale.Sessions
         public SessionFactory(IConnectionFactory factory) 
         {
             ConnectionFactory = factory;
+            SessionPlugins = new List<ISessionPlugin>();
+            DeletionBehavior = DeletionBehavior.Irrecoverable;
 
-            EntityListeners = new List<IEntityListener>();
-            CommitListeners = new List<ICommitListener>();
             _sessions = new List<ISession>();
-
-            FlushMode = FlushMode.Commit;
-            DeletionMode = DeletionMode.Recoverable;
         }
 
         /// <summary>
@@ -86,12 +76,10 @@ namespace Nightingale.Sessions
             if (!_sessions.Contains(session))
             {
                 AddSession(session);
-                session.EntityListeners.AddRange(EntityListeners);
-                session.CommitListeners.AddRange(CommitListeners);
+                session.SessionPlugins.AddRange(SessionPlugins);
             }
 
-            session.FlushMode = FlushMode;
-            session.DeletionMode = DeletionMode;
+            session.DeletionBehavior = DeletionBehavior;
 
             return session;
         }
@@ -119,7 +107,7 @@ namespace Nightingale.Sessions
         /// </summary>
         protected void CleanSessions()
         {
-            _sessions.RemoveAll(x => !x.IsOpen);
+            _sessions.RemoveAll(x => !x.Connection.IsOpen);
         }
 
         /// <summary>

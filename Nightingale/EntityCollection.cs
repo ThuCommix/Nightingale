@@ -168,6 +168,29 @@ namespace Nightingale
         }
 
         /// <summary>
+        /// Adds a new entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public void Add(Entity entity)
+        {
+            if(entity is T tEntity)
+                Add(tEntity);
+        }
+
+        /// <summary>
+        /// Removes an entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns>Returns true when the entity was deleted.</returns>
+        public bool Remove(Entity entity)
+        {
+            if (entity is T tEntity)
+                return Remove(tEntity);
+
+            return false;
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the item is in the collection.
         /// </summary>
         /// <param name="item">The item.</param>

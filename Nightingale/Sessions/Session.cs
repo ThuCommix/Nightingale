@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using Nightingale.Caching;
 using Nightingale.Entities;
 using Nightingale.Extensions;
 using Nightingale.Logging;
@@ -13,42 +12,30 @@ using Nightingale.Queries;
 
 namespace Nightingale.Sessions
 {
+    /// <summary>
+    /// Represents a database session.
+    /// </summary>
     public class Session : ISession
     {
         /// <summary>
-        /// A value indicating whether the session has a open connection.
+        /// Gets the connection.
         /// </summary>
-        public bool IsOpen => Connection.IsOpen;
+        public IConnection Connection { get; }
 
         /// <summary>
-        /// A value indicating whether calling Flush would cause database io.
+        /// Gets or sets the deletion behavior.
         /// </summary>
-        public bool IsDirty => _flushList.Any();
+        public DeletionBehavior DeletionBehavior { get; set; }
 
         /// <summary>
-        /// Gets or sets the flush mode.
+        /// Gets the list of session plugins.
         /// </summary>
-        public FlushMode FlushMode { get; set; }
+        public List<ISessionPlugin> SessionPlugins { get; }
 
         /// <summary>
-        /// Gets or sets the deletion mode.
+        /// Gets or sets the persistence behavior.
         /// </summary>
-        public DeletionMode DeletionMode { get; set; }
-
-        /// <summary>
-        /// Gets the list of entity listeners.
-        /// </summary>
-        public List<IEntityListener> EntityListeners { get; }
-
-        /// <summary>
-        /// Gets the list of commit listeners
-        /// </summary>
-        public List<ICommitListener> CommitListeners { get; }
-
-        /// <summary>
-        /// Gets the session cache.
-        /// </summary>
-        public ICache SessionCache => _sessionCache;
+        public PersistenceBehavior PersistenceBehavior { get; set; }
 
         /// <summary>
         /// Gets the entity service.
@@ -60,14 +47,8 @@ namespace Nightingale.Sessions
         /// </summary>
         protected IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
 
-        /// <summary>
-        /// Gets the connection.
-        /// </summary>
-        protected IConnection Connection { get; }
-
-        private readonly List<Entity> _flushList;
         private readonly ILogger _logger;
-        private readonly ICache _sessionCache;
+        private readonly PersistenceContext _persistenceContext;
         private bool _isInTransaction;
 
         /// <summary>
@@ -80,13 +61,12 @@ namespace Nightingale.Sessions
                 throw new ArgumentNullException(nameof(connection));
 
             _logger = DependencyResolver.TryGetInstance<ILogger>();
-            _sessionCache = GetSessionCache();
-            _flushList = new List<Entity>();
+            _persistenceContext = new PersistenceContext();
 
-            EntityListeners = new List<IEntityListener>();
-            CommitListeners = new List<ICommitListener>();
+            DeletionBehavior = DeletionBehavior.Irrecoverable;
+            SessionPlugins = new List<ISessionPlugin>();
+            PersistenceBehavior = PersistenceBehavior.AddNewOnly;
             Connection = connection;
-            Connection.Open();
         }
 
         /// <summary>
@@ -98,76 +78,193 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
-        /// Evicts an entity from the persistence cache.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        public virtual void Evict(Entity entity)
-        {
-            entity.Evicted = true;
-            _flushList.Remove(entity);
-            _sessionCache?.Remove(entity);
-        }
-
-        /// <summary>
-        /// Saves or updates the entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        public virtual void SaveOrUpdate(Entity entity)
-        {
-            if (entity.Evicted)
-                throw new SessionException("The entity was evicted and can not be saved.");
-
-            var entities = EntityService.GetChildEntities(entity, Cascade.Save);
-
-            if (entities.Any(x => x.Deleted && x.IsNotSaved))
-                throw new SessionException("Insertion of a deleted entity is not allowed.").Log(_logger);
-
-            foreach(var entityToSave in entities)
-            {
-                EnsureEntityListenerSave(entityToSave);
-
-                if (!_flushList.Contains(entityToSave))
-                {
-                    _flushList.Add(entityToSave);
-                }
-            }
-
-            if (FlushMode == FlushMode.Always)
-                Flush();
-
-            _sessionCache?.Insert(entity);
-        }
-
-        /// <summary>
         /// Deletes the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
         public virtual void Delete(Entity entity)
         {
-            if (DeletionMode == DeletionMode.None)
+            if(entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            if (DeletionBehavior == DeletionBehavior.None)
                 return;
 
             var entities = EntityService.GetChildEntities(entity, Cascade.SaveDelete);
             foreach(var entityToDelete in entities)
             {
-                EnsureEntityListenerDelete(entityToDelete);
-
-                var constraints = ResolveDependencyConstraints(entity, entities);
-                if (constraints.Count > 0)
-                    throw new SessionDeleteException($"The entity '{entityToDelete.GetType().Name}' and Id = '{entityToDelete.Id}' could not be marked as deleted.", constraints).Log(_logger);
-
                 entityToDelete.Deleted = true;
             }
+        }
 
-            if(DeletionMode == DeletionMode.Recoverable)
-                SaveOrUpdate(entity);
+        /// <summary>
+        /// Saves the entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public void Save(Entity entity)
+        {
+            if(entity.IsNotSaved && entity.Deleted)
+                throw new InvalidOperationException("Insertion of a deleted entity is not allowed.");
 
-            if (DeletionMode == DeletionMode.Irrecoverable)
+            var entities = EntityService.GetChildEntities(entity, Cascade.Save);
+            entities.ForEach(_persistenceContext.Insert);
+        }
+
+        /// <summary>
+        /// Saves the changes to the database.
+        /// </summary>
+        /// <returns>Returns the count of updated entities.</returns>
+        public int SaveChanges()
+        {
+            if (PersistenceBehavior == PersistenceBehavior.None)
+                return 0;
+
+            if (SessionPlugins.Any(x => !x.SaveChanges(_persistenceContext)))
             {
-                foreach(var entityToDelete in entities.Where(x => x.IsSaved))
+                return 0;
+            }
+
+            var changedEntityList = new List<Entity>();
+
+            var persistentEntities = _persistenceContext.ToList();
+            foreach (var entity in persistentEntities.Where(x => !x.Deleted))
+            {
+                if (!entity.Validate())
+                    throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
+
+                var entityType = entity.GetType();
+                var metadata = EntityMetadataResolver.GetEntityMetadata(entity);
+
+                EnsurePluginSave(entity);
+
+                foreach (var field in metadata.Fields.Where(x => x.Cascade == Cascade.None && x.IsComplexFieldType && !x.Enum))
                 {
-                    PerformDelete(entityToDelete);
+                    var referencedEntity = (Entity)entityType.GetProperty(field.GetComplexFieldName()).GetValue(entity);
+                    if (referencedEntity != null && referencedEntity.IsNotSaved && !persistentEntities.Contains(referencedEntity))
+                        throw new TransientEntityException($"Entity with type '{metadata.Name}' references an unsaved transient value in field {field.Name}. Consider saving the transient entity before calling SaveChanges.").Log(_logger);
+
+                    if(referencedEntity != null && field.Mandatory && entity.Deleted)
+                        throw new InvalidOperationException($"Entity with type '{metadata.Name}' references an entity which is marked as deleted.");
                 }
+            }
+
+            // handle deletion
+            foreach (var entity in persistentEntities.Where(x => x.Deleted))
+            {
+                EnsurePluginDelete(entity);
+
+                var constraints = ResolveDependencyConstraints(entity, persistentEntities);
+                if (constraints.Count > 0)
+                    throw new SessionDeleteException($"The entity '{entity.GetType().Name}' and Id = '{entity.Id}' could not be marked as deleted.", constraints).Log(_logger);
+
+                if (DeletionBehavior == DeletionBehavior.Irrecoverable)
+                {
+                    if (entity.IsSaved)
+                    {
+                        DeleteEntity(entity);
+                        _persistenceContext.Delete(entity);
+
+                        changedEntityList.Add(entity);
+                    }
+                }
+            }
+
+            foreach (var unsavedEntity in _persistenceContext.Where(x => x.IsNotSaved))
+            {
+                try
+                {
+                    unsavedEntity.Id = InsertEntity(unsavedEntity);
+                }
+                catch (Exception ex)
+                {
+                    throw new SessionInsertException(
+                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'", ex).Log(_logger);
+                }
+
+                if (unsavedEntity.IsNotSaved)
+                {
+                    throw new SessionInsertException(
+                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'").Log(_logger);
+                }
+
+                changedEntityList.Add(unsavedEntity);
+            }
+
+            foreach (var entity in _persistenceContext)
+            {
+                if (!entity.PropertyChangeTracker.HasChanges)
+                    continue;
+
+                EntityService.UpdateForeignFields(entity);
+
+                if (!ValidateEntityVersion(entity))
+                    throw new SessionConcurrencyException($"The entity with type'{entity.GetType().Name}' and Id = '{entity.Id}' was modified in database.");
+
+                try
+                {
+                    entity.Version++;
+                    UpdateEntity(entity);
+
+                    if(!changedEntityList.Contains(entity))
+                        changedEntityList.Add(entity);
+                }
+                catch (Exception ex)
+                {
+                    entity.Version--;
+
+                    throw new SessionUpdateException(
+                        $"Could not update entity '{entity.GetType().Name}' and Id = '{entity.Id}'.", ex).Log(_logger);
+                }
+            }
+
+            foreach (var entity in _persistenceContext)
+            {
+                entity.PropertyChangeTracker.Clear();
+                if(entity.Deleted)
+                    _persistenceContext.Delete(entity);
+            }
+
+            return changedEntityList.Count;
+        }
+
+        /// <summary>
+        /// Discards the changes on the entities and clears the property change tracker.
+        /// </summary>
+        public void DiscardChanges()
+        {
+            foreach (var entity in _persistenceContext)
+            {
+                if(!entity.PropertyChangeTracker.HasChanges)
+                    continue;
+
+                entity.PropertyChangeTracker.DisableChangeTracking = true;
+
+                var entityType = entity.GetType();
+                var metadata = EntityMetadataResolver.GetEntityMetadata(entityType);
+                foreach (var field in metadata.Fields)
+                {
+                    if (entity.PropertyChangeTracker.TryGetReplacedValue(field.GetComplexFieldName(), out object propertyValue))
+                    {
+                        entityType.GetProperty(field.GetComplexFieldName()).SetValue(entity, propertyValue);
+                    }
+                }
+
+                foreach (var listField in metadata.ListFields)
+                {
+                    var list = entityType.GetProperty(listField.Name).GetValue(entity) as IEntityCollection;
+
+                    if (entity.PropertyChangeTracker.TryGetChangedCollectionItems(listField.Name, CollectionChangeType.Added, out List<Entity> addedItems))
+                    {
+                        addedItems.ForEach(e => list.Remove(e));
+                    }
+
+                    if (entity.PropertyChangeTracker.TryGetChangedCollectionItems(listField.Name, CollectionChangeType.Removed, out List<Entity> removedItems))
+                    {
+                        removedItems.ForEach(list.Add);
+                    }
+                }
+
+                entity.PropertyChangeTracker.Clear();
+                entity.PropertyChangeTracker.DisableChangeTracking = false;
             }
         }
 
@@ -179,7 +276,7 @@ namespace Nightingale.Sessions
         /// <returns>Returns the entity.</returns>
         public virtual Entity Get(int id, Type entityType)
         {
-            var entity = _sessionCache?.Get(id, entityType);
+            var entity = _persistenceContext.Lookup(id, entityType);
             if (entity != null)
                 return entity;
 
@@ -209,153 +306,19 @@ namespace Nightingale.Sessions
 
             _isInTransaction = true;
 
-            return new Transaction(this, Connection.BeginTransaction(isolationLevel),
-                x =>
-                {
-                    if (!_isInTransaction)
-                        return;
+            var transaction = new Transaction(Connection, Connection.BeginTransaction(isolationLevel));
 
-                    Rollback();
-                    x.Dispose();
-                    _isInTransaction = false;
-                });
-        }
-
-        /// <summary>
-        /// Rollback the current transaction.
-        /// </summary>
-        public virtual void Rollback()
-        {
-            if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.").Log(_logger);
-
-            _isInTransaction = false;
-
-            Connection.Rollback();
-        }
-
-        /// <summary>
-        /// Rollback the current transaction to the specified save point.
-        /// </summary>
-        /// <param name="savePoint"></param>
-        public virtual void RollbackTo(string savePoint)
-        {
-            if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.").Log(_logger);
-
-            Connection.RollbackTo(savePoint);
-        }
-
-        /// <summary>
-        /// Releases the specified save point.
-        /// </summary>
-        /// <param name="savePoint">The save point.</param>
-        public virtual void Release(string savePoint)
-        {
-            if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.").Log(_logger);
-
-            Connection.Release(savePoint);
-        }
-
-        /// <summary>
-        /// Commits the current transaction.
-        /// </summary>
-        public virtual void Commit()
-        {
-            if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.").Log(_logger);
-
-            _isInTransaction = false;
-
-            if (FlushMode == FlushMode.Commit)
-                Flush();
-
-            CommitListeners.ForEach(x => x.Commit());
-            Connection.Commit();
-        }
-
-        /// <summary>
-        /// Creates a new save point.
-        /// </summary>
-        /// <param name="savePoint">The save point.</param>
-        public virtual void Save(string savePoint)
-        {
-            if (!_isInTransaction)
-                throw new SessionException("The session is not in a transaction.").Log(_logger);
-
-            Connection.Save(savePoint);
-        }
-
-        /// <summary>
-        /// Flushes the session and writes all pending changes to the database.
-        /// </summary>
-        public virtual void Flush()
-        {
-            foreach(var entity in _flushList)
+            transaction.Finished += (sender, args) =>
             {
-                if (entity.Evicted)
-                    throw new SessionException("The entity was evicted and can not be saved.");
+                _isInTransaction = false;
+            };
 
-                if (!entity.Validate())
-                    throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
-
-                var entityType = entity.GetType();
-                var metadata = EntityMetadataResolver.GetEntityMetadata(entity);
-                foreach(var field in metadata.Fields.Where(x => x.Cascade == Cascade.None && x.IsComplexFieldType && !x.Enum))
-                {
-                    var referencedEntity = (Entity)entityType.GetProperty(field.GetComplexFieldName()).GetValue(entity);
-                    if (referencedEntity != null && referencedEntity.IsNotSaved && !_flushList.Contains(referencedEntity))
-                        throw new TransientEntityException($"Entity with type '{metadata.Name}' references an unsaved transient value in field {field.Name}. Consider saving the transient entity before flushing.").Log(_logger);
-                }
-            }
-
-            foreach (var unsavedEntity in _flushList.Where(x => x.IsNotSaved))
+            transaction.Committing += (sender, args) =>
             {
-                try
-                {
-                    unsavedEntity.Id = PerformInsert(unsavedEntity);
-                }
-                catch (Exception ex)
-                {
-                    throw new SessionInsertException(
-                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'", ex).Log(_logger);
-                }
+                SessionPlugins.ForEach(x => x.Commit());
+            };
 
-                if (unsavedEntity.IsNotSaved)
-                {
-                    throw new SessionInsertException(
-                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'").Log(_logger);
-                }
-            }
-
-            foreach (var entity in _flushList)
-            {
-                if (!entity.PropertyChangeTracker.HasChanges)
-                    continue;
-
-                EntityService.UpdateForeignFields(entity);
-
-                try
-                {
-                    entity.Version++;
-                    PerformUpdate(entity);
-                }
-                catch (Exception ex)
-                {
-                    entity.Version--;
-
-                    throw new SessionUpdateException(
-                        $"Could not update entity '{entity.GetType().Name}' and Id = '{entity.Id}'.", ex).Log(_logger);
-                }
-            }
-
-            foreach(var entity in _flushList)
-            {
-                entity.PropertyChangeTracker.Clear();
-            }
-
-            _flushList.Clear();
+            return transaction;
         }
 
         /// <summary>
@@ -368,8 +331,6 @@ namespace Nightingale.Sessions
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
-            if (FlushMode == FlushMode.Intelligent || FlushMode == FlushMode.Always)
-                Flush();
 
             DebugQueryResult(query);
 
@@ -389,22 +350,48 @@ namespace Nightingale.Sessions
                 }
             }
 
-            if (_sessionCache == null)
+            if (PersistenceBehavior == PersistenceBehavior.None)
                 return entityList;
 
+            var entityMetadata = EntityMetadataResolver.GetEntityMetadata(query.EntityType);
             var persistentResults = new List<Entity>();
-
             foreach (var entity in entityList)
             {
-                var persistentEntity = _sessionCache.Get(entity.Id, query.EntityType);
-                if (persistentEntity != null)
+                if (PersistenceBehavior == PersistenceBehavior.AddNewOnly)
                 {
-                    persistentResults.Add(persistentEntity);
+                    var existingEntity = _persistenceContext.Lookup(entity.Id, query.EntityType);
+                    if (existingEntity == null)
+                    {
+                        persistentResults.Add(entity);
+                        _persistenceContext.Insert(entity);
+                    }
+                    else
+                    {
+                        persistentResults.Add(existingEntity);
+                    }
                 }
-                else
+
+                if (PersistenceBehavior == PersistenceBehavior.OverrideChanges)
                 {
-                    persistentResults.Add(entity);
-                    _sessionCache.Insert(entity);
+                    var existingEntity = _persistenceContext.Lookup(entity.Id, query.EntityType);
+                    if (existingEntity == null)
+                    {
+                        persistentResults.Add(entity);
+                        _persistenceContext.Insert(entity);
+                    }
+                    else
+                    {
+                        foreach (var field in entityMetadata.Fields)
+                        {
+                            var property = query.EntityType.GetProperty(field.GetComplexFieldName());
+                            property.SetValue(existingEntity, property.GetValue(entity));
+                        }
+
+                        //TODO what about child lists? those are not refreshed currently
+
+                        entity.PropertyChangeTracker.Clear();
+                        persistentResults.Add(existingEntity);
+                    }
                 }
             }
 
@@ -444,16 +431,12 @@ namespace Nightingale.Sessions
         public T ExecuteScalar<T>(IQuery query)
         {
             DebugQueryResult(query);
-            return (T)Convert.ChangeType(Connection.ExecuteScalar(query), typeof(T));
-        }
+            var result = Connection.ExecuteScalar(query);
+            if (result == null)
+                return default(T);
 
-        /// <summary>
-        /// Clears the session.
-        /// </summary>
-        public virtual void Clear()
-        {
-            _flushList.Clear();
-            _sessionCache?.Clear();
+            var underlyingType = Nullable.GetUnderlyingType(typeof(T));
+            return (T)Convert.ChangeType(result, underlyingType ?? typeof(T));
         }
 
         /// <summary>
@@ -462,27 +445,8 @@ namespace Nightingale.Sessions
         /// <param name="entity">The entity.</param>
         public virtual void Refresh(ref Entity entity)
         {
-            _sessionCache.Remove(entity);
+            _persistenceContext.Delete(entity);
             entity = Get(entity.Id, entity.GetType());
-        }
-
-        /// <summary>
-        /// Gets the table.
-        /// </summary>
-        /// <typeparam name="T">The entity type.</typeparam>
-        /// <returns>Returns a table instance.</returns>
-        public Table<T> GetTable<T>() where T : Entity
-        {
-            return Connection.GetTable<T>();
-        }
-
-        /// <summary>
-        /// Gets a list of entities marked to be saved or updated.
-        /// </summary>
-        /// <returns>Returns a list of entities.</returns>
-        protected IList<Entity> GetDirtyEntities()
-        {
-            return _flushList;
         }
 
         /// <summary>
@@ -490,7 +454,7 @@ namespace Nightingale.Sessions
         /// </summary>
         /// <param name="entity">The entity.</param>
         /// <returns>Returns the id of the entity.</returns>
-        protected virtual int PerformInsert(Entity entity)
+        protected virtual int InsertEntity(Entity entity)
         {
             var entityType = entity.GetType();
             var metadata = EntityMetadataResolver.GetEntityMetadata(entityType);
@@ -522,23 +486,24 @@ namespace Nightingale.Sessions
         /// Updates the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        protected virtual void PerformUpdate(Entity entity)
+        protected virtual void UpdateEntity(Entity entity)
         {
             var entityType = entity.GetType();
             var metadata = EntityMetadataResolver.GetEntityMetadata(entityType);
             var commandBuilder = new StringBuilder();
             var parameters = new List<QueryParameter>();
 
-            var changedFields = entity.PropertyChangeTracker.GetChangedProperties().Select(x => metadata.Fields.FirstOrDefault(y => y.Name == x)).ToList();
-            if (changedFields.Count == 0)
+            var changedProperties = entity.PropertyChangeTracker.GetChangedProperties();
+            if (!changedProperties.Any())
                 return;
 
             commandBuilder.Append($"UPDATE {metadata.Table} SET ");
-            commandBuilder.Append(string.Join(",", changedFields.Select(x => $"{x.Name} = @{x.Name}")));
+            commandBuilder.Append(string.Join(",", changedProperties.Select(x => $"{x} = @{x}")));
             commandBuilder.Append($" WHERE Id = {entity.Id} AND Version = {entity.Version - 1}");
 
-            foreach (var field in changedFields)
+            foreach (var propertyName in changedProperties)
             {
+                var field = metadata.Fields.FirstOrDefault(x => x.Name == propertyName);
                 var propertyValue = ReflectionHelper.GetProperty(entityType, field.Name).GetValue(entity);
                 parameters.Add(QueryHelper.GetQueryParameter($"@{field.Name}", propertyValue, field));
             }
@@ -555,12 +520,12 @@ namespace Nightingale.Sessions
         /// Deletes the entity from the database.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        protected virtual void PerformDelete(Entity entity)
+        protected virtual void DeleteEntity(Entity entity)
         {
             var entityType = entity.GetType();
             var metadata = EntityMetadataResolver.GetEntityMetadata(entityType);
 
-            var query = new Query($"DELETE {metadata.Table} WHERE Id = {entity.Id} AND Version = {entity.Version}", entityType);
+            var query = new Query($"DELETE FROM {metadata.Table} WHERE Id = {entity.Id} AND Version = {entity.Version}", entityType);
 
             if (Connection.ExecuteNonQuery(query) == 0)
                 throw new SessionDeleteException($"The entity with type '{entityType.Name}' and Id = '{entity.Id}' could not be deleted from database.").Log(_logger);
@@ -599,7 +564,7 @@ namespace Nightingale.Sessions
 
                 queryable = queryable.Provider.CreateQuery(methodCall);
 
-                var results = queryable.Cast<Entity>().ChangeQueryType(currentType).ToList();
+                var results = queryable.Cast<Entity>().ChangeQueryType(currentType).ToList().Except(entitiesToDelete).ToList();
                 if (results.Count > 0)
                 {
                     constraints.AddRange(results.Select(x => $"Entity '{entityMetadata.Name}' with Id = '{x.Id}' references '{entityType.Name}' in {string.Join(", ", fields.Select(y => $"'{y.Name}'"))}."));
@@ -610,37 +575,28 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
-        /// Gets the session cache.
-        /// </summary>
-        /// <returns>Returns the cache.</returns>
-        protected virtual ICache GetSessionCache()
-        {
-            return new SessionCache();
-        }
-
-        /// <summary>
-        /// Ensures that all entity listeners return true.
+        /// Ensures that all session plugin return true.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        private void EnsureEntityListenerSave(Entity entity)
+        private void EnsurePluginSave(Entity entity)
         {
-            foreach (var entityListener in EntityListeners)
+            foreach (var plugin in SessionPlugins)
             {
-                if (!entityListener.Save(entity))
-                    throw new SessionException($"The entity could not be saved because of entity listener {entityListener.GetType().Name}.").Log(_logger);
+                if (!plugin.Save(entity))
+                    throw new SessionException($"The entity could not be saved because of session plugin {plugin.GetType().Name}.").Log(_logger);
             }
         }
 
         /// <summary>
-        /// Ensures that all entity listeners return true.
+        /// Ensures that all session plugins return true.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        private void EnsureEntityListenerDelete(Entity entity)
+        private void EnsurePluginDelete(Entity entity)
         {
-            foreach (var entityListener in EntityListeners)
+            foreach (var plugin in SessionPlugins)
             {
-                if (!entityListener.Delete(entity))
-                    throw new SessionException($"The entity could not be deleted because of entity listener {entityListener.GetType().Name}.").Log(_logger);
+                if (!plugin.Delete(entity))
+                    throw new SessionException($"The entity could not be deleted because of session plugin {plugin.GetType().Name}.").Log(_logger);
             }
         }
 
@@ -654,6 +610,24 @@ namespace Nightingale.Sessions
             var parameterDebugString = string.Join(", ", query.Parameters.Select(x => x.Name + " = " + (x.Value ?? "NULL")));
 
             _logger?.Debug($"{command}\nParameters: {parameterDebugString}");
+        }
+
+        /// <summary>
+        /// Validates the entity version.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <param name="metadata">The entity metadata.</param>
+        /// <returns>Returns true if the database has the same version of the entity as the session.</returns>
+        private bool ValidateEntityVersion(Entity entity, EntityMetadata metadata = null)
+        {
+            if (metadata == null)
+                metadata = EntityMetadataResolver.GetEntityMetadata(entity);
+
+            var query = new Query {Command = $"SELECT Version FROM {metadata.Table} WHERE Id = @p0"};
+            query.Parameters.Add(new QueryParameter("@p0", entity.Id, SqlDbType.Int, false));
+
+            var result = ExecuteScalar<long?>(query);
+            return result == null || result == entity.Version;
         }
 
         /// <summary>
@@ -673,7 +647,6 @@ namespace Nightingale.Sessions
         {
             if (disposing)
             {
-                Flush();
                 Connection.Close();
                 Connection.Dispose();
             }

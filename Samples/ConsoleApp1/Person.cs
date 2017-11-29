@@ -144,6 +144,7 @@ namespace ConsoleApp1
                 {
                     if(!_AddressesQueried)
                     {
+                        PropertyChangeTracker.DisableChangeTracking = true;
                         var items = Session?.Query<Address>().Where(x => x.FK_Person_ID == Id).ToList();
                         if(items != null)
                         {
@@ -152,6 +153,8 @@ namespace ConsoleApp1
                             items.ForEach(x => x.PropertyChangeTracker.DisableChangeTracking = false);
                             _AddressesQueried = true;   
                         }
+                        
+                        PropertyChangeTracker.DisableChangeTracking = false;
                     }
                 }
                 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Nightingale.Extensions;
 using Nightingale.Logging;
 using Nightingale.Sessions;
@@ -14,14 +15,17 @@ namespace ConsoleApp1
             var sessionFactory = new SessionFactory(connectionFactory) {Logger = new TraceLogger(LogLevel.Debug)};
 
             // register entity listeners
-            sessionFactory.EntityListeners.Add(new PersonEntityService());
-            sessionFactory.EntityListeners.Add(new AddressEntityService());
+            sessionFactory.SessionPlugins.Add(new PersionSessionPlugin());
+            sessionFactory.SessionPlugins.Add(new AddressSessionPlugin());
 
             var session = sessionFactory.OpenSession();
 
             // create tables if not available
-            session.GetTable<Person>().Recreate();
-            session.GetTable<Address>().Recreate();
+            using (var connection = connectionFactory.CreateConnection())
+            {
+                connection.GetTable<Person>().Recreate();
+                connection.GetTable<Address>().Recreate();
+            }
 
             // create entities
             var person = new Person
@@ -42,10 +46,12 @@ namespace ConsoleApp1
 
             person.Addresses.Add(address);
 
-            using (session.BeginTransaction())
+            using (var transaction = session.BeginTransaction())
             {
-                session.SaveOrUpdate(person);
-                session.Commit();
+                session.Save(person);
+                session.SaveChanges();
+
+                transaction.Commit();
             }
 
             session.Dispose();
@@ -53,26 +59,49 @@ namespace ConsoleApp1
             // creating a new session so that the entities aren't cached anymore
             session = sessionFactory.OpenSession();
 
+            // Possible to discard changes which are made in this session.
             var loadedPerson = session.Get<Person>(1);
+            loadedPerson.Name = "Bernd";
+            loadedPerson.Age = 0;
+            loadedPerson.Addresses.RemoveAt(0);
+            loadedPerson.Addresses.Add(new Address());
+
+            session.DiscardChanges();
 
             Console.WriteLine($"Person: {loadedPerson.FullName}, IsLegalAge: {loadedPerson.IsLegalAge}");
 
             foreach (var addr in loadedPerson.ValidAddresses)
                 Console.WriteLine($"{addr.Street}, Type={addr.Type}");
 
-            using (session.BeginTransaction())
+            using (var transaction = session.BeginTransaction())
             {
                 try
                 {
                     // try to remove the only address from person
                     var addr = loadedPerson.Addresses[0];
                     session.Delete(addr);
-                    session.Commit();
+                    session.SaveChanges();
+
+                    transaction.Commit();
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine($"The address could not be deleted. {e.Message}");
                 }
+            }
+
+            session.Dispose();
+
+            using (session = sessionFactory.OpenSession())
+            {
+                var customer = session.Create<Person>();
+                customer.FirstName = "Bernd";
+                customer.Name = "Oklo";
+
+                // save not required because session.Create is used for entity creation
+                session.SaveChanges();
+
+                var fetchedCustomer = session.Query<Person>().FirstOrDefault(x => x.Age == null);
             }
 
             Console.WriteLine("Press any key to continue ..");

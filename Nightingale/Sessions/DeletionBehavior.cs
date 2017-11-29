@@ -1,6 +1,9 @@
 ﻿namespace Nightingale.Sessions
 {
-    public enum DeletionMode
+    /// <summary>
+    /// Controls the deletion behavir of the <see cref="Session" />.
+    /// </summary>
+    public enum DeletionBehavior
     {
         /// <summary>
         /// Never deletes entities.

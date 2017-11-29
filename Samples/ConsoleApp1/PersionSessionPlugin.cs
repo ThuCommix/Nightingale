@@ -1,8 +1,8 @@
-﻿using Nightingale;
+﻿using Nightingale.Sessions;
 
 namespace ConsoleApp1
 {
-    public class PersonEntityService : EntityListener<Person>
+    public class PersionSessionPlugin : SessionPluginBase<Person>
     {
         protected override bool OnDelete(Person entity)
         {

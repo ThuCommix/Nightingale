@@ -1,8 +1,8 @@
-﻿using Nightingale;
+﻿using Nightingale.Sessions;
 
 namespace ConsoleApp1
 {
-    public class AddressEntityService : EntityListener<Address>
+    public class AddressSessionPlugin : SessionPluginBase<Address>
     {
         protected override bool OnDelete(Address entity)
         {

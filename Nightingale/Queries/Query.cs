@@ -24,6 +24,14 @@ namespace Nightingale.Queries
         /// <summary>
         /// Initializes a new Query class.
         /// </summary>
+        public Query()
+        {
+            Parameters = new List<QueryParameter>();
+        }
+
+        /// <summary>
+        /// Initializes a new Query class.
+        /// </summary>
         /// <param name="command">The command.</param>
         /// <param name="entityType">The entity type.</param>
         /// <param name="parameters">The query parameters.</param>

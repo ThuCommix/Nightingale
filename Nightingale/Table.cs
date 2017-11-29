@@ -5,6 +5,10 @@ using Nightingale.Queries;
 
 namespace Nightingale
 {
+    /// <summary>
+    /// Represents a database table and can perform basic operations.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
     public abstract class Table<T> where T : Entity
     {
         /// <summary>

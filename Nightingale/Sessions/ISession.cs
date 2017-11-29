@@ -2,66 +2,58 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Nightingale.Caching;
 using Nightingale.Entities;
 using Nightingale.Queries;
 
 namespace Nightingale.Sessions
 {
+    /// <summary>
+    /// Represents a database session.
+    /// </summary>
     public interface ISession : IDisposable
     {
         /// <summary>
-        /// Gets the list of entity listeners.
+        /// Gets the list of session plugins.
         /// </summary>
-        List<IEntityListener> EntityListeners { get; }
+        List<ISessionPlugin> SessionPlugins { get; }
 
         /// <summary>
-        /// Gets the list of commit listeners
+        /// Gets the connection.
         /// </summary>
-        List<ICommitListener> CommitListeners { get; }
-
-        /// <summary>
-        /// A value indicating whether the session has a open connection.
-        /// </summary>
-        bool IsOpen { get; }
-
-        /// <summary>
-        /// A value indicating whether calling Flush would cause database io.
-        /// </summary>
-        bool IsDirty { get; }
-
-        /// <summary>
-        /// Gets or sets the flush mode.
-        /// </summary>
-        FlushMode FlushMode { get; set; }
+        IConnection Connection { get; }
 
         /// <summary>
         /// Gets or sets the deletion mode.
         /// </summary>
-        DeletionMode DeletionMode { get; set; }
+        DeletionBehavior DeletionBehavior { get; set; }
 
         /// <summary>
-        /// Gets the session cache.
+        /// Gets or sets the persistence behavior.
         /// </summary>
-        ICache SessionCache { get; }
-
-        /// <summary>
-        /// Evicts an entity from the persistence cache.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        void Evict(Entity entity);
-
-        /// <summary>
-        /// Saves or updates the entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        void SaveOrUpdate(Entity entity);
+        PersistenceBehavior PersistenceBehavior { get; set; }
 
         /// <summary>
         /// Deletes the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
         void Delete(Entity entity);
+
+        /// <summary>
+        /// Saves the entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        void Save(Entity entity);
+
+        /// <summary>
+        /// Saves the changes to the database.
+        /// </summary>
+        /// <returns>Returns the count of updated entities.</returns>
+        int SaveChanges();
+
+        /// <summary>
+        /// Discards the changes on the entities and clears the property change tracker.
+        /// </summary>
+        void DiscardChanges();
 
         /// <summary>
         /// Gets the entity by the given id.
@@ -85,39 +77,6 @@ namespace Nightingale.Sessions
         /// <param name="isolationLevel">The isolation level.</param>
         /// <returns>Returns an IDisposeable instance.</returns>
         Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable);
-
-        /// <summary>
-        /// Rollback the current transaction.
-        /// </summary>
-        void Rollback();
-
-        /// <summary>
-        /// Rollback the current transaction to the specified save point.
-        /// </summary>
-        /// <param name="savePoint">the save point.</param>
-        void RollbackTo(string savePoint);
-
-        /// <summary>
-        /// Releases the specified save point.
-        /// </summary>
-        /// <param name="savePoint">The save point.</param>
-        void Release(string savePoint);
-
-        /// <summary>
-        /// Commits the current transaction.
-        /// </summary>
-        void Commit();
-
-        /// <summary>
-        /// Creates a new save point.
-        /// </summary>
-        /// <param name="savePoint">The save point.</param>
-        void Save(string savePoint);
-
-        /// <summary>
-        /// Flushes the session and writes all pending changes to the database.
-        /// </summary>
-        void Flush();
 
         /// <summary>
         /// Executes a query.
@@ -151,21 +110,9 @@ namespace Nightingale.Sessions
         T ExecuteScalar<T>(IQuery query);
 
         /// <summary>
-        /// Clears the session.
-        /// </summary>
-        void Clear();
-
-        /// <summary>
         /// Refreshs the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
         void Refresh(ref Entity entity);
-
-        /// <summary>
-        /// Gets the table.
-        /// </summary>
-        /// <typeparam name="T">The entity type.</typeparam>
-        /// <returns>Returns a table instance.</returns>
-        Table<T> GetTable<T>() where T : Entity;
     }
 }

@@ -5,6 +5,9 @@ using Nightingale.Queries;
 
 namespace Nightingale
 {
+    /// <summary>
+    /// Represents a database connection.
+    /// </summary>
     public interface IConnection : IDisposable
     {
         /// <summary>

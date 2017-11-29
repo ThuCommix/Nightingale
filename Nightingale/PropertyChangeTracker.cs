@@ -204,13 +204,31 @@ namespace Nightingale
         /// <typeparam name="TProperty">The property type.</typeparam>
         public bool TryGetReplacedValue<T, TProperty>(Expression<Func<T, TProperty>> expression, out TProperty property) where T : Entity
         {
-            property = default(TProperty);
+            if (TryGetReplacedValue(GetPropertyName(expression), out object propertyValue))
+            {
+                property = (TProperty)propertyValue;
+                return true;
+            }
 
-            var propertyChanges = _propertyChangedItems.Where(x => x.PropertyName == GetPropertyName(expression)).ToList();
+            property = default(TProperty);
+            return false;
+        }
+
+        /// <summary>
+        /// Tries the get the replaced value.
+        /// </summary>
+        /// <param name="propertyName">The property name.</param>
+        /// <param name="propertyValue">The property value.</param>
+        /// <returns>Returns true when the value was recovered.</returns>
+        public bool TryGetReplacedValue(string propertyName, out object propertyValue)
+        {
+            propertyValue = default(object);
+
+            var propertyChanges = _propertyChangedItems.Where(x => x.PropertyName == propertyName).ToList();
             if (!propertyChanges.Any())
                 return false;
 
-            property = (TProperty)propertyChanges.First().OldValue;
+            propertyValue = propertyChanges.First().OldValue;
             return true;
         }
 
@@ -261,7 +279,7 @@ namespace Nightingale
         /// <param name="changeType">The collection change type.</param>
         /// <param name="items">The changed items.</param>
         /// <returns>Returns true if the changed values could be recovered.</returns>
-        private bool TryGetChangedCollectionItems<T, TEntityItem>(Expression<Func<T, object>> expression, CollectionChangeType changeType, out List<TEntityItem> items) where T : Entity
+        public bool TryGetChangedCollectionItems<T, TEntityItem>(Expression<Func<T, object>> expression, CollectionChangeType changeType, out List<TEntityItem> items) where T : Entity
         {
             items = new List<TEntityItem>();
 
@@ -270,6 +288,25 @@ namespace Nightingale
                 return false;
 
             items = collectionChanges.Select(x => x.Item).OfType<TEntityItem>().ToList();
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to get the changed collection items.
+        /// </summary>
+        /// <param name="propertyName">The property name.</param>
+        /// <param name="changeType">The collection change type.</param>
+        /// <param name="items">The items.</param>
+        /// <returns>Returns true if the changed values could be recovered.</returns>
+        public bool TryGetChangedCollectionItems(string propertyName, CollectionChangeType changeType, out List<Entity> items)
+        {
+            items = new List<Entity>();
+
+            var collectionChanges = _collectionChangedItems.Where(x => x.PropertyName == propertyName && x.CollectionChangeType == changeType);
+            if (!collectionChanges.Any())
+                return false;
+
+            items = collectionChanges.Select(x => x.Item).ToList();
             return true;
         }
 

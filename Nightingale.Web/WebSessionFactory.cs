@@ -35,7 +35,7 @@ namespace Nightingale.Web
                 if (_httpContextAccessor.HttpContext.Items.ContainsKey(SessionId))
                 {
                     var existingSession = (ISession)_httpContextAccessor.HttpContext.Items[SessionId];
-                    if (existingSession.IsOpen)
+                    if (existingSession.Connection.IsOpen)
                     {
                         return existingSession;
                     }
