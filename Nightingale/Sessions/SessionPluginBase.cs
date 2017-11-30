@@ -11,10 +11,8 @@ namespace Nightingale.Sessions
         /// <summary>
         /// Commit is called when a transaction is being committed.
         /// </summary>
-        /// <returns>Returns true if the commit should continue, otherwise false.</returns>
-        public virtual bool Commit()
+        public virtual void Commit()
         {
-            return true;
         }
 
         /// <summary>

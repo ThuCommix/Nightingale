@@ -11,8 +11,7 @@ namespace Nightingale.Sessions
         /// <summary>
         /// Commit is called when a transaction is being committed.
         /// </summary>
-        /// <returns>Returns true if the commit should continue, otherwise false.</returns>
-        bool Commit();
+        void Commit();
 
         /// <summary>
         /// Delete is called when an entity is being deleted.
