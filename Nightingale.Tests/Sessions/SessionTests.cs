@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
 using Nightingale.Entities;
 using Nightingale.Sessions;
@@ -126,6 +127,139 @@ namespace Nightingale.Tests.Sessions
 
             // assert
             Assert.Equal(entity, result);
+
+            connectionMock.VerifyAll();
+        }
+
+        [Fact]
+        public void BeginTransaction_Throw_Exception_When_Already_In_Transaction()
+        {
+            // arrange
+            var transactionMock = TestHelper.SetupMock<IDbTransaction>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(transactionMock.Object);
+
+            var session = new Session(connectionMock.Object);
+
+            session.BeginTransaction();
+
+            // act
+            Assert.Throws<SessionException>(() => session.BeginTransaction());
+
+            // assert
+            connectionMock.VerifyAll();
+            transactionMock.VerifyAll();
+        }
+
+        [Fact]
+        public void BeginTransaction_Call_Session_Plugins_On_Commit()
+        {
+            // arrange
+            var transactionMock = TestHelper.SetupMock<IDbTransaction>();
+            transactionMock.Setup(s => s.Dispose());
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(transactionMock.Object);
+            connectionMock.Setup(s => s.Commit());
+
+            var session = new Session(connectionMock.Object);
+            var sessionPluginMock = TestHelper.SetupMock<ISessionPlugin>();
+            sessionPluginMock.Setup(s => s.Commit());
+
+            session.SessionPlugins.Add(sessionPluginMock.Object);
+
+            // act
+            var transaction = session.BeginTransaction();
+            transaction.Commit();
+
+            // assert
+            connectionMock.VerifyAll();
+            transactionMock.VerifyAll();
+            sessionPluginMock.VerifyAll();
+        }
+
+        [Fact]
+        public void BeginTransaction_Commit_Allows_New_Transaction()
+        {
+            // arrange
+            var transactionMock = TestHelper.SetupMock<IDbTransaction>();
+            transactionMock.Setup(s => s.Dispose());
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(transactionMock.Object);
+            connectionMock.Setup(s => s.Commit());
+
+            var session = new Session(connectionMock.Object);
+
+            // act
+            var transaction = session.BeginTransaction();
+            transaction.Commit();
+            session.BeginTransaction();
+
+            // assert
+            connectionMock.VerifyAll();
+            transactionMock.VerifyAll();
+        }
+
+        [Theory]
+        [InlineData(IsolationLevel.Chaos)]
+        [InlineData(IsolationLevel.ReadCommitted)]
+        [InlineData(IsolationLevel.ReadUncommitted)]
+        [InlineData(IsolationLevel.RepeatableRead)]
+        [InlineData(IsolationLevel.Serializable)]
+        [InlineData(IsolationLevel.Snapshot)]
+        [InlineData(IsolationLevel.Unspecified)]
+        public void BeginTransaction_Uses_Expected_IsolationLevel(IsolationLevel isolationLevel)
+        {
+            // arrange
+            var transactionMock = TestHelper.SetupMock<IDbTransaction>();
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.BeginTransaction(isolationLevel)).Returns(transactionMock.Object);
+
+            var session = new Session(connectionMock.Object);
+
+            // act
+            session.BeginTransaction(isolationLevel);
+
+            // assert
+            connectionMock.VerifyAll();
+            transactionMock.VerifyAll();
+        }
+
+        [Fact]
+        public void DiscardChanges_Work()
+        {
+            // arrange
+            TestHelper.SetupEntityMetadataServices();
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            var session = new Session(connectionMock.Object);
+            var entity = new Artist();
+            var statisticValue = new ArtistStatisticValues();
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> {entity});
+
+            entity.Name = "Source";
+            entity.StatisticValues.Add(statisticValue);
+            entity.PropertyChangeTracker.Clear();
+
+            session.Save(entity);
+
+            entity.Name = "Test";
+            entity.AnotherArtist = new Artist();
+            entity.StatisticValues.Add(new ArtistStatisticValues());
+
+            entity.PropertyChangeTracker.AddPropertyChangedItem<Artist>(x => x.Name, "Source", "Test");
+            entity.PropertyChangeTracker.AddPropertyChangedItem<Artist>(x => x.AnotherArtist, null, entity.AnotherArtist);
+
+            // act
+            session.DiscardChanges();
+
+            // assert
+            Assert.Equal("Source", entity.Name);
+            Assert.Null(entity.AnotherArtist);
+            Assert.Single(entity.StatisticValues, statisticValue);
 
             connectionMock.VerifyAll();
         }
