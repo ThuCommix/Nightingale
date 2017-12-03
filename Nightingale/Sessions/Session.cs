@@ -33,11 +33,6 @@ namespace Nightingale.Sessions
         public List<ISessionPlugin> SessionPlugins { get; }
 
         /// <summary>
-        /// Gets or sets the persistence behavior.
-        /// </summary>
-        public PersistenceBehavior PersistenceBehavior { get; set; }
-
-        /// <summary>
         /// Gets the entity service.
         /// </summary>
         protected IEntityService EntityService => DependencyResolver.GetInstance<IEntityService>();
@@ -65,7 +60,6 @@ namespace Nightingale.Sessions
 
             DeletionBehavior = DeletionBehavior.Irrecoverable;
             SessionPlugins = new List<ISessionPlugin>();
-            PersistenceBehavior = PersistenceBehavior.AddNewOnly;
             Connection = connection;
         }
 
@@ -115,9 +109,6 @@ namespace Nightingale.Sessions
         /// <returns>Returns the count of updated entities.</returns>
         public int SaveChanges()
         {
-            if (PersistenceBehavior == PersistenceBehavior.None)
-                return 0;
-
             if (SessionPlugins.Any(x => !x.SaveChanges(_persistenceContext)))
             {
                 return 0;
@@ -350,48 +341,18 @@ namespace Nightingale.Sessions
                 }
             }
 
-            if (PersistenceBehavior == PersistenceBehavior.None)
-                return entityList;
-
-            var entityMetadata = EntityMetadataResolver.GetEntityMetadata(query.EntityType);
             var persistentResults = new List<Entity>();
             foreach (var entity in entityList)
             {
-                if (PersistenceBehavior == PersistenceBehavior.AddNewOnly)
+                var existingEntity = _persistenceContext.Lookup(entity.Id, query.EntityType);
+                if (existingEntity == null)
                 {
-                    var existingEntity = _persistenceContext.Lookup(entity.Id, query.EntityType);
-                    if (existingEntity == null)
-                    {
-                        persistentResults.Add(entity);
-                        _persistenceContext.Insert(entity);
-                    }
-                    else
-                    {
-                        persistentResults.Add(existingEntity);
-                    }
+                    persistentResults.Add(entity);
+                    _persistenceContext.Insert(entity);
                 }
-
-                if (PersistenceBehavior == PersistenceBehavior.OverrideChanges)
+                else
                 {
-                    var existingEntity = _persistenceContext.Lookup(entity.Id, query.EntityType);
-                    if (existingEntity == null)
-                    {
-                        persistentResults.Add(entity);
-                        _persistenceContext.Insert(entity);
-                    }
-                    else
-                    {
-                        foreach (var field in entityMetadata.Fields)
-                        {
-                            var property = query.EntityType.GetProperty(field.GetComplexFieldName());
-                            property.SetValue(existingEntity, property.GetValue(entity));
-                        }
-
-                        //TODO what about child lists? those are not refreshed currently
-
-                        entity.PropertyChangeTracker.Clear();
-                        persistentResults.Add(existingEntity);
-                    }
+                    persistentResults.Add(existingEntity);
                 }
             }
 

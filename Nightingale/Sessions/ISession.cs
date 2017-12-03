@@ -28,11 +28,6 @@ namespace Nightingale.Sessions
         DeletionBehavior DeletionBehavior { get; set; }
 
         /// <summary>
-        /// Gets or sets the persistence behavior.
-        /// </summary>
-        PersistenceBehavior PersistenceBehavior { get; set; }
-
-        /// <summary>
         /// Deletes the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
