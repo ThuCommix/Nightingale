@@ -457,6 +457,15 @@ namespace Nightingale.Tests.Queries {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.FK_Artist_ID,e.Title,e.Id,e.Deleted,e.Version FROM Song e LEFT JOIN Artist v0 ON v0.Id = e.FK_Artist_ID WHERE (v0.Name IS NOT @p0) AND (e.Title IS NOT @p1)  ähnelt.
+        /// </summary>
+        internal static string Queryable_Multiple_Where_Resets_EntityMetadata {
+            get {
+                return ResourceManager.GetString("Queryable_Multiple_Where_Resets_EntityMetadata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.FK_AnotherArtist_ID IS @p0)  ähnelt.
         /// </summary>
         internal static string Queryable_NonScalar_Property_Check_Results_In_Fk_Check {
