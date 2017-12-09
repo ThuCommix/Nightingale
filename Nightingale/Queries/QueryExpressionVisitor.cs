@@ -247,6 +247,7 @@ namespace Nightingale.Queries
                 else
                 {
                     EmitSql(" AND ");
+                    _currentEntityMetadata = _sourceEntityMetadata;
                 }
 
                 Visit(node.Arguments[1]);

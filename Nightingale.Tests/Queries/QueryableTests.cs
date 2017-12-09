@@ -518,5 +518,22 @@ namespace Nightingale.Tests.Queries
             // assert
             Assert.Equal(ExpectedQueryOutputs.Queryable_All, queryResult.Command);
         }
+
+        [Fact]
+        public void Queryable_Multiple_Where_Resets_EntityMetadata()
+        {
+            // arrange
+            IQuery queryResult = null;
+            var session = TestHelper.SetupMock<ISession>();
+            session.Setup(s => s.ExecuteQuery(It.IsAny<IQuery>())).Returns(new List<Entity> { new Song() }).Callback<IQuery>(q => queryResult = q);
+
+            var queryable = new Queryable<Song>(session.Object);
+
+            // act
+            var result = queryable.Where(x => x.Artist.Name != null).Where(x => x.Title != null).ToList();
+
+            // assert
+            Assert.Equal(ExpectedQueryOutputs.Queryable_Multiple_Where_Resets_EntityMetadata, queryResult.Command);
+        }
     }
 }

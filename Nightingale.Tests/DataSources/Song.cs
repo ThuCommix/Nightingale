@@ -26,6 +26,18 @@ namespace Nightingale.Tests.DataSources
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Mapped]
+        [MaxLength(1)]
+        [Mandatory]
+        [FieldType("string")]
+        [Cascade(Cascade.None)]
+
+        public string Title { get; set; }
+
         protected override void EagerLoadProperties()
         {
             throw new NotImplementedException();

@@ -255,4 +255,7 @@
     <data name="Queryable_All" xml:space="preserve">
         <value>SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (SELECT COUNT(e1.Id) FROM ArtistStatisticValues e1 INNER JOIN Artist v0 ON v0.Id = e1.FK_AnotherArtist_ID WHERE (v0.Name = @p0) AND e1.FK_AnotherArtist_ID = e.Id) = (SELECT COUNT(e1.Id) FROM ArtistStatisticValues e1 INNER JOIN Artist v0 ON v0.Id = e1.FK_AnotherArtist_ID WHERE e1.FK_AnotherArtist_ID = e.Id) </value>
     </data>
+    <data name="Queryable_Multiple_Where_Resets_EntityMetadata" xml:space="preserve">
+        <value>SELECT e.FK_Artist_ID,e.Title,e.Id,e.Deleted,e.Version FROM Song e LEFT JOIN Artist v0 ON v0.Id = e.FK_Artist_ID WHERE (v0.Name IS NOT @p0) AND (e.Title IS NOT @p1) </value>
+    </data>   
 </root>
