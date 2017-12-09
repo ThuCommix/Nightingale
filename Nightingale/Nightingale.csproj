@@ -3,15 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>Kevin Scholz</Authors>
     <Copyright>Kevin Scholz</Copyright>
     <PackageTags>CSharp, C#, ORM, Entity, Framework, Nightingale</PackageTags>
     <PackageProjectUrl>https://github.com/ThuCommix/Nightingale/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ThuCommix/Nightingale/</RepositoryUrl>
     <Description>Nightingale is a object relational mapper for .NET including .NET Core. It also offers automatic entity generation, lazy loading, enum support and much more.</Description>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <FileVersion>1.1.1.0</FileVersion>
     <PackageId>Nightingale</PackageId>
     <Product>Nightingale</Product>
   </PropertyGroup>
