@@ -104,9 +104,6 @@ namespace Nightingale.Entities
         /// <param name="session">The session.</param>
         internal void SetSession(Session session)
         {
-            if (session == null)
-                throw new ArgumentNullException(nameof(session));
-
             Session = session;
         }
 

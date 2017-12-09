@@ -260,6 +260,26 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
+        /// Attaches the entity to this session.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public void Attach(Entity entity)
+        {
+            entity.SetSession(this);
+            _persistenceContext.Insert(entity);
+        }
+
+        /// <summary>
+        /// Detaches the entity from this session.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        public void Detach(Entity entity)
+        {
+            entity.SetSession(null);
+            _persistenceContext.Delete(entity);
+        }
+
+        /// <summary>
         /// Gets the entity by the given id and type.
         /// </summary>
         /// <param name="id">The id.</param>

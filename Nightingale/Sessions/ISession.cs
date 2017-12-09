@@ -51,6 +51,18 @@ namespace Nightingale.Sessions
         void DiscardChanges();
 
         /// <summary>
+        /// Attaches the entity to this session.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        void Attach(Entity entity);
+
+        /// <summary>
+        /// Detaches the entity from this session.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        void Detach(Entity entity);
+
+        /// <summary>
         /// Gets the entity by the given id.
         /// </summary>
         /// <typeparam name="T">The entity type.</typeparam>
