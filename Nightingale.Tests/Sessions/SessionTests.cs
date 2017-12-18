@@ -6,6 +6,7 @@ using Nightingale.Entities;
 using Nightingale.Sessions;
 using Nightingale.Tests.DataSources;
 using Xunit;
+using Enumerable = System.Linq.Enumerable;
 
 namespace Nightingale.Tests.Sessions
 {
@@ -261,6 +262,28 @@ namespace Nightingale.Tests.Sessions
             Assert.Null(entity.AnotherArtist);
             Assert.Single(entity.StatisticValues, statisticValue);
 
+            connectionMock.VerifyAll();
+        }
+
+        [Fact]
+        public void Save_Also_Attaches_The_Entity()
+        {
+            // arrange
+            var entity = new Artist();
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> {entity});
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            var session = new Session(connectionMock.Object);
+
+            // act
+            session.Save(entity);
+
+            // assert
+            Assert.Equal(entity, (Artist)Enumerable.First(GetPersistenceContext(session)));
+
+            entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 

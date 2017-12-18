@@ -99,6 +99,8 @@ namespace Nightingale.Sessions
             if(entity.IsNotSaved && entity.Deleted)
                 throw new InvalidOperationException("Insertion of a deleted entity is not allowed.");
 
+            Attach(entity);
+
             var entities = EntityService.GetChildEntities(entity, Cascade.Save);
             entities.ForEach(_persistenceContext.Insert);
         }
