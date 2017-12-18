@@ -121,13 +121,13 @@ namespace Nightingale.Sessions
             var persistentEntities = _persistenceContext.ToList();
             foreach (var entity in persistentEntities.Where(x => !x.Deleted))
             {
+                EnsurePluginSave(entity);
+
                 if (!entity.Validate())
                     throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
 
                 var entityType = entity.GetType();
                 var metadata = EntityMetadataResolver.GetEntityMetadata(entity);
-
-                EnsurePluginSave(entity);
 
                 foreach (var field in metadata.Fields.Where(x => x.Cascade == Cascade.None && x.IsComplexFieldType && !x.Enum))
                 {
