@@ -98,7 +98,7 @@ namespace Nightingale.Sessions
         /// <summary>
         /// Rollback the current transaction to the specified save point.
         /// </summary>
-        /// <param name="savePoint">the save point.</param>
+        /// <param name="savePoint">The save point.</param>
         public void RollbackTo(string savePoint)
         {
             if (_isDisposed)
