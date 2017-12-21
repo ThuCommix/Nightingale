@@ -161,7 +161,9 @@ namespace Nightingale.Sessions
                 }
             }
 
-            foreach (var unsavedEntity in _persistenceContext.Where(x => x.IsNotSaved))
+            persistentEntities = _persistenceContext.ToList();
+
+            foreach (var unsavedEntity in persistentEntities.Where(x => x.IsNotSaved))
             {
                 try
                 {
@@ -182,7 +184,7 @@ namespace Nightingale.Sessions
                 changedEntityList.Add(unsavedEntity);
             }
 
-            foreach (var entity in _persistenceContext)
+            foreach (var entity in persistentEntities)
             {
                 if (!entity.PropertyChangeTracker.HasChanges)
                     continue;
@@ -209,7 +211,7 @@ namespace Nightingale.Sessions
                 }
             }
 
-            foreach (var entity in _persistenceContext)
+            foreach (var entity in persistentEntities)
             {
                 entity.PropertyChangeTracker.Clear();
                 if(entity.Deleted)
