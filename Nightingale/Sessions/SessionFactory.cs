@@ -41,7 +41,6 @@ namespace Nightingale.Sessions
         public IList<ISessionInterceptor> Interceptors { get; }
 
         private readonly List<ISession> _sessions;
-        private readonly List<ISessionInterceptor> _interceptors;
 
         /// <summary>
         /// Initializes a new SessionFactory class.
