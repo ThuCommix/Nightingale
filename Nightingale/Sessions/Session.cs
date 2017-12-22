@@ -96,7 +96,7 @@ namespace Nightingale.Sessions
         /// Saves the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        public void Save(Entity entity)
+        public virtual void Save(Entity entity)
         {
             if(entity.IsNotSaved && entity.Deleted)
                 throw new InvalidOperationException("Insertion of a deleted entity is not allowed.");
@@ -112,7 +112,7 @@ namespace Nightingale.Sessions
         /// Saves the changes to the database.
         /// </summary>
         /// <returns>Returns the count of updated entities.</returns>
-        public int SaveChanges()
+        public virtual int SaveChanges()
         {
             var changedEntityList = new List<Entity>();
             var persistentEntities = _persistenceContext.ToList();
@@ -218,7 +218,7 @@ namespace Nightingale.Sessions
         /// <summary>
         /// Discards the changes on the entities and clears the property change tracker.
         /// </summary>
-        public void DiscardChanges()
+        public virtual void DiscardChanges()
         {
             foreach (var entity in _persistenceContext)
             {
@@ -377,7 +377,7 @@ namespace Nightingale.Sessions
         /// </summary>
         /// <typeparam name="T">The entity type.</typeparam>
         /// <returns>Returns the queryable.</returns>
-        public IQueryable<T> Query<T>() where T : Entity
+        public virtual IQueryable<T> Query<T>() where T : Entity
         {
             return new Queryable<T>(this).ApplyDeleteFilter();
         }
