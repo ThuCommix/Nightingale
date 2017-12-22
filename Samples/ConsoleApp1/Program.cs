@@ -15,8 +15,8 @@ namespace ConsoleApp1
             var sessionFactory = new SessionFactory(connectionFactory) {Logger = new TraceLogger(LogLevel.Debug)};
 
             // register entity listeners
-            sessionFactory.SessionPlugins.Add(new PersionSessionPlugin());
-            sessionFactory.SessionPlugins.Add(new AddressSessionPlugin());
+            sessionFactory.Interceptors.Add(new PersonSessionInterceptor());
+            sessionFactory.Interceptors.Add(new AddressSessionInterceptor());
 
             var session = sessionFactory.OpenSession();
 

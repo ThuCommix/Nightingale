@@ -13,11 +13,6 @@ namespace Nightingale.Sessions
     public interface ISession : IDisposable
     {
         /// <summary>
-        /// Gets the list of session plugins.
-        /// </summary>
-        List<ISessionPlugin> SessionPlugins { get; }
-
-        /// <summary>
         /// Gets the connection.
         /// </summary>
         IConnection Connection { get; }
@@ -26,6 +21,11 @@ namespace Nightingale.Sessions
         /// Gets or sets the deletion mode.
         /// </summary>
         DeletionBehavior DeletionBehavior { get; set; }
+
+        /// <summary>
+        /// Gets the session interceptors.
+        /// </summary>
+        IList<ISessionInterceptor> Interceptors { get; }
 
         /// <summary>
         /// Deletes the entity.

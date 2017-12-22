@@ -28,9 +28,9 @@ namespace Nightingale.Sessions
         public DeletionBehavior DeletionBehavior { get; set; }
 
         /// <summary>
-        /// Gets the list of session plugins.
+        /// Gets the session interceptors.
         /// </summary>
-        public List<ISessionPlugin> SessionPlugins { get; }
+        public IList<ISessionInterceptor> Interceptors { get; }
 
         /// <summary>
         /// Gets the entity service.
@@ -58,8 +58,8 @@ namespace Nightingale.Sessions
             _logger = DependencyResolver.TryGetInstance<ILogger>();
             _persistenceContext = new PersistenceContext();
 
+            Interceptors = new List<ISessionInterceptor>();
             DeletionBehavior = DeletionBehavior.Irrecoverable;
-            SessionPlugins = new List<ISessionPlugin>();
             Connection = connection;
         }
 
@@ -84,6 +84,8 @@ namespace Nightingale.Sessions
                 return;
 
             var entities = EntityService.GetChildEntities(entity, Cascade.SaveDelete);
+            entities.ForEach(x => Intercept(x, InterceptorMode.Delete));
+
             foreach(var entityToDelete in entities)
             {
                 entityToDelete.Deleted = true;
@@ -103,6 +105,7 @@ namespace Nightingale.Sessions
 
             var entities = EntityService.GetChildEntities(entity, Cascade.Save);
             entities.ForEach(_persistenceContext.Insert);
+            entities.ForEach(x => Intercept(x, InterceptorMode.Save));
         }
 
         /// <summary>
@@ -111,18 +114,11 @@ namespace Nightingale.Sessions
         /// <returns>Returns the count of updated entities.</returns>
         public int SaveChanges()
         {
-            if (SessionPlugins.Any(x => !x.SaveChanges(_persistenceContext)))
-            {
-                return 0;
-            }
-
             var changedEntityList = new List<Entity>();
-
             var persistentEntities = _persistenceContext.ToList();
+
             foreach (var entity in persistentEntities.Where(x => !x.Deleted))
             {
-                EnsurePluginSave(entity);
-
                 if (!entity.Validate())
                     throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
 
@@ -143,8 +139,6 @@ namespace Nightingale.Sessions
             // handle deletion
             foreach (var entity in persistentEntities.Where(x => x.Deleted))
             {
-                EnsurePluginDelete(entity);
-
                 var constraints = ResolveDependencyConstraints(entity, persistentEntities);
                 if (constraints.Count > 0)
                     throw new SessionDeleteException($"The entity '{entity.GetType().Name}' and Id = '{entity.Id}' could not be marked as deleted.", constraints).Log(_logger);
@@ -326,11 +320,6 @@ namespace Nightingale.Sessions
             transaction.Finished += (sender, args) =>
             {
                 _isInTransaction = false;
-            };
-
-            transaction.Committing += (sender, args) =>
-            {
-                SessionPlugins.ForEach(x => x.Commit());
             };
 
             return transaction;
@@ -560,28 +549,30 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
-        /// Ensures that all session plugin return true.
+        /// Intercepts a session functionality.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        private void EnsurePluginSave(Entity entity)
+        /// <param name="interceptorMode">The interceptor mode.</param>
+        private void Intercept(Entity entity, InterceptorMode interceptorMode)
         {
-            foreach (var plugin in SessionPlugins)
+            if (interceptorMode == InterceptorMode.Save)
             {
-                if (!plugin.Save(entity))
-                    throw new SessionException($"The entity could not be saved because of session plugin {plugin.GetType().Name}.").Log(_logger);
+                foreach (var interceptor in Interceptors)
+                {
+                    if (!interceptor.Save(entity))
+                        throw new SessionInterceptorException($"The entity with type '{entity.GetType().Name}' and Id = '{entity.Id}' could not be saved.", interceptor.GetType())
+                            .Log(_logger);
+                }
             }
-        }
 
-        /// <summary>
-        /// Ensures that all session plugins return true.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        private void EnsurePluginDelete(Entity entity)
-        {
-            foreach (var plugin in SessionPlugins)
+            if (interceptorMode == InterceptorMode.Delete)
             {
-                if (!plugin.Delete(entity))
-                    throw new SessionException($"The entity could not be deleted because of session plugin {plugin.GetType().Name}.").Log(_logger);
+                foreach (var interceptor in Interceptors)
+                {
+                    if (!interceptor.Delete(entity))
+                        throw new SessionInterceptorException($"The entity with type '{entity.GetType().Name}' and Id = '{entity.Id}' could not be deleted.", interceptor.GetType())
+                            .Log(_logger);
+                }
             }
         }
 

@@ -153,33 +153,6 @@ namespace Nightingale.Tests.Sessions
         }
 
         [Fact]
-        public void BeginTransaction_Call_Session_Plugins_On_Commit()
-        {
-            // arrange
-            var transactionMock = TestHelper.SetupMock<IDbTransaction>();
-            transactionMock.Setup(s => s.Dispose());
-
-            var connectionMock = TestHelper.SetupMock<IConnection>();
-            connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(transactionMock.Object);
-            connectionMock.Setup(s => s.Commit());
-
-            var session = new Session(connectionMock.Object);
-            var sessionPluginMock = TestHelper.SetupMock<ISessionPlugin>();
-            sessionPluginMock.Setup(s => s.Commit());
-
-            session.SessionPlugins.Add(sessionPluginMock.Object);
-
-            // act
-            var transaction = session.BeginTransaction();
-            transaction.Commit();
-
-            // assert
-            connectionMock.VerifyAll();
-            transactionMock.VerifyAll();
-            sessionPluginMock.VerifyAll();
-        }
-
-        [Fact]
         public void BeginTransaction_Commit_Allows_New_Transaction()
         {
             // arrange
@@ -285,6 +258,58 @@ namespace Nightingale.Tests.Sessions
 
             entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
+        }
+
+        [Fact]
+        public void Save_Calls_SessionInterceptor()
+        {
+            // arrange
+            var entity = new Artist();
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            var session = new Session(connectionMock.Object);
+
+            var interceptorMock = TestHelper.SetupMock<ISessionInterceptor>();
+            interceptorMock.Setup(s => s.Save(entity)).Returns(true);
+
+            session.Interceptors.Add(interceptorMock.Object);
+
+            // act
+            session.Save(entity);
+
+            // assert
+            connectionMock.VerifyAll();
+            entityServiceMock.VerifyAll();
+            interceptorMock.VerifyAll();
+        }
+
+        [Fact]
+        public void Delete_Calls_SessionInterceptor()
+        {
+            // arrange
+            var entity = new Artist();
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(new List<Entity> { entity });
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            var session = new Session(connectionMock.Object);
+
+            var interceptorMock = TestHelper.SetupMock<ISessionInterceptor>();
+            interceptorMock.Setup(s => s.Delete(entity)).Returns(true);
+
+            session.Interceptors.Add(interceptorMock.Object);
+
+            // act
+            session.Delete(entity);
+
+            // assert
+            connectionMock.VerifyAll();
+            entityServiceMock.VerifyAll();
+            interceptorMock.VerifyAll();
         }
 
         private PersistenceContext GetPersistenceContext(Session session)

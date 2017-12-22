@@ -2,9 +2,9 @@
 
 namespace ConsoleApp1
 {
-    public class AddressSessionPlugin : SessionPluginBase<Address>
+    public class AddressSessionInterceptor : SessionInterceptor<Address>
     {
-        protected override bool OnDelete(Address entity)
+        protected override bool Delete(Address entity)
         {
             if (entity.Person.Addresses.Count <= 1)
                 return false;
@@ -12,7 +12,7 @@ namespace ConsoleApp1
             return true;
         }
 
-        protected override bool OnSave(Address entity)
+        protected override bool Save(Address entity)
         {
             entity.IsValid = entity.ValidTo == null;
 

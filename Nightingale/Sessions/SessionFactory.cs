@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Nightingale.Extensions;
 using Nightingale.Logging;
 
 namespace Nightingale.Sessions
 {
     /// <summary>
-    /// Responsible for creating a <see cref="Session" /> based on the connection factory and the specified settings.
+    /// Responsible for creating a <see cref="ISession" /> based on the connection factory and the specified settings.
     /// </summary>
     public class SessionFactory : ISessionFactory
     {
@@ -19,11 +20,6 @@ namespace Nightingale.Sessions
         /// Gets the connection factory for this instance.
         /// </summary>
         public IConnectionFactory ConnectionFactory { get; }
-
-        /// <summary>
-        /// Gets the list of session plugins.
-        /// </summary>
-        public List<ISessionPlugin> SessionPlugins { get; }
 
         /// <summary>
         /// Gets or sets the logger.
@@ -39,7 +35,13 @@ namespace Nightingale.Sessions
         /// </summary>
         public DeletionBehavior DeletionBehavior { get; set; }
 
+        /// <summary>
+        /// Gets the session interceptors.
+        /// </summary>
+        public IList<ISessionInterceptor> Interceptors { get; }
+
         private readonly List<ISession> _sessions;
+        private readonly List<ISessionInterceptor> _interceptors;
 
         /// <summary>
         /// Initializes a new SessionFactory class.
@@ -48,8 +50,8 @@ namespace Nightingale.Sessions
         public SessionFactory(IConnectionFactory factory) 
         {
             ConnectionFactory = factory;
-            SessionPlugins = new List<ISessionPlugin>();
             DeletionBehavior = DeletionBehavior.Irrecoverable;
+            Interceptors = new List<ISessionInterceptor>();
 
             _sessions = new List<ISession>();
         }
@@ -76,7 +78,7 @@ namespace Nightingale.Sessions
             if (!_sessions.Contains(session))
             {
                 AddSession(session);
-                session.SessionPlugins.AddRange(SessionPlugins);
+                Interceptors.ForEach(x => session.Interceptors.Add(x));
             }
 
             session.DeletionBehavior = DeletionBehavior;

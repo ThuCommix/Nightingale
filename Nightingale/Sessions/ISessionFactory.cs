@@ -20,11 +20,6 @@ namespace Nightingale.Sessions
         IConnectionFactory ConnectionFactory { get; }
 
         /// <summary>
-        /// Gets the list of session plugins.
-        /// </summary>
-        List<ISessionPlugin> SessionPlugins { get; }
-
-        /// <summary>
         /// Gets or sets the logger.
         /// </summary>
         ILogger Logger { get; set; }
@@ -33,6 +28,11 @@ namespace Nightingale.Sessions
         /// Gets or sets the deletion mode.
         /// </summary>
         DeletionBehavior DeletionBehavior { get; set; }
+
+        /// <summary>
+        /// Gets the session interceptors.
+        /// </summary>
+        IList<ISessionInterceptor> Interceptors { get; }
 
         /// <summary>
         /// Opens a new session.
