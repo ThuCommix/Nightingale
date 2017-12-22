@@ -312,6 +312,77 @@ namespace Nightingale.Tests.Sessions
             interceptorMock.VerifyAll();
         }
 
+        [Fact]
+        public void SaveChanges_Validate_Entity()
+        {
+            // arrange
+            TestHelper.SetupEntityMetadataServices();
+
+            var entity = new Song();
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            var session = new Session(connectionMock.Object);
+            session.Save(entity);
+
+            // act
+            Assert.Throws<SessionException>(() => session.SaveChanges());
+
+            // assert
+            entityServiceMock.VerifyAll();
+            connectionMock.VerifyAll();
+        }
+
+        [Fact]
+        public void SaveChanges_Detect_Transient_Values()
+        {
+            // arrange
+            TestHelper.SetupEntityMetadataServices();
+
+            var entity = new Song {Title = "SongTitle"};
+            entity.Artist = new Artist();
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            var session = new Session(connectionMock.Object);
+            session.Save(entity);
+
+            // act
+            Assert.Throws<TransientEntityException>(() => session.SaveChanges());
+
+            // assert
+            entityServiceMock.VerifyAll();
+            connectionMock.VerifyAll();
+        }
+
+        [Fact]
+        public void SaveChanges_Detect_Mandatory_Deleted_Field()
+        {
+            // arrange
+            TestHelper.SetupEntityMetadataServices();
+
+            var entity = new Book {Author = TestHelper.CreateEntityWithId<Author>(1)};
+            TestHelper.MarkEntityDeleted(entity.Author);
+
+            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
+            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            var session = new Session(connectionMock.Object);
+            session.Save(entity);
+
+            // act
+            Assert.Throws<InvalidOperationException>(() => session.SaveChanges());
+
+            // assert
+            entityServiceMock.VerifyAll();
+            connectionMock.VerifyAll();
+        }
+
         private PersistenceContext GetPersistenceContext(Session session)
         {
             return (PersistenceContext)session.GetType().GetField("_persistenceContext", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(session);

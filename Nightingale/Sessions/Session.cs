@@ -131,7 +131,7 @@ namespace Nightingale.Sessions
                     if (referencedEntity != null && referencedEntity.IsNotSaved && !persistentEntities.Contains(referencedEntity))
                         throw new TransientEntityException($"Entity with type '{metadata.Name}' references an unsaved transient value in field {field.Name}. Consider saving the transient entity before calling SaveChanges.").Log(_logger);
 
-                    if(referencedEntity != null && field.Mandatory && entity.Deleted)
+                    if(referencedEntity != null && field.Mandatory && referencedEntity.Deleted)
                         throw new InvalidOperationException($"Entity with type '{metadata.Name}' references an entity which is marked as deleted.");
                 }
             }
