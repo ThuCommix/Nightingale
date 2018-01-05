@@ -121,5 +121,10 @@ namespace Nightingale.Sessions
         /// </summary>
         /// <param name="entity">The entity.</param>
         void Refresh(ref Entity entity);
+
+        /// <summary>
+        /// Clears the internal persistence context.
+        /// </summary>
+        void Clear();
     }
 }

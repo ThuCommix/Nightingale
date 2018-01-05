@@ -424,6 +424,14 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
+        /// Clears the internal persistence context.
+        /// </summary>
+        public void Clear()
+        {
+            _persistenceContext.Discard();
+        }
+
+        /// <summary>
         /// Inserts the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>

@@ -383,6 +383,25 @@ namespace Nightingale.Tests.Sessions
             connectionMock.VerifyAll();
         }
 
+        [Fact]
+        public void Clear_Discards_PersistenceContext()
+        {
+            // arrange
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            var session = new Session(connectionMock.Object);
+            var persistenceContext = GetPersistenceContext(session);
+
+            persistenceContext.Insert(new Artist());
+
+            // act
+            session.Clear();
+
+            // assert
+            Assert.Empty(persistenceContext);
+
+            connectionMock.VerifyAll();
+        }
+
         private PersistenceContext GetPersistenceContext(Session session)
         {
             return (PersistenceContext)session.GetType().GetField("_persistenceContext", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(session);
