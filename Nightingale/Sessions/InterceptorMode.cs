@@ -10,6 +10,11 @@
         /// <summary>
         /// Indicates a delete interception.
         /// </summary>
-        Delete
+        Delete,
+
+        /// <summary>
+        /// Indicates a validation interception.
+        /// </summary>
+        Validate
     }
 }

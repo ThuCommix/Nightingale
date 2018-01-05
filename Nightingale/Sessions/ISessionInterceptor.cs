@@ -20,5 +20,12 @@ namespace Nightingale.Sessions
         /// <param name="entity">The entity.</param>
         /// <returns>Returns true on success.</returns>
         bool Delete(Entity entity);
+
+        /// <summary>
+        /// Gets called when an <see cref="Entity"/> is validated in the <see cref="ISession"/>.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns>Returns true on success.</returns>
+        bool Validate(Entity entity);
     }
 }

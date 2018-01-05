@@ -122,6 +122,8 @@ namespace Nightingale.Sessions
                 if (!entity.Validate())
                     throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
 
+                Intercept(entity, InterceptorMode.Validate);
+
                 var entityType = entity.GetType();
                 var metadata = EntityMetadataResolver.GetEntityMetadata(entity);
 
@@ -562,6 +564,16 @@ namespace Nightingale.Sessions
         /// <param name="interceptorMode">The interceptor mode.</param>
         private void Intercept(Entity entity, InterceptorMode interceptorMode)
         {
+            if (interceptorMode == InterceptorMode.Validate)
+            {
+                foreach (var interceptor in Interceptors)
+                {
+                    if (!interceptor.Validate(entity))
+                        throw new SessionInterceptorException($"The entity with type '{entity.GetType().Name}' and Id = '{entity.Id}' could not be validated.", interceptor.GetType())
+                            .Log(_logger);
+                }
+            }
+
             if (interceptorMode == InterceptorMode.Save)
             {
                 foreach (var interceptor in Interceptors)

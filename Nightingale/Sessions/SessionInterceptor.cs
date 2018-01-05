@@ -35,6 +35,19 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
+        /// Gets called when an <see cref="Entity"/> is validated in the <see cref="ISession"/>.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns>Returns true on success.</returns>
+        public bool Validate(Entity entity)
+        {
+            if (entity is T tEntity)
+                return Validate(tEntity);
+
+            return true;
+        }
+
+        /// <summary>
         /// Gets called when an <see cref="Entity"/> is saved in the <see cref="ISession"/>.
         /// </summary>
         /// <param name="entity">The entity.</param>
@@ -50,6 +63,16 @@ namespace Nightingale.Sessions
         /// <param name="entity">The entity.</param>
         /// <returns>Returns true on success.</returns>
         protected virtual bool Delete(T entity)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Gets called when an <see cref="Entity"/> is validated in the <see cref="ISession"/>.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns>Returns true on success.</returns>
+        protected virtual bool Validate(T entity)
         {
             return true;
         }
