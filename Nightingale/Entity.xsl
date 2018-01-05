@@ -10,6 +10,8 @@ using Nightingale;
 using Nightingale.Entities;
 using Nightingale.Extensions;
 using Nightingale.Queries;
+<xsl:for-each select="Namespaces/Import">using <xsl:value-of select="@Name" />;
+</xsl:for-each>
 
 // generated <xsl:value-of select="@Name" />.cs
 		

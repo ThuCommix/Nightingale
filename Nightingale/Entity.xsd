@@ -40,6 +40,13 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="Namespaces" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Import" type="Import" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
         <xs:attribute name="Name" type="xs:string" use="required" />
         <xs:attribute name="Description" type="xs:string" use="optional" />
@@ -95,5 +102,9 @@
 	<xs:complexType name="Interface">
 		<xs:attribute name="Name" type="xs:string" use="required" />
 	</xs:complexType>
+
+    <xs:complexType name="Import">
+        <xs:attribute name="Name" type="xs:string" use="required" />
+    </xs:complexType>
 	
 </xs:schema>
