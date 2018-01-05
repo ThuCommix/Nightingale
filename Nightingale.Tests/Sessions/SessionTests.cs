@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using Moq;
 using Nightingale.Entities;
 using Nightingale.Sessions;
 using Nightingale.Tests.DataSources;
@@ -133,21 +134,24 @@ namespace Nightingale.Tests.Sessions
         }
 
         [Fact]
-        public void BeginTransaction_Throw_Exception_When_Already_In_Transaction()
+        public void BeginTransaction_Creates_Nested_Transaction_When_Already_In_Transaction()
         {
             // arrange
             var transactionMock = TestHelper.SetupMock<IDbTransaction>();
             var connectionMock = TestHelper.SetupMock<IConnection>();
             connectionMock.Setup(s => s.BeginTransaction(IsolationLevel.Serializable)).Returns(transactionMock.Object);
+            connectionMock.Setup(s => s.Save(It.IsAny<string>()));
 
             var session = new Session(connectionMock.Object);
 
             session.BeginTransaction();
 
             // act
-            Assert.Throws<SessionException>(() => session.BeginTransaction());
+            var result = session.BeginTransaction();
 
             // assert
+            Assert.IsType<NestedTransaction>(result);
+
             connectionMock.VerifyAll();
             transactionMock.VerifyAll();
         }

@@ -6,7 +6,7 @@ namespace Nightingale.Sessions
     /// <summary>
     /// Represents a database transaction.
     /// </summary>
-    public class Transaction : IDisposable
+    public class Transaction : ITransaction
     {
         /// <summary>
         /// Raises when the transaction is committing.

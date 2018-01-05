@@ -44,7 +44,7 @@ namespace Nightingale.Sessions
 
         private readonly ILogger _logger;
         private readonly PersistenceContext _persistenceContext;
-        private bool _isInTransaction;
+        private ITransaction _transaction;
 
         /// <summary>
         /// Initializes a new Session class.
@@ -308,21 +308,21 @@ namespace Nightingale.Sessions
         /// </summary>
         /// <param name="isolationLevel">The isolation level.</param>
         /// <returns>Returns an IDisposeable instance.</returns>
-        public virtual Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable)
+        public virtual ITransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable)
         {
-            if (_isInTransaction)
-                throw new SessionException("The session is already in a transaction.").Log(_logger);
-
-            _isInTransaction = true;
-
-            var transaction = new Transaction(Connection, Connection.BeginTransaction(isolationLevel));
-
-            transaction.Finished += (sender, args) =>
+            if (_transaction != null)
             {
-                _isInTransaction = false;
+                return new NestedTransaction(_transaction);
+            }
+
+            _transaction = new Transaction(Connection, Connection.BeginTransaction(isolationLevel));
+
+            _transaction.Finished += (sender, args) =>
+            {
+                _transaction = null;
             };
 
-            return transaction;
+            return _transaction;
         }
 
         /// <summary>
@@ -334,7 +334,6 @@ namespace Nightingale.Sessions
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
-
 
             DebugQueryResult(query);
 

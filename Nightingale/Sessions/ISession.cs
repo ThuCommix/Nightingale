@@ -83,7 +83,7 @@ namespace Nightingale.Sessions
         /// </summary>
         /// <param name="isolationLevel">The isolation level.</param>
         /// <returns>Returns an IDisposeable instance.</returns>
-        Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable);
+        ITransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Serializable);
 
         /// <summary>
         /// Executes a query.
