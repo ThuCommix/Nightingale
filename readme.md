@@ -25,7 +25,7 @@ PM> Install-Package Nightingale.SQLite
 [Metadata for Person.xml](https://gist.github.com/ThuCommix/fbd987fd81d7544ac8252008a243916c "Person.xml")
 [Metadata for Address.xml](https://gist.github.com/ThuCommix/7dc00f0c5fc6e76536970c8db7c93a3c "Address.xml")
 
-4. Create a data provider with the appropriate connection string and initialize a new repository class with a session created by the SessionFactory.
+4. Create a connection factory with the appropriate connection string and initialize a new session created by the SessionFactory.
 
 ```csharp
     var connectionFactory = new SQLiteConnectionFactory();
@@ -33,8 +33,7 @@ PM> Install-Package Nightingale.SQLite
 
     var sessionFactory = new SessionFactory(connectionFactory);
 
-    var session = sessionFactory.GetCurrentSession();
-    var repository = new Repository(session);
+    var session = sessionFactory.OpenSession();
 ```
 
 5. Run the ConcordiaFrameworkCli with a) InputFolder and b) OutputFolder as command line arguments, this will create the C# classes for you (It's located in the Tools folder of the repository and also in the release zip)
@@ -42,8 +41,11 @@ PM> Install-Package Nightingale.SQLite
 6. Create the table in the database (Recreate is an extension method and actually calls Delete and then Create)
 
 ```csharp
-    session.GetTable<Person>().Recreate();
-    session.GetTable<Address>().Recreate();
+    using (var connection = connectionFactory.Open())
+    {
+        connection.GetTable<Person>().Recreate();
+        connection.GetTable<Address>().Recreate();
+    }
 ```
 
 7. Fill your newly created entities with data
@@ -66,32 +68,38 @@ PM> Install-Package Nightingale.SQLite
 8. Start a new transaction and save the person instance
 
 ```csharp
-    using (repository.BeginTransaction())
+    using (var transaction = session.BeginTransaction())
     {
-        repository.Save(person);
-        repository.Commit();
+        session.Save(person);
+        session.SaveChanges();
+        transaction.Commit();
     }
 ```
 
-9. Load the person with the repository
+Also nested transactions are possible, just call BeginTransaction from inside the using block. This
+nested transaction will basicly create a save point which can be rolled back to when calling
+Rollback or Dispose without calling commit. A nested transaction must be committed before disposing
+otherwise the transaction will be rolled back.
+
+9. Load the person with the session
 
 ```csharp
-    var person = repository.GetById<Person>(1);
+    var person = session.Get<Person>(1);
 ```
 
-### Intercepting entity saving and deletion with EntityListener
+### Intercepting entity saving and deletion with SessionInterceptor
 
-When saving or deleting entities via the Repository class the entity listeners run to validate said actions. It's also handy to add some extra logic which should run for every entity of the specified type. In this example the IsLegalAge field is set based on the specified age of the person. If you return false the repository will throw an exception stating that the entity listener returned false.
+When saving or deleting entities via the Session class the session interceptors run to validate said actions. It's also handy to add some extra logic which should run for every entity of the specified type. In this example the IsLegalAge field is set based on the specified age of the person. If you return false the session will throw an exception stating that the session interceptor returned false.
 
 ```csharp
-    public class PersonEntityListener : EntityListener<Person>
+    public class PersonSessionInterceptor : SessionInterceptor<Person>
     {
-        protected override bool OnDelete(Person entity)
+        protected override bool Delete(Person entity)
         {
             return true;
         }
 
-        protected override bool OnSave(Person entity)
+        protected override bool Save(Person entity)
         {
             entity.IsLegalAge = entity.Age >= 21;
 
@@ -102,33 +110,9 @@ When saving or deleting entities via the Repository class the entity listeners r
 
 ### Querying data
 Getting an entity by it's id. is a usefull key feature but in the most cases we don't have any idea of the id and instead rely on querying the database.
-There are two different ways of querying data, the first one is just using the IRepository.GetList<T>() where you can define a kind of predicate to query or
-using the Query class itself.
 
 ```csharp
-    // using IRepository.GetList<T>()
-    var customers = repository.GetList<Person>(x => x.FirstName == "Peter" && x.Age >= 18);
-    var customers2 = repository.GetList<Person>(x => x.Name.StartsWith("Mueller"));
-
     // using the IQueryable interface
     var customers3 = repository.Query<Person>().Where(x => x.FirstName == "Peter" && x.Age >= 18).ToList();
     var customers4 = repository.Query<Person>().Where(x => x.Orders.Any(y => y.Status == OrderStatus.Pending)).OrderBy(x => x.Name).ThenBy(x => x.FirstName).ToList()
 ```
-
-### Session behaviour
-The session, by default, only writes data to the database when a commit is happening, this behaviour can be changed when changing the FlushMode:
-1. Always - Writes data directly when calling Save or Delete or ExecuteQuery
-2. Intelligent - Writes data before calling ExecuteQuery to keep data in sync
-3. Commit - Writes data when calling Commit
-4. Manual - Writes data only when calling Flush on either the Repository or the Session itself
-
-Also the delete behaviour is set to soft by default which means that the data is not actually deleted in the database but the Deleted field is set to true which causes that the entity is not fetched anymore. This can be changed when changing the DeletionMode on the session:
-1. None - Never execute delete statements or setting the Deleted flag
-2. Soft - Sets the Deleted flag but don't delete the entity in the database
-3. Hard - Deletes the entity from the database
-
-### StatelessSession
-When using the default session type and insert or read huge amount of entities from the database, all of them are cached in the session cache. This will of course eventually
-hit a memory limit when not creating new sessions in a long processing chain. For this case a stateless session can be used.
-A stateless session can be configured when overriding the ISessionContext and does not have any caching mechanism build in. It also flushes directly aftere calling SaveOrUpdate
-to prevent entity reference caching. With this session type you can read millions of entities without blowing up the session.
