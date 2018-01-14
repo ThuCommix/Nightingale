@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.0-alpha2</Version>
+    <Version>2.0.0</Version>
     <Description>Provides SQLite database access for Nightingale.</Description>
     <Authors>Kevin Scholz</Authors>
     <Copyright>Kevin Scholz</Copyright>
