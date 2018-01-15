@@ -135,6 +135,12 @@ namespace Nightingale.MySql
                     Value = parameter.Value
                 };
 
+                if (parameter.Precision != null && parameter.Scale != null)
+                {
+                    mysqlParameter.Precision = (byte)parameter.Precision.Value;
+                    mysqlParameter.Scale = (byte)parameter.Scale.Value;
+                }
+
                 command.Parameters.Add(mysqlParameter);
             }
 
@@ -161,6 +167,12 @@ namespace Nightingale.MySql
                     ParameterName = parameter.Name,
                     Value = parameter.Value
                 };
+
+                if (parameter.Precision != null && parameter.Scale != null)
+                {
+                    mysqlParameter.Precision = (byte)parameter.Precision.Value;
+                    mysqlParameter.Scale = (byte)parameter.Scale.Value;
+                }
 
                 command.Parameters.Add(mysqlParameter);
             }
@@ -189,6 +201,12 @@ namespace Nightingale.MySql
                     Value = parameter.Value
                 };
 
+                if (parameter.Precision != null && parameter.Scale != null)
+                {
+                    mysqlParameter.Precision = (byte)parameter.Precision.Value;
+                    mysqlParameter.Scale = (byte)parameter.Scale.Value;
+                }
+
                 command.Parameters.Add(mysqlParameter);
             }
 
@@ -215,6 +233,12 @@ namespace Nightingale.MySql
                     ParameterName = parameter.Name,
                     Value = parameter.Value
                 };
+
+                if (parameter.Precision != null && parameter.Scale != null)
+                {
+                    mysqlParameter.Precision = (byte)parameter.Precision.Value;
+                    mysqlParameter.Scale = (byte)parameter.Scale.Value;
+                }
 
                 command.Parameters.Add(mysqlParameter);
             }
