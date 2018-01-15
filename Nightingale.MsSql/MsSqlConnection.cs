@@ -121,6 +121,12 @@ namespace Nightingale.MsSql
                     Value = parameter.Value
                 };
 
+                if (parameter.Precision != null && parameter.Scale != null)
+                {
+                    sqlParameter.Precision = (byte)parameter.Precision.Value;
+                    sqlParameter.Scale = (byte) parameter.Scale.Value;
+                }
+
                 if (sqlParameter.Value == null)
                     sqlParameter.Value = DBNull.Value;
 
@@ -150,6 +156,12 @@ namespace Nightingale.MsSql
                     IsNullable = parameter.IsNullable,
                     Value = parameter.Value
                 };
+
+                if (parameter.Precision != null && parameter.Scale != null)
+                {
+                    sqlParameter.Precision = (byte)parameter.Precision.Value;
+                    sqlParameter.Scale = (byte)parameter.Scale.Value;
+                }
 
                 if (sqlParameter.Value == null)
                     sqlParameter.Value = DBNull.Value;
@@ -181,6 +193,12 @@ namespace Nightingale.MsSql
                     Value = parameter.Value
                 };
 
+                if (parameter.Precision != null && parameter.Scale != null)
+                {
+                    sqlParameter.Precision = (byte)parameter.Precision.Value;
+                    sqlParameter.Scale = (byte)parameter.Scale.Value;
+                }
+
                 if (sqlParameter.Value == null)
                     sqlParameter.Value = DBNull.Value;
 
@@ -210,6 +228,12 @@ namespace Nightingale.MsSql
                     IsNullable = parameter.IsNullable,
                     Value = parameter.Value
                 };
+
+                if (parameter.Precision != null && parameter.Scale != null)
+                {
+                    sqlParameter.Precision = (byte)parameter.Precision.Value;
+                    sqlParameter.Scale = (byte)parameter.Scale.Value;
+                }
 
                 if (sqlParameter.Value == null)
                     sqlParameter.Value = DBNull.Value;

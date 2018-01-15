@@ -30,6 +30,16 @@ namespace Nightingale.Queries
         public int Size { get; set; }
 
         /// <summary>
+        /// Gets or sets the decimal precision.
+        /// </summary>
+        public int? Precision { get; set; }
+
+        /// <summary>
+        /// Gets or sets the decimal scale.
+        /// </summary>
+        public int? Scale { get; set; }
+
+        /// <summary>
         /// Initializes a new QueryParameter class.
         /// </summary>
         public QueryParameter()
