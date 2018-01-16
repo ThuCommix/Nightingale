@@ -127,21 +127,9 @@ namespace Nightingale.MySql
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
 
-            foreach(var parameter in query.Parameters)
+            foreach (var parameter in query.Parameters)
             {
-                var mysqlParameter = new MySqlParameter
-                {
-                    ParameterName = parameter.Name,
-                    Value = parameter.Value
-                };
-
-                if (parameter.Precision != null && parameter.Scale != null)
-                {
-                    mysqlParameter.Precision = (byte)parameter.Precision.Value;
-                    mysqlParameter.Scale = (byte)parameter.Scale.Value;
-                }
-
-                command.Parameters.Add(mysqlParameter);
+                command.Parameters.Add(CreateSqlParameter(parameter));
             }
 
             command.Prepare();
@@ -162,19 +150,7 @@ namespace Nightingale.MySql
 
             foreach (var parameter in query.Parameters)
             {
-                var mysqlParameter = new MySqlParameter
-                {
-                    ParameterName = parameter.Name,
-                    Value = parameter.Value
-                };
-
-                if (parameter.Precision != null && parameter.Scale != null)
-                {
-                    mysqlParameter.Precision = (byte)parameter.Precision.Value;
-                    mysqlParameter.Scale = (byte)parameter.Scale.Value;
-                }
-
-                command.Parameters.Add(mysqlParameter);
+                command.Parameters.Add(CreateSqlParameter(parameter));
             }
 
             command.Prepare();
@@ -195,19 +171,7 @@ namespace Nightingale.MySql
 
             foreach (var parameter in query.Parameters)
             {
-                var mysqlParameter = new MySqlParameter
-                {
-                    ParameterName = parameter.Name,
-                    Value = parameter.Value
-                };
-
-                if (parameter.Precision != null && parameter.Scale != null)
-                {
-                    mysqlParameter.Precision = (byte)parameter.Precision.Value;
-                    mysqlParameter.Scale = (byte)parameter.Scale.Value;
-                }
-
-                command.Parameters.Add(mysqlParameter);
+                command.Parameters.Add(CreateSqlParameter(parameter));
             }
 
             command.Prepare();
@@ -228,19 +192,7 @@ namespace Nightingale.MySql
 
             foreach (var parameter in query.Parameters)
             {
-                var mysqlParameter = new MySqlParameter
-                {
-                    ParameterName = parameter.Name,
-                    Value = parameter.Value
-                };
-
-                if (parameter.Precision != null && parameter.Scale != null)
-                {
-                    mysqlParameter.Precision = (byte)parameter.Precision.Value;
-                    mysqlParameter.Scale = (byte)parameter.Scale.Value;
-                }
-
-                command.Parameters.Add(mysqlParameter);
+                command.Parameters.Add(CreateSqlParameter(parameter));
             }
 
             command.Prepare();
@@ -280,6 +232,50 @@ namespace Nightingale.MySql
         public Table<T> GetTable<T>() where T : Entity
         {
             return new MySqlTable<T>(this);
+        }
+
+        /// <summary>
+        /// Creates an sql parameter based on the specified query parameter.
+        /// </summary>
+        /// <param name="parameter">The query parameter.</param>
+        /// <returns>Returns the created sql parameter.</returns>
+        private MySqlParameter CreateSqlParameter(QueryParameter parameter)
+        {
+            MySqlParameter sqlParameter;
+
+            if (parameter.DbType == SqlDbType.Decimal)
+            {
+                if (parameter.Precision == null)
+                    throw new InvalidOperationException("A decimal field must supply precision and scale values.");
+
+                if (parameter.Scale == null)
+                    throw new InvalidOperationException("A decimal field must supply precision and scale values.");
+
+                sqlParameter = new MySqlParameter
+                {
+                    ParameterName = parameter.Name,
+                    Size = parameter.Size,
+                    IsNullable = parameter.IsNullable,
+                    Value = parameter.Value,
+                    Precision = (byte)parameter.Precision.Value,
+                    Scale = (byte)parameter.Scale.Value
+                };
+            }
+            else
+            {
+                sqlParameter = new MySqlParameter
+                {
+                    ParameterName = parameter.Name,
+                    Size = parameter.Size,
+                    IsNullable = parameter.IsNullable,
+                    Value = parameter.Value
+                };
+            }
+
+            if (sqlParameter.Value == null)
+                sqlParameter.Value = DBNull.Value;
+
+            return sqlParameter;
         }
     }
 }
