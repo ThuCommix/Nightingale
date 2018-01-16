@@ -113,24 +113,9 @@ namespace Nightingale.MsSql
             command.CommandText = query.Command;
             command.Transaction = _currentTransaction;
 
-            foreach(var parameter in query.Parameters)
+            foreach (var parameter in query.Parameters)
             {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
-                {
-                    IsNullable = parameter.IsNullable,
-                    Value = parameter.Value
-                };
-
-                if (parameter.Precision != null && parameter.Scale != null)
-                {
-                    sqlParameter.Precision = (byte)parameter.Precision.Value;
-                    sqlParameter.Scale = (byte) parameter.Scale.Value;
-                }
-
-                if (sqlParameter.Value == null)
-                    sqlParameter.Value = DBNull.Value;
-
-                command.Parameters.Add(sqlParameter);
+                command.Parameters.Add(CreateSqlParameter(parameter));
             }
 
             command.Prepare();
@@ -151,22 +136,7 @@ namespace Nightingale.MsSql
 
             foreach (var parameter in query.Parameters)
             {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
-                {
-                    IsNullable = parameter.IsNullable,
-                    Value = parameter.Value
-                };
-
-                if (parameter.Precision != null && parameter.Scale != null)
-                {
-                    sqlParameter.Precision = (byte)parameter.Precision.Value;
-                    sqlParameter.Scale = (byte)parameter.Scale.Value;
-                }
-
-                if (sqlParameter.Value == null)
-                    sqlParameter.Value = DBNull.Value;
-
-                command.Parameters.Add(sqlParameter);
+                command.Parameters.Add(CreateSqlParameter(parameter));
             }
 
             command.Prepare();
@@ -187,22 +157,7 @@ namespace Nightingale.MsSql
 
             foreach (var parameter in query.Parameters)
             {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
-                {
-                    IsNullable = parameter.IsNullable,
-                    Value = parameter.Value
-                };
-
-                if (parameter.Precision != null && parameter.Scale != null)
-                {
-                    sqlParameter.Precision = (byte)parameter.Precision.Value;
-                    sqlParameter.Scale = (byte)parameter.Scale.Value;
-                }
-
-                if (sqlParameter.Value == null)
-                    sqlParameter.Value = DBNull.Value;
-
-                command.Parameters.Add(sqlParameter);
+                command.Parameters.Add(CreateSqlParameter(parameter));
             }
 
             command.Prepare();
@@ -223,22 +178,7 @@ namespace Nightingale.MsSql
 
             foreach (var parameter in query.Parameters)
             {
-                var sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
-                {
-                    IsNullable = parameter.IsNullable,
-                    Value = parameter.Value
-                };
-
-                if (parameter.Precision != null && parameter.Scale != null)
-                {
-                    sqlParameter.Precision = (byte)parameter.Precision.Value;
-                    sqlParameter.Scale = (byte)parameter.Scale.Value;
-                }
-
-                if (sqlParameter.Value == null)
-                    sqlParameter.Value = DBNull.Value;
-
-                command.Parameters.Add(sqlParameter);
+                command.Parameters.Add(CreateSqlParameter(parameter));
             }
 
             command.Prepare();
@@ -278,6 +218,46 @@ namespace Nightingale.MsSql
         public Table<T> GetTable<T>() where T : Entity
         {
             return new MsSqlTable<T>(this);
+        }
+
+        /// <summary>
+        /// Creates an sql parameter based on the specified query parameter.
+        /// </summary>
+        /// <param name="parameter">The query parameter.</param>
+        /// <returns>Returns the created sql parameter.</returns>
+        private SqlParameter CreateSqlParameter(QueryParameter parameter)
+        {
+            SqlParameter sqlParameter;
+
+            if (parameter.DbType == SqlDbType.Decimal)
+            {
+                if(parameter.Precision == null)
+                    throw new InvalidOperationException("A decimal field must supply precision and scale values.");
+
+                if (parameter.Scale == null)
+                    throw new InvalidOperationException("A decimal field must supply precision and scale values.");
+
+                sqlParameter = new SqlParameter(parameter.Name, SqlDbType.Decimal)
+                {
+                    IsNullable = parameter.IsNullable,
+                    Value = parameter.Value,
+                    Precision = (byte) parameter.Precision.Value,
+                    Scale = (byte) parameter.Scale.Value
+                };
+            }
+            else
+            {
+                sqlParameter = new SqlParameter(parameter.Name, parameter.DbType, parameter.Size)
+                {
+                    IsNullable = parameter.IsNullable,
+                    Value = parameter.Value
+                };
+            }
+
+            if (sqlParameter.Value == null)
+                sqlParameter.Value = DBNull.Value;
+
+            return sqlParameter;
         }
     }
 }
