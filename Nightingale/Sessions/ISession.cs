@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using Nightingale.Entities;
 using Nightingale.Queries;
 
@@ -126,5 +127,18 @@ namespace Nightingale.Sessions
         /// Clears the internal persistence context.
         /// </summary>
         void Clear();
+
+        /// <summary>
+        /// Sets a global query filter which will be added when the specified entity type is queried.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="filterExpression">The filter expression.</param>
+        void SetQueryFilter<T>(Expression<Func<T, bool>> filterExpression) where T : Entity;
+
+        /// <summary>
+        /// Unsets the global query filter for the specified entity type.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        void UnsetQueryFilter<T>() where T : Entity;
     }
 }

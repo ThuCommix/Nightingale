@@ -44,6 +44,7 @@ namespace Nightingale.Sessions
 
         private readonly ILogger _logger;
         private readonly PersistenceContext _persistenceContext;
+        private readonly Dictionary<Type, Expression> _queryFilters;
         private ITransaction _transaction;
 
         /// <summary>
@@ -57,6 +58,7 @@ namespace Nightingale.Sessions
 
             _logger = DependencyResolver.TryGetInstance<ILogger>();
             _persistenceContext = new PersistenceContext();
+            _queryFilters = new Dictionary<Type, Expression>();
 
             Interceptors = new List<ISessionInterceptor>();
             DeletionBehavior = DeletionBehavior.Irrecoverable;
@@ -380,7 +382,13 @@ namespace Nightingale.Sessions
         /// <returns>Returns the queryable.</returns>
         public virtual IQueryable<T> Query<T>() where T : Entity
         {
-            return new Queryable<T>(this).ApplyDeleteFilter();
+            var queryable = new Queryable<T>(this).ApplyDeleteFilter();
+            if (_queryFilters.ContainsKey(typeof(T)))
+            {
+                queryable = queryable.Where((Expression<Func<T, bool>>) _queryFilters[typeof(T)]);
+            }
+
+            return queryable;
         }
 
         /// <summary>
@@ -430,6 +438,25 @@ namespace Nightingale.Sessions
         public void Clear()
         {
             _persistenceContext.Discard();
+        }
+
+        /// <summary>
+        /// Sets a global query filter which will be added when the specified entity type is queried.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="filterExpression">The filter expression.</param>
+        public void SetQueryFilter<T>(Expression<Func<T, bool>> filterExpression) where T : Entity
+        {
+            _queryFilters[typeof(T)] = filterExpression;
+        }
+
+        /// <summary>
+        /// Unsets the global query filter for the specified entity type.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        public void UnsetQueryFilter<T>() where T : Entity
+        {
+            _queryFilters.Remove(typeof(T));
         }
 
         /// <summary>
