@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
+using Nightingale.Extensions;
 using Nightingale.Sessions;
 using ISession = Nightingale.Sessions.ISession;
 
@@ -42,6 +43,8 @@ namespace Nightingale.Web
                 }
 
                 var session = (T)Activator.CreateInstance(typeof(T), ConnectionFactory.CreateConnection());
+                Interceptors.ForEach(session.Interceptors.Add);
+
                 _httpContextAccessor.HttpContext.Items[SessionId] = session;
 
                 AddSession(session);
