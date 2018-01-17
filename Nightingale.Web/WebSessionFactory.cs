@@ -6,9 +6,16 @@ using ISession = Nightingale.Sessions.ISession;
 
 namespace Nightingale.Web
 {
+    /// <summary>
+    /// Responsible for creating a <see cref="ISession"/> based on the connection factory and the specified settings.
+    /// </summary>
     public class WebSessionFactory : SessionFactory
     {
-        private const string SessionId = "Nightingale.SessionId";
+        /// <summary>
+        /// Represents the key within the http context items for a session.
+        /// </summary>
+        public const string SessionId = "Nightingale.SessionId";
+
         private static readonly object Locker = new object();
         private readonly IHttpContextAccessor _httpContextAccessor;
 

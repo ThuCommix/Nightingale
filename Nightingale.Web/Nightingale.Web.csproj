@@ -3,15 +3,19 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <RepositoryUrl>https://github.com/ThuCommix/Nightingale/</RepositoryUrl>
     <PackageProjectUrl>https://github.com/ThuCommix/Nightingale/</PackageProjectUrl>
     <Authors>Kevin Scholz</Authors>
     <Copyright>Kevin Scholz</Copyright>
     <PackageTags>Nightingale, AspDotNetCore, SessionFactory, Web</PackageTags>
     <Description>Provides a optimized SessionFactory for per request database connections.</Description>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\Nightingale.Web.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
