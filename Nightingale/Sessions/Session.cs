@@ -33,6 +33,11 @@ namespace Nightingale.Sessions
         public IList<ISessionInterceptor> Interceptors { get; }
 
         /// <summary>
+        /// Gets the session graph.
+        /// </summary>
+        public SessionGraph Graph { get; }
+
+        /// <summary>
         /// Gets the entity service.
         /// </summary>
         protected IEntityService EntityService => DependencyResolver.GetInstance<IEntityService>();
@@ -62,6 +67,7 @@ namespace Nightingale.Sessions
 
             Interceptors = new List<ISessionInterceptor>();
             DeletionBehavior = DeletionBehavior.Irrecoverable;
+            Graph = new SessionGraph();
             Connection = connection;
         }
 
@@ -85,7 +91,9 @@ namespace Nightingale.Sessions
             if (DeletionBehavior == DeletionBehavior.None)
                 return;
 
-            var entities = EntityService.GetChildEntities(entity, Cascade.SaveDelete);
+            var sessionGraphNodes = BuildSessionGraph(entity, Cascade.SaveDelete);
+            var entities = sessionGraphNodes.Select(x => x.Entity).ToList();
+            entities.ForEach(_persistenceContext.Delete);
             entities.ForEach(x => Intercept(x, InterceptorMode.Delete));
 
             foreach(var entityToDelete in entities)
@@ -105,7 +113,8 @@ namespace Nightingale.Sessions
 
             Attach(entity);
 
-            var entities = EntityService.GetChildEntities(entity, Cascade.Save);
+            var sessionGraphNodes = BuildSessionGraph(entity, Cascade.Save);
+            var entities = sessionGraphNodes.Select(x => x.Entity).ToList();
             entities.ForEach(_persistenceContext.Insert);
             entities.ForEach(x => Intercept(x, InterceptorMode.Save));
         }
@@ -116,105 +125,99 @@ namespace Nightingale.Sessions
         /// <returns>Returns the count of updated entities.</returns>
         public virtual int SaveChanges()
         {
+            var sessionGraphNodes = Graph.ToList();
+            var deletedSessionGraphNodes = sessionGraphNodes.Where(x => x.IsDelete);
+            var deletedEntities = deletedSessionGraphNodes.Select(x => x.Entity).ToList();
             var changedEntityList = new List<Entity>();
-            var persistentEntities = _persistenceContext.ToList();
 
-            foreach (var entity in persistentEntities.Where(x => !x.Deleted))
+            foreach (var sessionGraphNode in sessionGraphNodes)
             {
-                if (!entity.Validate())
-                    throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
-
-                Intercept(entity, InterceptorMode.Validate);
-
-                var entityType = entity.GetType();
-                var metadata = EntityMetadataResolver.GetEntityMetadata(entity);
-
-                foreach (var field in metadata.Fields.Where(x => x.Cascade == Cascade.None && x.IsComplexFieldType && !x.Enum))
+                var entity = sessionGraphNode.Entity;
+                if (sessionGraphNode.IsDelete)
                 {
-                    var referencedEntity = (Entity)entityType.GetProperty(field.GetComplexFieldName()).GetValue(entity);
-                    if (referencedEntity != null && referencedEntity.IsNotSaved && !persistentEntities.Contains(referencedEntity))
-                        throw new TransientEntityException($"Entity with type '{metadata.Name}' references an unsaved transient value in field {field.Name}. Consider saving the transient entity before calling SaveChanges.").Log(_logger);
+                    var constraints = ResolveDependencyConstraints(entity, deletedEntities);
+                    if (constraints.Count > 0)
+                        throw new SessionDeleteException($"The entity '{entity.GetType().Name}' and Id = '{entity.Id}' could not be marked as deleted.", constraints).Log(_logger);
 
-                    if(referencedEntity != null && field.Mandatory && referencedEntity.Deleted)
-                        throw new InvalidOperationException($"Entity with type '{metadata.Name}' references an entity which is marked as deleted.");
-                }
-            }
-
-            // handle deletion
-            foreach (var entity in persistentEntities.Where(x => x.Deleted))
-            {
-                var constraints = ResolveDependencyConstraints(entity, persistentEntities);
-                if (constraints.Count > 0)
-                    throw new SessionDeleteException($"The entity '{entity.GetType().Name}' and Id = '{entity.Id}' could not be marked as deleted.", constraints).Log(_logger);
-
-                if (DeletionBehavior == DeletionBehavior.Irrecoverable)
-                {
-                    if (entity.IsSaved)
+                    if (DeletionBehavior == DeletionBehavior.Irrecoverable)
                     {
-                        DeleteEntity(entity);
-                        _persistenceContext.Delete(entity);
+                        if (entity.IsSaved)
+                        {
+                            DeleteEntity(entity);
+                            _persistenceContext.Delete(entity);
+                            changedEntityList.Add(entity);
+                        }
+                    }
+                }
+                else
+                {
+                    if (!entity.Validate())
+                        throw new SessionException($"The entity validation failed for entity '{entity.GetType().Name}'").Log(_logger);
+
+                    var entityType = entity.GetType();
+                    var metadata = EntityMetadataResolver.GetEntityMetadata(entity);
+
+                    foreach (var field in metadata.Fields.Where(x => x.IsComplexFieldType && !x.Enum))
+                    {
+                        var referencedEntity = (Entity)entityType.GetProperty(field.GetComplexFieldName()).GetValue(entity);
+                        if (referencedEntity != null && referencedEntity.IsNotSaved)
+                            throw new TransientEntityException($"Entity with type '{metadata.Name}' references an unsaved transient value in field {field.Name}. Consider saving the transient entity before calling SaveChanges.").Log(_logger);
+
+                        if (referencedEntity != null && field.Mandatory && referencedEntity.Deleted)
+                            throw new InvalidOperationException($"Entity with type '{metadata.Name}' references an entity which is marked as deleted.");
+                    }
+
+                    EntityService.UpdateForeignFields(entity);
+
+                    if (entity.IsNotSaved)
+                    {
+                        try
+                        {
+                            entity.Version = 1;
+                            entity.Id = InsertEntity(entity);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new SessionInsertException(
+                                $"The entity '{entity.GetType().Name}' could not be inserted.'", ex).Log(_logger);
+                        }
+
+                        if (entity.IsNotSaved)
+                        {
+                            throw new SessionInsertException(
+                                $"The entity '{entity.GetType().Name}' could not be inserted.'").Log(_logger);
+                        }
 
                         changedEntityList.Add(entity);
                     }
+                    else
+                    {
+                        if (!entity.PropertyChangeTracker.HasChanges)
+                            continue;
+
+                        try
+                        {
+                            entity.Version++;
+                            UpdateEntity(entity);
+
+                            if (!changedEntityList.Contains(entity))
+                                changedEntityList.Add(entity);
+                        }
+                        catch (Exception ex)
+                        {
+                            entity.Version--;
+
+                            throw new SessionUpdateException(
+                                $"Could not update entity '{entity.GetType().Name}' and Id = '{entity.Id}'.", ex).Log(_logger);
+                        }
+
+                    }
                 }
-            }
 
-            persistentEntities = _persistenceContext.ToList();
-
-            foreach (var unsavedEntity in persistentEntities.Where(x => x.IsNotSaved))
-            {
-                try
-                {
-                    unsavedEntity.Id = InsertEntity(unsavedEntity);
-                }
-                catch (Exception ex)
-                {
-                    throw new SessionInsertException(
-                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'", ex).Log(_logger);
-                }
-
-                if (unsavedEntity.IsNotSaved)
-                {
-                    throw new SessionInsertException(
-                        $"The entity '{unsavedEntity.GetType().Name}' could not be inserted.'").Log(_logger);
-                }
-
-                changedEntityList.Add(unsavedEntity);
-            }
-
-            foreach (var entity in persistentEntities)
-            {
-                if (!entity.PropertyChangeTracker.HasChanges)
-                    continue;
-
-                EntityService.UpdateForeignFields(entity);
-
-                if (!ValidateEntityVersion(entity))
-                    throw new SessionConcurrencyException($"The entity with type'{entity.GetType().Name}' and Id = '{entity.Id}' was modified in database.");
-
-                try
-                {
-                    entity.Version++;
-                    UpdateEntity(entity);
-
-                    if(!changedEntityList.Contains(entity))
-                        changedEntityList.Add(entity);
-                }
-                catch (Exception ex)
-                {
-                    entity.Version--;
-
-                    throw new SessionUpdateException(
-                        $"Could not update entity '{entity.GetType().Name}' and Id = '{entity.Id}'.", ex).Log(_logger);
-                }
-            }
-
-            foreach (var entity in persistentEntities)
-            {
                 entity.PropertyChangeTracker.Clear();
-                if(entity.Deleted)
-                    _persistenceContext.Delete(entity);
             }
+
+            Graph.Clear();
 
             return changedEntityList.Count;
         }
@@ -437,6 +440,7 @@ namespace Nightingale.Sessions
         /// </summary>
         public void Clear()
         {
+            Graph.Clear();
             _persistenceContext.Discard();
         }
 
@@ -523,7 +527,7 @@ namespace Nightingale.Sessions
             DebugQueryResult(query);
 
             if (Connection.ExecuteNonQuery(query) == 0)
-                throw new SessionUpdateException("The entity was not updated.").Log(_logger);
+                throw new SessionConcurrencyException($"The entity with type '{entityType.Name}' and Id = '{entity.Id}' was modified in database.").Log(_logger);
         }
 
         /// <summary>
@@ -635,21 +639,56 @@ namespace Nightingale.Sessions
         }
 
         /// <summary>
-        /// Validates the entity version.
+        /// Builds the session graph.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        /// <param name="metadata">The entity metadata.</param>
-        /// <returns>Returns true if the database has the same version of the entity as the session.</returns>
-        private bool ValidateEntityVersion(Entity entity, EntityMetadata metadata = null)
+        /// <param name="cascade">The cascade.</param>
+        /// <param name="parent">The parent.</param>
+        /// <returns>Returns the root session graph nodes.</returns>
+        private IEnumerable<SessionGraphNode> BuildSessionGraph(Entity entity, Cascade cascade, SessionGraphNode parent = null)
         {
-            if (metadata == null)
-                metadata = EntityMetadataResolver.GetEntityMetadata(entity);
+            if (Graph.Contains(entity))
+            {
+                return null;
+            }
 
-            var query = new Query {Command = $"SELECT Version FROM {metadata.Table} WHERE Id = @p0"};
-            query.Parameters.Add(new QueryParameter("@p0", entity.Id, SqlDbType.Int, false));
+            var createdSessionGraphNodes = new List<SessionGraphNode>();
+            var isDelete = cascade == Cascade.SaveDelete;
+            var entityType = entity.GetType();
+            var entityMetadata = EntityMetadataResolver.GetEntityMetadata(entityType);
+            var fieldMetadatas = entityMetadata.Fields.Where(x => x.IsComplexFieldType && x.Cascade >= cascade);
+            var sessionGraphNode = parent == null ? Graph.AddNode(entity, isDelete) : parent.AddNode(entity, isDelete);
 
-            var result = ExecuteScalar<long?>(query);
-            return result == null || result == entity.Version;
+            createdSessionGraphNodes.Add(sessionGraphNode);
+
+            foreach (var fieldMetadata in fieldMetadatas)
+            {
+                var propertyValue = ReflectionHelper.GetProperty(entityType, fieldMetadata.ForeignKey).GetValue(entity);
+                if (propertyValue != null)
+                {
+                    var subEntity = (Entity) propertyValue;
+                    BuildSessionGraph(subEntity, cascade, sessionGraphNode);
+                }
+            }
+
+            foreach (var listFieldMetadata in entityMetadata.ListFields.Where(x => x.Cascade >= cascade))
+            {
+                var entityCollection = (IEntityCollection)ReflectionHelper.GetProperty(entityType, listFieldMetadata.Name).GetValue(entity);
+                var subEntities = entityCollection.GetCollectionItems();
+                var removedEntities = entityCollection.GetRemovedCollectionItems();
+
+                foreach (var subEntity in subEntities)
+                {
+                   createdSessionGraphNodes.AddRange(BuildSessionGraph(subEntity, cascade));
+                }
+
+                foreach (var removedEntity in removedEntities)
+                {
+                    createdSessionGraphNodes.AddRange(BuildSessionGraph(removedEntity, cascade));
+                }
+            }
+
+            return createdSessionGraphNodes;
         }
 
         /// <summary>

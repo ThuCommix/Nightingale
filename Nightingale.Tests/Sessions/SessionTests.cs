@@ -57,23 +57,19 @@ namespace Nightingale.Tests.Sessions
         public void Delete_Marks_All_Entities_From_EntityService_As_Deleted()
         {
             // arrange
+            TestHelper.SetupEntityMetadataServices();
+
             var connectionMock = TestHelper.SetupMock<IConnection>();
             var session = new Session(connectionMock.Object);
             var entity = new Artist();
-            var entity2 = new Artist();
-
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(new List<Entity> {entity, entity2});
 
             // act
             session.Delete(entity);
 
             // assert
             Assert.True(entity.Deleted);
-            Assert.True(entity2.Deleted);
 
             connectionMock.VerifyAll();
-            entityServiceMock.VerifyAll();
         }
 
         [Fact]
@@ -95,12 +91,11 @@ namespace Nightingale.Tests.Sessions
         public void Save_Insert_Entities_From_EntityService_Into_PersistenceContext()
         {
             // arrange
+            TestHelper.SetupEntityMetadataServices();
+
             var connectionMock = TestHelper.SetupMock<IConnection>();
             var session = new Session(connectionMock.Object);
             var entity = new Artist();
-
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> {entity});
 
             // act
             session.Save(entity);
@@ -110,7 +105,6 @@ namespace Nightingale.Tests.Sessions
             Assert.NotNull(persistenceContext.Lookup<Artist>(entity.Id));
 
             connectionMock.VerifyAll();
-            entityServiceMock.VerifyAll();
         }
 
         [Fact]
@@ -246,10 +240,9 @@ namespace Nightingale.Tests.Sessions
         public void Save_Also_Attaches_The_Entity()
         {
             // arrange
-            var entity = new Artist();
+            TestHelper.SetupEntityMetadataServices();
 
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> {entity});
+            var entity = new Artist();
 
             var connectionMock = TestHelper.SetupMock<IConnection>();
             var session = new Session(connectionMock.Object);
@@ -260,7 +253,6 @@ namespace Nightingale.Tests.Sessions
             // assert
             Assert.Equal(entity, (Artist)Enumerable.First(GetPersistenceContext(session)));
 
-            entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
@@ -268,10 +260,9 @@ namespace Nightingale.Tests.Sessions
         public void Save_Calls_SessionInterceptor()
         {
             // arrange
-            var entity = new Artist();
+            TestHelper.SetupEntityMetadataServices();
 
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
+            var entity = new Artist();
 
             var connectionMock = TestHelper.SetupMock<IConnection>();
             var session = new Session(connectionMock.Object);
@@ -286,7 +277,6 @@ namespace Nightingale.Tests.Sessions
 
             // assert
             connectionMock.VerifyAll();
-            entityServiceMock.VerifyAll();
             interceptorMock.VerifyAll();
         }
 
@@ -294,10 +284,9 @@ namespace Nightingale.Tests.Sessions
         public void Delete_Calls_SessionInterceptor()
         {
             // arrange
-            var entity = new Artist();
+            TestHelper.SetupEntityMetadataServices();
 
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.SaveDelete)).Returns(new List<Entity> { entity });
+            var entity = new Artist();
 
             var connectionMock = TestHelper.SetupMock<IConnection>();
             var session = new Session(connectionMock.Object);
@@ -312,7 +301,6 @@ namespace Nightingale.Tests.Sessions
 
             // assert
             connectionMock.VerifyAll();
-            entityServiceMock.VerifyAll();
             interceptorMock.VerifyAll();
         }
 
@@ -324,9 +312,6 @@ namespace Nightingale.Tests.Sessions
 
             var entity = new Song();
 
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
-
             var connectionMock = TestHelper.SetupMock<IConnection>();
             var session = new Session(connectionMock.Object);
             session.Save(entity);
@@ -335,7 +320,6 @@ namespace Nightingale.Tests.Sessions
             Assert.Throws<SessionException>(() => session.SaveChanges());
 
             // assert
-            entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
@@ -348,9 +332,6 @@ namespace Nightingale.Tests.Sessions
             var entity = new Song {Title = "SongTitle"};
             entity.Artist = new Artist();
 
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
-
             var connectionMock = TestHelper.SetupMock<IConnection>();
             var session = new Session(connectionMock.Object);
             session.Save(entity);
@@ -359,7 +340,6 @@ namespace Nightingale.Tests.Sessions
             Assert.Throws<TransientEntityException>(() => session.SaveChanges());
 
             // assert
-            entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
@@ -372,9 +352,6 @@ namespace Nightingale.Tests.Sessions
             var entity = new Book {Author = TestHelper.CreateEntityWithId<Author>(1)};
             TestHelper.MarkEntityDeleted(entity.Author);
 
-            var entityServiceMock = TestHelper.SetupMock<IEntityService>();
-            entityServiceMock.Setup(s => s.GetChildEntities(entity, Cascade.Save)).Returns(new List<Entity> { entity });
-
             var connectionMock = TestHelper.SetupMock<IConnection>();
             var session = new Session(connectionMock.Object);
             session.Save(entity);
@@ -383,7 +360,6 @@ namespace Nightingale.Tests.Sessions
             Assert.Throws<InvalidOperationException>(() => session.SaveChanges());
 
             // assert
-            entityServiceMock.VerifyAll();
             connectionMock.VerifyAll();
         }
 
