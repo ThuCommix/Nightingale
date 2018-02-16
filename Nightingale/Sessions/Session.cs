@@ -122,8 +122,9 @@ namespace Nightingale.Sessions
         /// <summary>
         /// Saves the changes to the database.
         /// </summary>
+        /// <param name="forceOverride">Ignores the version attribute and overrides the entities in the database. Modified entities in database are not checked.</param>
         /// <returns>Returns the count of updated entities.</returns>
-        public virtual int SaveChanges()
+        public virtual int SaveChanges(bool forceOverride = false)
         {
             var sessionGraphNodes = Graph.ToList();
             var deletedSessionGraphNodes = sessionGraphNodes.Where(x => x.IsDelete);
@@ -198,7 +199,7 @@ namespace Nightingale.Sessions
                         try
                         {
                             entity.Version++;
-                            UpdateEntity(entity);
+                            UpdateEntity(entity, forceOverride);
 
                             if (!changedEntityList.Contains(entity))
                                 changedEntityList.Add(entity);
@@ -500,7 +501,8 @@ namespace Nightingale.Sessions
         /// Updates the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        protected virtual void UpdateEntity(Entity entity)
+        /// <param name="forceOverride">Ignores the version attribute and overrides the entities in the database. Modified entities in database are not checked.</param>
+        protected virtual void UpdateEntity(Entity entity, bool forceOverride = false)
         {
             var entityType = entity.GetType();
             var metadata = EntityMetadataResolver.GetEntityMetadata(entityType);
@@ -513,7 +515,12 @@ namespace Nightingale.Sessions
 
             commandBuilder.Append($"UPDATE {metadata.Table} SET ");
             commandBuilder.Append(string.Join(",", changedProperties.Select(x => $"{x} = @{x}")));
-            commandBuilder.Append($" WHERE Id = {entity.Id} AND Version = {entity.Version - 1}");
+            commandBuilder.Append($" WHERE Id = {entity.Id}");
+
+            if (!forceOverride)
+            {
+                commandBuilder.Append($" AND Version = {entity.Version - 1}");
+            }
 
             foreach (var propertyName in changedProperties)
             {

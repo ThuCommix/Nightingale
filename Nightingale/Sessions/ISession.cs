@@ -48,8 +48,9 @@ namespace Nightingale.Sessions
         /// <summary>
         /// Saves the changes to the database.
         /// </summary>
+        /// <param name="forceOverride">Ignores the version attribute and overrides the entities in the database. Modified entities in database are not checked.</param>
         /// <returns>Returns the count of updated entities.</returns>
-        int SaveChanges();
+        int SaveChanges(bool forceOverride = false);
 
         /// <summary>
         /// Discards the changes on the entities and clears the property change tracker.
