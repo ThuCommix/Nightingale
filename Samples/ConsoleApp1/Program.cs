@@ -102,6 +102,11 @@ namespace ConsoleApp1
                 session.SaveChanges();
 
                 var fetchedCustomer = session.Query<Person>().FirstOrDefault(x => x.Age == null);
+                fetchedCustomer.Age = 21;
+
+                session.Save(fetchedCustomer);
+                session.SaveChanges();
+
             }
 
             Console.WriteLine("Press any key to continue ..");

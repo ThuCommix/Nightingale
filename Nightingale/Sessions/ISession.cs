@@ -29,6 +29,11 @@ namespace Nightingale.Sessions
         IList<ISessionInterceptor> Interceptors { get; }
 
         /// <summary>
+        /// Gets the session graph.
+        /// </summary>
+        SessionGraph Graph { get; }
+
+        /// <summary>
         /// Deletes the entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
