@@ -13,7 +13,11 @@ script:
 
 deploy:
   skip_cleanup: true
-  provider: script
-  script: chmod +x ./nuget-deploy.sh && ./nuget-deploy.sh $NUGET_API_KEY $NUGET_SOURCE
-  on:
-    branch: develop
+  - provider: script
+    script: chmod +x ./nuget-deploy.sh && ./nuget-deploy.sh $NUGET_API_KEY $NUGET_SOURCE
+    on:
+      branch: develop
+  - provider: script
+    script: chmod +x ./nuget-deploy.sh && ./nuget-deploy.sh $NUGET_API_KEY $NUGET_SOURCE
+    on:
+      branch: develop-2.1
