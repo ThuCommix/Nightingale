@@ -23,8 +23,8 @@ namespace ConsoleApp1
             // create tables if not available
             using (var connection = connectionFactory.CreateConnection())
             {
-                connection.GetTable<Person>().Recreate();
-                connection.GetTable<Address>().Recreate();
+                connection.CreateTable<Person>(true);
+                connection.CreateTable<Address>(true);
             }
 
             // create entities
