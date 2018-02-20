@@ -110,7 +110,14 @@ namespace Nightingale.Queries
         /// <returns>Returns a QueryParameter instance.</returns>
         public static QueryParameter GetQueryParameter(string name, object value, FieldMetadata fieldMetadata)
         {
-            return new QueryParameter(name, value, fieldMetadata.GetSqlDbType(), !fieldMetadata.Mandatory, fieldMetadata.MaxLength);
+            var parameter = new QueryParameter(name, value, fieldMetadata.GetSqlDbType(), !fieldMetadata.Mandatory, fieldMetadata.MaxLength);
+            if (fieldMetadata.FieldType == "decimal")
+            {
+                parameter.Precision = fieldMetadata.DecimalPrecision;
+                parameter.Scale = fieldMetadata.DecimalScale;
+            }
+
+            return parameter;
         }
     }
 }
