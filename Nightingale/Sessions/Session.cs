@@ -680,18 +680,22 @@ namespace Nightingale.Sessions
 
             foreach (var listFieldMetadata in entityMetadata.ListFields.Where(x => x.Cascade >= cascade))
             {
-                var entityCollection = (IEntityCollection)ReflectionHelper.GetProperty(entityType, listFieldMetadata.Name).GetValue(entity);
+                var entityCollection = (IEntityCollection) ReflectionHelper.GetProperty(entityType, listFieldMetadata.Name).GetValue(entity);
                 var subEntities = entityCollection.GetCollectionItems();
                 var removedEntities = entityCollection.GetRemovedCollectionItems();
 
                 foreach (var subEntity in subEntities)
                 {
-                   createdSessionGraphNodes.AddRange(BuildSessionGraph(subEntity, cascade));
+                    var graphNodes = BuildSessionGraph(subEntity, cascade);
+                    if (graphNodes != null && graphNodes.Any())
+                        createdSessionGraphNodes.AddRange(graphNodes);
                 }
 
                 foreach (var removedEntity in removedEntities)
                 {
-                    createdSessionGraphNodes.AddRange(BuildSessionGraph(removedEntity, cascade));
+                    var graphNodes = BuildSessionGraph(removedEntity, cascade);
+                    if (graphNodes != null && graphNodes.Any())
+                        createdSessionGraphNodes.AddRange(graphNodes);
                 }
             }
 
