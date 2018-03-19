@@ -78,7 +78,7 @@ namespace Nightingale.Queries
             var isEnumerable = typeof(IEnumerable).IsAssignableFrom(genericType);
             var entityType = isEnumerable ? genericType.GenericTypeArguments[0] : genericType;
             var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression != null && methodCallExpression.Method.Name == "Count")
+            if (methodCallExpression != null && (methodCallExpression.Method.Name == "Count" || methodCallExpression.Method.Name == "Select"))
             {
                 entityType = methodCallExpression.Arguments[0].Type.GenericTypeArguments[0];
             }
