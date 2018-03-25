@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Nightingale.Extensions
+namespace Nightingale
 {
 	public static class EnumerableExtension
 	{

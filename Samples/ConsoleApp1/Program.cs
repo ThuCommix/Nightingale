@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Nightingale.Extensions;
+using Nightingale;
 using Nightingale.Logging;
 using Nightingale.Sessions;
 using Nightingale.SQLite;

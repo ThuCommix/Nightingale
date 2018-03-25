@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Nightingale.Extensions;
 using Nightingale.Metadata;
 
 namespace Nightingale.Queries

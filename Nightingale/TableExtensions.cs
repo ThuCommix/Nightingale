@@ -1,6 +1,6 @@
 ﻿using Nightingale.Entities;
 
-namespace Nightingale.Extensions
+namespace Nightingale
 {
     public static class TableExtensions
     {

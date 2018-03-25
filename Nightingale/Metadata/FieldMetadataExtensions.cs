@@ -1,7 +1,6 @@
 ﻿using System.Data;
-using Nightingale.Metadata;
 
-namespace Nightingale.Extensions
+namespace Nightingale.Metadata
 {
     public static class FieldMetadataExtensions
     {

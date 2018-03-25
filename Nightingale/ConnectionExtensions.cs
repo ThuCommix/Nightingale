@@ -1,6 +1,6 @@
-﻿using Nightingale.Entities;
+using Nightingale.Entities;
 
-namespace Nightingale.Extensions
+namespace Nightingale
 {
     /// <summary>
     /// Provides extensions methods for <see cref="IConnection"/>.

@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using Nightingale.Entities;
-using Nightingale.Extensions;
 using Nightingale.Metadata;
 
 namespace Nightingale
