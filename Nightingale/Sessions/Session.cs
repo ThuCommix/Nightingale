@@ -386,7 +386,7 @@ namespace Nightingale.Sessions
         /// <returns>Returns the queryable.</returns>
         public virtual IQueryable<T> Query<T>() where T : Entity
         {
-            var queryable = new Queryable<T>(this).ApplyDeleteFilter();
+            var queryable = new Queryable<T>(this, EntityService).ApplyDeleteFilter();
             if (_queryFilters.ContainsKey(typeof(T)))
             {
                 queryable = queryable.Where((Expression<Func<T, bool>>) _queryFilters[typeof(T)]);
@@ -579,7 +579,7 @@ namespace Nightingale.Sessions
                 }
 
                 var finalExpression = Expression.Lambda(resultExpression, parameter);
-                var queryable = new QueryProvider(this).CreateQuery(Expression.Constant(null, typeof(IQueryable<>).MakeGenericType(currentType)));
+                var queryable = new QueryProvider(this, EntityService).CreateQuery(Expression.Constant(null, typeof(IQueryable<>).MakeGenericType(currentType)));
                 var methodInfo = typeof(Queryable).GetMethods().FirstOrDefault(x => x.Name == "Where").MakeGenericMethod(currentType);
                 var methodCall = Expression.Call(methodInfo, queryable.Expression, finalExpression);
 

@@ -97,7 +97,7 @@ namespace Nightingale.Tests
             var dataReaderMock = TestHelper.SetupMock<IDataReader>();
 
             // act
-            Assert.Throws<ArgumentNullException>(() => new EntityService().CreateEntity(null, null));
+            Assert.Throws<ArgumentNullException>(() => new EntityService().CreateEntity(null, (Type)null));
 
             // assert
             dataReaderMock.VerifyAll();

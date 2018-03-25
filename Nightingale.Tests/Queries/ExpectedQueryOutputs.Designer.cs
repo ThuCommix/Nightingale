@@ -502,6 +502,60 @@ namespace Nightingale.Tests.Queries {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Id as e_Id,e.Name as e_Name FROM Artist e   ähnelt.
+        /// </summary>
+        internal static string Queryable_Select_Member_Init {
+            get {
+                return ResourceManager.GetString("Queryable_Select_Member_Init", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Id as e_Id,e.Name as e_Name FROM Artist e   ähnelt.
+        /// </summary>
+        internal static string Queryable_Select_Member_Init_And_Ctor {
+            get {
+                return ResourceManager.GetString("Queryable_Select_Member_Init_And_Ctor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Id as e_Id,e.Title as e_Title FROM Song e   ähnelt.
+        /// </summary>
+        internal static string Queryable_Select_Support_Dynamic_Objects {
+            get {
+                return ResourceManager.GetString("Queryable_Select_Support_Dynamic_Objects", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Id as e_Id,v1.Name as v1_Name,v1.Alias as v1_Alias,v1.BirthDate as v1_BirthDate,v1.DeathDate as v1_DeathDate,v1.WebLink as v1_WebLink,v1.Biography as v1_Biography,v1.Note as v1_Note,v1.Label as v1_Label,v1.FK_AnotherArtist_ID as v1_FK_AnotherArtist_ID,v1.Id as v1_Id,v1.Deleted as v1_Deleted,v1.Version as v1_Version FROM Song e LEFT JOIN Artist v0 ON v0.Id = e.FK_Artist_ID LEFT JOIN Artist v1 ON v1.Id = v0.FK_AnotherArtist_ID   ähnelt.
+        /// </summary>
+        internal static string Queryable_Select_Support_Dynamic_Objects_Full_Entity_Select {
+            get {
+                return ResourceManager.GetString("Queryable_Select_Support_Dynamic_Objects_Full_Entity_Select", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Id as e_Id,v1.Name as v1_Name FROM Song e LEFT JOIN Artist v0 ON v0.Id = e.FK_Artist_ID LEFT JOIN Artist v1 ON v1.Id = v0.FK_AnotherArtist_ID   ähnelt.
+        /// </summary>
+        internal static string Queryable_Select_Support_Dynamic_Objects_With_Joins {
+            get {
+                return ResourceManager.GetString("Queryable_Select_Support_Dynamic_Objects_With_Joins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Id as e_Id,v1.Name as v1_Name FROM Song e LEFT JOIN Artist v0 ON v0.Id = e.FK_Artist_ID LEFT JOIN Artist v1 ON v1.Id = v0.FK_AnotherArtist_ID WHERE ((v0.FK_AnotherArtist_ID IS NOT @p0) AND (e.Title IS NOT @p1))  ähnelt.
+        /// </summary>
+        internal static string Queryable_Select_Support_Dynamic_Objects_With_Joins_And_Where {
+            get {
+                return ResourceManager.GetString("Queryable_Select_Support_Dynamic_Objects_With_Joins_And_Where", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Name,e.Alias,e.BirthDate,e.DeathDate,e.WebLink,e.Biography,e.Note,e.Label,e.FK_AnotherArtist_ID,e.Id,e.Deleted,e.Version FROM Artist e WHERE (e.FK_AnotherArtist_ID IS @p0)  LIMIT 2147483647 OFFSET 10 ähnelt.
         /// </summary>
         internal static string Queryable_Skip {

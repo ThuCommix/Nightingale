@@ -73,6 +73,16 @@ namespace Nightingale.Queries
         public Type ChangedEntityType { get; private set; }
 
         /// <summary>
+        /// Gets the select descriptions.
+        /// </summary>
+        public List<SelectDescription> SelectDescriptions { get; }
+
+        /// <summary>
+        /// A value indicating whether the query is a custom select.
+        /// </summary>
+        public bool IsCustomSelect => SelectDescriptions.Any();
+
+        /// <summary>
         /// Gets the entity metadata resolver.
         /// </summary>
         protected IEntityMetadataResolver EntityMetadataResolver => DependencyResolver.GetInstance<IEntityMetadataResolver>();
@@ -87,6 +97,7 @@ namespace Nightingale.Queries
         private bool _isOrdering;
         private string _orderProperty;
         private string _orderBy;
+        private bool _isSelectContext;
         private EntityMetadata _sourceEntityMetadata;
         private readonly Dictionary<string, TableJoin> _propertyJoinMapping;
         private readonly StringBuilder _stringBuilder;
@@ -100,6 +111,7 @@ namespace Nightingale.Queries
             Joins = new List<TableJoin>();
             Parameters = new List<QueryParameter>();
             Includes = new List<string>();
+            SelectDescriptions = new List<SelectDescription>();
 
             if (entityType != typeof(Entity))
             {
@@ -120,6 +132,7 @@ namespace Nightingale.Queries
             Joins = new List<TableJoin>();
             Parameters = new List<QueryParameter>();
             Includes = new List<string>();
+            SelectDescriptions = new List<SelectDescription>();
 
             _currentEntityMetadata = entityMetadata;
             _sourceEntityMetadata = entityMetadata;
@@ -133,7 +146,28 @@ namespace Nightingale.Queries
             if (Offset != null && Limit == null)
                 Limit = int.MaxValue;
 
-            var command = "SELECT " + string.Join(",", _sourceEntityMetadata.Fields.Select(x => $"{RootTableAlias}.{x.Name}")) + $" FROM {_sourceEntityMetadata.Table} {RootTableAlias}" +
+            var selectorBuilder = new StringBuilder();
+            if (SelectDescriptions.Any())
+            {
+                var hasSelect = false;
+                foreach (var selectDescription in SelectDescriptions)
+                {
+                    if (hasSelect)
+                        selectorBuilder.Append(",");
+
+                    hasSelect = true;
+
+                    selectorBuilder.Append(selectDescription.IsFullEntity
+                        ? string.Join(",", selectDescription.Metadata.Fields.Select(x => $"{selectDescription.Identifier}.{x.Name} as {selectDescription.Identifier}_{x.Name}"))
+                        : $"{selectDescription.Identifier}.{selectDescription.Alias} as {selectDescription.Identifier}_{selectDescription.Alias}");
+                }
+            }
+            else
+            {
+                selectorBuilder.Append(string.Join(",", _sourceEntityMetadata.Fields.Select(x => $"{RootTableAlias}.{x.Name}")));
+            }
+
+            var command = $"SELECT {selectorBuilder} FROM {_sourceEntityMetadata.Table} {RootTableAlias}" +
                           (Joins.Count > 0 ? " " : string.Empty) + string.Join(" ", Joins.Select(x => x.ToString())) + $" {_stringBuilder} {_orderBy}";
 
             SqlGeneratorManager.SqlEngine.ApplyLimit(ref command, RootTableAlias, Limit, Offset);
@@ -166,6 +200,7 @@ namespace Nightingale.Queries
                 Parameters.Add(GetQueryParameter($"@{ParameterAlias}{ParameterAliasIndex++}", constantValue, _currentFieldMetadata));
                 EmitSql(Parameters.Last().Name);
                 _currentAlias = RootTableAlias;
+                _currentEntityMetadata = _sourceEntityMetadata;
             }
             else
             {
@@ -182,12 +217,14 @@ namespace Nightingale.Queries
         {
             _propertyDepth++;
             var result = base.VisitMember(node);
+            var fkSelection = node.Member.Name.StartsWith("FK_") && node.Member.Name.EndsWith("_ID");
 
             _currentFieldMetadata = _currentEntityMetadata.Fields.FirstOrDefault(x => x.Name == node.Member.Name || x.Name == $"FK_{node.Member.Name}_ID");
+
             if(_currentFieldMetadata == null)
                 throw new InvalidOperationException("The property is not part of entity.");
 
-            if (_currentFieldMetadata.IsComplexFieldType && !_currentFieldMetadata.Enum && _propertyDepth > 1)
+            if (_currentFieldMetadata.IsComplexFieldType && !_currentFieldMetadata.Enum && (_propertyDepth > 1 || _isSelectContext) && !fkSelection)
             {
                 _currentEntityMetadata = EntityMetadataResolver.EntityMetadata.FirstOrDefault(x => x.Name == _currentFieldMetadata.FieldType);
                 _propertyPath = string.IsNullOrWhiteSpace(_propertyPath) ? node.Member.Name : $"{_propertyPath}.{node.Member.Name}";
@@ -212,17 +249,42 @@ namespace Nightingale.Queries
             }
             else
             {
-                if (!_isOrdering)
+                if (!_isSelectContext)
                 {
-                    EmitSql($"{_currentAlias}.{_currentFieldMetadata.Name}");
-                }
-                else
-                {
-                    _orderProperty = _currentFieldMetadata.Name;
+                    if (!_isOrdering)
+                    {
+                        EmitSql($"{_currentAlias}.{_currentFieldMetadata.Name}");
+                    }
+                    else
+                    {
+                        _orderProperty = _currentFieldMetadata.Name;
+                    }
                 }
 
                 _propertyPath = string.Empty;
                 _propertyDepth = 0;
+            }
+
+            if (_isSelectContext && _propertyDepth == 0)
+            {
+                SelectDescription description;
+
+                // selecting FK properties would cause in full entity select, check if the node contains FK_$_ID
+                if (_currentFieldMetadata.IsComplexFieldType && !fkSelection)
+                {
+                    var metadata = EntityMetadataResolver.EntityMetadata.First(x => x.Name == _currentFieldMetadata.FieldType);
+                    description = new SelectDescription(metadata, _currentAlias, _currentAlias);
+                }
+                else
+                {
+                    description = new SelectDescription(_currentAlias, _currentFieldMetadata.Name);
+                }
+
+                SelectDescriptions.Add(description);
+                _currentEntityMetadata = _sourceEntityMetadata;
+                _currentAlias = RootTableAlias;
+                _currentFieldMetadata = null;
+                _propertyPath = null;
             }
 
             return result;
@@ -430,6 +492,19 @@ namespace Nightingale.Queries
             if (node.Method.Name == "Cast")
             {
                 return Visit(node.Arguments[0]);
+            }
+
+            if (node.Method.Name == "Select")
+            {
+                Visit(node.Arguments[0]);
+
+                _currentEntityMetadata = _sourceEntityMetadata;
+
+                _isSelectContext = true;
+                var result = Visit(node.Arguments.Last());
+                _isSelectContext = false;
+
+                return result;
             }
 
             throw new NotSupportedException($"{node.Method.Name} is not supported.");

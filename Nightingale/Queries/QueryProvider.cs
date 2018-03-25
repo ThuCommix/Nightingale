@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Nightingale.Sessions;
 
 namespace Nightingale.Queries
@@ -15,15 +16,18 @@ namespace Nightingale.Queries
         public QueryProviderSettings Settings { get; }
 
         private readonly ISession _session;
+        private readonly IEntityService _entityService;
 
         /// <summary>
         /// Initializes a new QueryProvider class.
         /// <param name="session">The session.</param>
+        /// <param name="entityService">The entity service.</param>
         /// </summary>
-        public QueryProvider(ISession session)
+        public QueryProvider(ISession session, IEntityService entityService)
         {
             Settings = new QueryProviderSettings();
             _session = session;
+            _entityService = entityService;
         }
 
         /// <summary>
@@ -102,6 +106,12 @@ namespace Nightingale.Queries
             }
 
             command = queryExpressionVisitor.ParseQueryExpression(expression);
+
+            if (queryExpressionVisitor.IsCustomSelect)
+            {
+                return HandleCustomQuerySelect<T>(command, queryExpressionVisitor, expression);
+            }
+
             query = CreateQuery(command, entityType, queryExpressionVisitor);
 
             var entities = _session.ExecuteQuery(query);
@@ -139,6 +149,93 @@ namespace Nightingale.Queries
             }
 
             return entities.OfType<T>().FirstOrDefault();
+        }
+
+        private T HandleCustomQuerySelect<T>(string command, QueryExpressionVisitor visitor, Expression expression)
+        {
+            var resultType = typeof(T).GenericTypeArguments[0];
+            var resultSet = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(resultType));
+            var expressionQuery = new ExpressionQuery();
+            expressionQuery.Visit(expression);
+
+            if (expressionQuery.NewExpression != null)
+            {
+                var constructorParameters = expressionQuery.NewExpression.Constructor.GetParameters();
+                var parameterCount = constructorParameters.Length;
+
+                using (var reader = _session.Connection.ExecuteReader(new Query(command, null, visitor.Parameters)))
+                {
+                    while (reader.Read())
+                    {
+                        var parameters = new List<object>();
+                        var members = new List<object>();
+
+                        foreach (var selectDescription in visitor.SelectDescriptions)
+                        {
+                            var result = selectDescription.IsFullEntity
+                                ? _entityService.CreateEntity(reader, selectDescription.Metadata, $"{selectDescription.Identifier}_")
+                                : reader[$"{selectDescription.Identifier}_{selectDescription.Alias}"];
+
+                            if (result is DBNull)
+                            {
+                                result = null;
+                            }
+
+                            if (parameters.Count < parameterCount)
+                            {
+                                if (result != null)
+                                {
+                                    var parameterType = constructorParameters[parameters.Count].ParameterType;
+                                    var underlyingParameterType = Nullable.GetUnderlyingType(parameterType) ?? parameterType;
+
+                                    parameters.Add(Convert.ChangeType(result, underlyingParameterType));
+                                }
+                                else
+                                {
+                                    parameters.Add(null);
+                                }
+                            }
+                            else
+                            {
+                                members.Add(result);
+                            }
+                        }
+
+                        var resultObject = expressionQuery.NewExpression.Constructor.Invoke(parameters.ToArray());
+                        if (expressionQuery.MemberInitExpression != null)
+                        {
+                            var membersResolved = 0;
+                            foreach (var memberBinding in expressionQuery.MemberInitExpression.Bindings)
+                            {
+                                if (members[membersResolved] == null)
+                                {
+                                    membersResolved++;
+                                    continue;
+                                }
+
+                                if (memberBinding.Member is PropertyInfo propertyInfo)
+                                {
+                                    var underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
+                                    propertyInfo.SetValue(resultObject, Convert.ChangeType(members[membersResolved++], underlyingType));
+                                }
+                                else if (memberBinding.Member is FieldInfo fieldInfo)
+                                {
+                                    var underlyingType = Nullable.GetUnderlyingType(fieldInfo.FieldType) ?? fieldInfo.FieldType;
+                                    fieldInfo.SetValue(resultObject, Convert.ChangeType(members[membersResolved++], underlyingType));
+                                }
+                                else
+                                {
+                                    throw new NotSupportedException($"MemberBinding with type '{memberBinding.Member.GetType().Name}' is not supported.");
+                                }
+                            }
+                        }
+
+                        resultSet.Add(resultObject);
+                    }
+                }
+            }
+
+            return (T) resultSet;
         }
 
         private IQuery CreateQuery(string command, Type entityType, QueryExpressionVisitor queryExpressionVisitor)
