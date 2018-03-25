@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Nightingale;
 using Nightingale.Entities;
-using Nightingale.Extensions;
 using Nightingale.Queries;
 
 // generated Address.cs

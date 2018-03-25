@@ -1,7 +1,7 @@
 ﻿using System;
 using Nightingale.Logging;
 
-namespace Nightingale.Extensions
+namespace Nightingale
 {
     public static class ExceptionExtensions
     {

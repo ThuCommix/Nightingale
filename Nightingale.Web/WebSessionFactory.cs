@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
-using Nightingale.Extensions;
 using Nightingale.Sessions;
 using ISession = Nightingale.Sessions.ISession;
 

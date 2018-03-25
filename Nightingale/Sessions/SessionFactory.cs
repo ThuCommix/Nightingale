@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Nightingale.Extensions;
 using Nightingale.Logging;
 
 namespace Nightingale.Sessions

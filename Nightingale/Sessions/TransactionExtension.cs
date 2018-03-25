@@ -2,6 +2,9 @@
 
 namespace Nightingale.Sessions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="ITransaction"/>.
+    /// </summary>
     public static class TransactionExtension
     {
         /// <summary>
@@ -9,7 +12,7 @@ namespace Nightingale.Sessions
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Returns the task instance.</returns>
-        public static Task CommitAsync(this Transaction transaction)
+        public static Task CommitAsync(this ITransaction transaction)
         {
             return Task.Run(() => transaction.Commit());
         }
@@ -19,7 +22,7 @@ namespace Nightingale.Sessions
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Returns the task instance.</returns>
-        public static Task RollbackAsync(this Transaction transaction)
+        public static Task RollbackAsync(this ITransaction transaction)
         {
             return Task.Run(() => transaction.Rollback());
         }
@@ -30,7 +33,7 @@ namespace Nightingale.Sessions
         /// <param name="transaction">The transaction.</param>
         /// <param name="savePoint">The save point.</param>
         /// <returns>Returns the task instance.</returns>
-        public static Task RollbackToAsync(this Transaction transaction, string savePoint)
+        public static Task RollbackToAsync(this ITransaction transaction, string savePoint)
         {
             return Task.Run(() => transaction.RollbackTo(savePoint));
         }
@@ -41,7 +44,7 @@ namespace Nightingale.Sessions
         /// <param name="transaction">The transaction.</param>
         /// <param name="savePoint">The save point.</param>
         /// <returns>Returns the task instance.</returns>
-        public static Task SaveAsync(this Transaction transaction, string savePoint)
+        public static Task SaveAsync(this ITransaction transaction, string savePoint)
         {
             return Task.Run(() => transaction.Save(savePoint));
         }
@@ -53,7 +56,7 @@ namespace Nightingale.Sessions
         /// <param name="savePoint">The save point.</param>
         /// <returns>Returns the task instance.</returns>
         /// <returns>Returns the task instance.</returns>
-        public static Task ReleaseAsync(this Transaction transaction, string savePoint)
+        public static Task ReleaseAsync(this ITransaction transaction, string savePoint)
         {
             return Task.Run(() => transaction.Release(savePoint));
         }

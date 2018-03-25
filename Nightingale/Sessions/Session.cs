@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Nightingale.Entities;
-using Nightingale.Extensions;
 using Nightingale.Logging;
 using Nightingale.Metadata;
 using Nightingale.Queries;
