@@ -30,9 +30,22 @@ namespace Nightingale
         /// Creates the entity based on the specified data reader and type.
         /// </summary>
         /// <param name="reader">The data reader.</param>
-        /// <param name="entityType">The entity type.</param>
+        /// <param name="entityMetadata">The entity metadata.</param>
+        /// <param name="alias">The alias.</param>
         /// <returns>Returns the entity.</returns>
-        public Entity CreateEntity(IDataReader reader, Type entityType)
+        public Entity CreateEntity(IDataReader reader, EntityMetadata entityMetadata, string alias = null)
+        {
+            return CreateEntity(reader, EntityMetadataResolver.GetEntityType(entityMetadata), alias);
+        }
+
+        /// <summary>
+        /// Creates the entity based on the specified data reader and type.
+        /// </summary>
+        /// <param name="reader">The data reader.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="alias">The alias.</param>
+        /// <returns>Returns the entity.</returns>
+        public Entity CreateEntity(IDataReader reader, Type entityType, string alias = null)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -47,7 +60,7 @@ namespace Nightingale
 
             foreach (var field in metadata.Fields)
             {
-                var dbValue = reader[field.Name];
+                var dbValue = reader[$"{alias}{field.Name}"];
                 if (dbValue == null || dbValue is DBNull)
                     continue;
 

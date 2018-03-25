@@ -36,6 +36,75 @@ namespace Nightingale.Queries
         }
 
         /// <summary>
+        /// Returns the first element of the sequence or null when the condition is not met.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The queryable.</param>
+        /// <param name="expression">The expression.</param>
+        /// <returns>Returns the entity or null.</returns>
+        public static async Task<T> FirstOrDefaultAsync<T>(this IQueryable<T> queryable, Expression<Func<T, bool>> expression) where T : Entity
+        {
+            return await Task.Run(() => queryable.FirstOrDefault(expression));
+        }
+
+        /// <summary>
+        /// Returns the first element of the sequence or null.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The queryable.</param>
+        /// <returns>Returns the entity or null.</returns>
+        public static async Task<T> FirstOrDefaultAsync<T>(this IQueryable<T> queryable) where T : Entity
+        {
+            return await Task.Run(() => queryable.FirstOrDefault());
+        }
+
+        /// <summary>
+        /// Returns the first element of the sequence.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The queryable.</param>
+        /// <param name="expression">The expression.</param>
+        /// <returns>Returns the entity or null.</returns>
+        public static async Task<T> FirstAsync<T>(this IQueryable<T> queryable, Expression<Func<T, bool>> expression) where T : Entity
+        {
+            return await Task.Run(() => queryable.First(expression));
+        }
+
+        /// <summary>
+        /// Returns the first element of the sequence.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The queryable.</param>
+        /// <returns>Returns the entity or null.</returns>
+        public static async Task<T> FirstAsync<T>(this IQueryable<T> queryable) where T : Entity
+        {
+            return await Task.Run(() => queryable.First());
+        }
+
+        /// <summary>
+        /// Counts the elements in the sequence which met the condition.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The queryable.</param>
+        /// <param name="expression">The expression.</param>
+        /// <returns>Returns the count of the elements.</returns>
+        public static async Task<int> CountAsync<T>(this IQueryable<T> queryable, Expression<Func<T, bool>> expression) where T : Entity
+        {
+            return await Task.Run(() => queryable.Count(expression));
+        }
+
+        /// <summary>
+        /// Counts the elements in the sequence.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The queryable.</param>
+        /// <returns>Returns the count of the elements.</returns>
+        public static async Task<int> CountAsync<T>(this IQueryable<T> queryable) where T : Entity
+        {
+            return await Task.Run(() => queryable.Count());
+        }
+
+        /// <summary>
         /// Changes the query type.
         /// </summary>
         /// <typeparam name="T">The entity type.</typeparam>

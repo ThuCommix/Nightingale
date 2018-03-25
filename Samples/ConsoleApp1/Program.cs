@@ -11,8 +11,8 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            var connectionFactory = new SQLiteConnectionFactory {DataSource = "persons.s3db"};
-            var sessionFactory = new SessionFactory(connectionFactory) {Logger = new TraceLogger(LogLevel.Debug)};
+            var connectionFactory = new SQLiteConnectionFactory { DataSource = "persons.s3db" };
+            var sessionFactory = new SessionFactory(connectionFactory) { Logger = new TraceLogger(LogLevel.Debug) };
 
             // register entity listeners
             sessionFactory.Interceptors.Add(new PersonSessionInterceptor());
@@ -102,11 +102,17 @@ namespace ConsoleApp1
                 session.SaveChanges();
 
                 var fetchedCustomer = session.Query<Person>().FirstOrDefault(x => x.Age == null);
-                fetchedCustomer.Age = 21;
+                fetchedCustomer.Age = 17;
 
                 session.Save(fetchedCustomer);
                 session.SaveChanges();
 
+            }
+
+            // custom select
+            using (session = sessionFactory.OpenSession())
+            {
+                var customerInfos = session.Query<Person>().Where(x => x.Age >= 18).Select(x => new { Name = x.Name, CustomerId = x.Id }).ToList();
             }
 
             Console.WriteLine("Press any key to continue ..");

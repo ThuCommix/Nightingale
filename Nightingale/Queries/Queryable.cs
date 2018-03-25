@@ -27,9 +27,10 @@ namespace Nightingale.Queries
         /// Initializes the Queryable class.
         /// </summary>
         /// <param name="session">The session.</param>
-        public Queryable(ISession session)
+        /// <param name="entityService">The entity service.</param>
+        public Queryable(ISession session, IEntityService entityService)
         {
-            Provider = new QueryProvider(session);
+            Provider = new QueryProvider(session, entityService);
             Expression = Expression.Constant(this);
         }
 
