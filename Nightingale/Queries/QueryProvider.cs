@@ -158,80 +158,87 @@ namespace Nightingale.Queries
             var expressionQuery = new ExpressionQuery();
             expressionQuery.Visit(expression);
 
-            if (expressionQuery.NewExpression != null)
+            var constructorParameters = expressionQuery.NewExpression?.Constructor.GetParameters();
+            var parameterCount = constructorParameters?.Length ?? 0;
+
+            using (var reader = _session.Connection.ExecuteReader(new Query(command, null, visitor.Parameters)))
             {
-                var constructorParameters = expressionQuery.NewExpression.Constructor.GetParameters();
-                var parameterCount = constructorParameters.Length;
-
-                using (var reader = _session.Connection.ExecuteReader(new Query(command, null, visitor.Parameters)))
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    var parameters = new List<object>();
+                    var members = new List<object>();
+
+                    foreach (var selectDescription in visitor.SelectDescriptions)
                     {
-                        var parameters = new List<object>();
-                        var members = new List<object>();
+                        var result = selectDescription.IsFullEntity
+                            ? _entityService.CreateEntity(reader, selectDescription.Metadata, $"{selectDescription.Identifier}_")
+                            : reader[$"{selectDescription.Identifier}_{selectDescription.Alias}"];
 
-                        foreach (var selectDescription in visitor.SelectDescriptions)
+                        if (result is DBNull)
                         {
-                            var result = selectDescription.IsFullEntity
-                                ? _entityService.CreateEntity(reader, selectDescription.Metadata, $"{selectDescription.Identifier}_")
-                                : reader[$"{selectDescription.Identifier}_{selectDescription.Alias}"];
+                            result = null;
+                        }
 
-                            if (result is DBNull)
+                        if (parameters.Count < parameterCount)
+                        {
+                            if (result != null)
                             {
-                                result = null;
-                            }
+                                var parameterType = constructorParameters[parameters.Count].ParameterType;
+                                var underlyingParameterType = Nullable.GetUnderlyingType(parameterType) ?? parameterType;
 
-                            if (parameters.Count < parameterCount)
-                            {
-                                if (result != null)
-                                {
-                                    var parameterType = constructorParameters[parameters.Count].ParameterType;
-                                    var underlyingParameterType = Nullable.GetUnderlyingType(parameterType) ?? parameterType;
-
-                                    parameters.Add(Convert.ChangeType(result, underlyingParameterType));
-                                }
-                                else
-                                {
-                                    parameters.Add(null);
-                                }
+                                parameters.Add(Convert.ChangeType(result, underlyingParameterType));
                             }
                             else
                             {
-                                members.Add(result);
+                                parameters.Add(null);
                             }
                         }
-
-                        var resultObject = expressionQuery.NewExpression.Constructor.Invoke(parameters.ToArray());
-                        if (expressionQuery.MemberInitExpression != null)
+                        else
                         {
-                            var membersResolved = 0;
-                            foreach (var memberBinding in expressionQuery.MemberInitExpression.Bindings)
-                            {
-                                if (members[membersResolved] == null)
-                                {
-                                    membersResolved++;
-                                    continue;
-                                }
+                            members.Add(result);
+                        }
+                    }
 
-                                if (memberBinding.Member is PropertyInfo propertyInfo)
-                                {
-                                    var underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
-                                    propertyInfo.SetValue(resultObject, Convert.ChangeType(members[membersResolved++], underlyingType));
-                                }
-                                else if (memberBinding.Member is FieldInfo fieldInfo)
-                                {
-                                    var underlyingType = Nullable.GetUnderlyingType(fieldInfo.FieldType) ?? fieldInfo.FieldType;
-                                    fieldInfo.SetValue(resultObject, Convert.ChangeType(members[membersResolved++], underlyingType));
-                                }
-                                else
-                                {
-                                    throw new NotSupportedException($"MemberBinding with type '{memberBinding.Member.GetType().Name}' is not supported.");
-                                }
+                    object resultObject;
+                    if (expressionQuery.NewExpression != null)
+                    {
+                        resultObject = expressionQuery.NewExpression.Constructor.Invoke(parameters.ToArray());
+                    }
+                    else
+                    {
+                        var underlyingParameterType = Nullable.GetUnderlyingType(resultType) ?? resultType;
+                        resultObject = Convert.ChangeType(members[0], underlyingParameterType);
+                    }
+
+                    if (expressionQuery.MemberInitExpression != null)
+                    {
+                        var membersResolved = 0;
+                        foreach (var memberBinding in expressionQuery.MemberInitExpression.Bindings)
+                        {
+                            if (members[membersResolved] == null)
+                            {
+                                membersResolved++;
+                                continue;
+                            }
+
+                            if (memberBinding.Member is PropertyInfo propertyInfo)
+                            {
+                                var underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
+                                propertyInfo.SetValue(resultObject, Convert.ChangeType(members[membersResolved++], underlyingType));
+                            }
+                            else if (memberBinding.Member is FieldInfo fieldInfo)
+                            {
+                                var underlyingType = Nullable.GetUnderlyingType(fieldInfo.FieldType) ?? fieldInfo.FieldType;
+                                fieldInfo.SetValue(resultObject, Convert.ChangeType(members[membersResolved++], underlyingType));
+                            }
+                            else
+                            {
+                                throw new NotSupportedException($"MemberBinding with type '{memberBinding.Member.GetType().Name}' is not supported.");
                             }
                         }
-
-                        resultSet.Add(resultObject);
                     }
+
+                    resultSet.Add(resultObject);
                 }
             }
 

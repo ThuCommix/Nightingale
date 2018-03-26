@@ -768,5 +768,41 @@ namespace Nightingale.Tests.Queries
             Assert.Equal("Title", result[0].Name);
             Assert.Equal(ExpectedQueryOutputs.Queryable_Select_Member_Init_And_Ctor, queryResult.Command);
         }
+
+        [Fact]
+        public void Queryable_Select_Simple()
+        {
+            // arrange
+            IQuery queryResult = null;
+
+            var canRead = true;
+            var session = TestHelper.SetupMock<ISession>();
+            var dataReaderMock = TestHelper.SetupMock<IDataReader>();
+            dataReaderMock.Setup(s => s.Read()).Returns(() =>
+            {
+                if (!canRead)
+                    return false;
+
+                canRead = false;
+                return true;
+            });
+
+            dataReaderMock.Setup(s => s.Dispose());
+            dataReaderMock.Setup(s => s["e_Id"]).Returns(1);
+
+            var connectionMock = TestHelper.SetupMock<IConnection>();
+            connectionMock.Setup(s => s.ExecuteReader(It.IsAny<IQuery>())).Callback<IQuery>(q => queryResult = q).Returns(dataReaderMock.Object);
+
+            session.Setup(s => s.Connection).Returns(connectionMock.Object);
+
+            var queryable = new Queryable<Artist>(session.Object, new EntityService());
+
+            // act
+            var result = queryable.Select(x => x.Id).ToList();
+
+            // assert
+            Assert.Equal(1, result[0]);
+            Assert.Equal(ExpectedQueryOutputs.Queryable_Select_Simple, queryResult.Command);
+        }
     }
 }

@@ -276,4 +276,7 @@
     <data name="Queryable_Select_Member_Init_And_Ctor" xml:space="preserve">
         <value>SELECT e.Id as e_Id,e.Name as e_Name FROM Artist e  </value>
     </data>
+    <data name="Queryable_Select_Simple" xml:space="preserve">
+        <value>SELECT e.Id as e_Id FROM Artist e  </value>
+    </data>
 </root>
