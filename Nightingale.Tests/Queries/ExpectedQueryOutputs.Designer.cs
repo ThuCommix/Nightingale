@@ -520,6 +520,15 @@ namespace Nightingale.Tests.Queries {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Id as e_Id FROM Artist e   ähnelt.
+        /// </summary>
+        internal static string Queryable_Select_Simple {
+            get {
+                return ResourceManager.GetString("Queryable_Select_Simple", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die SELECT e.Id as e_Id,e.Title as e_Title FROM Song e   ähnelt.
         /// </summary>
         internal static string Queryable_Select_Support_Dynamic_Objects {

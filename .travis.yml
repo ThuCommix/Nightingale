@@ -12,11 +12,11 @@ script:
   - dotnet test Nightingale.Tests
 
 deploy:
-  - provider: script
-    skip_cleanup: true
-    script: chmod +x ./nuget-deploy.sh && ./nuget-deploy.sh $NUGET_API_KEY $NUGET_SOURCE
-    on:
-      branch: develop
+#  - provider: script
+#    skip_cleanup: true
+#    script: chmod +x ./nuget-deploy.sh && ./nuget-deploy.sh $NUGET_API_KEY $NUGET_SOURCE
+#    on:
+#      branch: develop
   - provider: script
     skip_cleanup: true
     script: chmod +x ./nuget-deploy.sh && ./nuget-deploy.sh $NUGET_API_KEY $NUGET_SOURCE
